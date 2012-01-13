@@ -1,5 +1,5 @@
 /**
- * pbjs JavaScript Framework v0.5.1
+ * pbjs JavaScript Framework v0.5.1Alpha
  * 2011 Niek Saarberg
  */
 !function ( name, context, definition ) {
