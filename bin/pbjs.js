@@ -9,7 +9,7 @@
 		module.exports = definition(context);
 	} else if ( typeof define === 'function' && typeof define.amd === 'object' ) {
 
-		define( function () { console.log('asd'); return definition(context) } ) ;
+		define( function () { return definition(context) } ) ;
 	} else {
 
 		this[name] = definition(context);
