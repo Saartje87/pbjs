@@ -9,4 +9,6 @@ We offer backwards compatibility with older browsers such as:
 
 - IE7+
 - Firefox 3+
-- Safari 5+.
+- Safari 5+
+- Opera
+- Chrome
