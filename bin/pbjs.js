@@ -2146,7 +2146,7 @@ PB.Request = PB.Class(/*PB.Observer,*/ {
 
 	isReusable: PB.browser.isIE && PB.browser.version <= 7,
 
-	readyStateEvents: 'unsent,opened,headers,loading,end'.split(','),
+	readyStateEvents: 'unsent opened headers loading end'.split(' '),
 
 	/**
 	 *
@@ -2217,7 +2217,8 @@ PB.Request = PB.Class(/*PB.Observer,*/ {
 	 */
 	send: function () {
 
-		var request = this.getTransport(),
+		var async = this.async,
+			request = this.getTransport(),
 			url = this.url,
 			method = this.method.toUpperCase(),
 			params = this.data ? PB.Net.buildQueryString( this.data ) : null;
@@ -2228,7 +2229,10 @@ PB.Request = PB.Class(/*PB.Observer,*/ {
 			params = null;
 		}
 
-		request.onreadystatechange = this.onreadystatechange.bind(this);
+		if( async ) {
+
+			request.onreadystatechange = this.onreadystatechange.bind(this);
+		}
 
 		request.open( method, url, this.async );
 
@@ -2243,6 +2247,11 @@ PB.Request = PB.Class(/*PB.Observer,*/ {
 		});
 
 		request.send( params );
+
+		if( async === false ) {
+
+			this.onreadystatechange();
+		}
 
 		return this;
 	},
