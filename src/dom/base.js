@@ -23,7 +23,7 @@ function cleanupCache () {
 	
 	PB.each(cache, function ( i, Dom ) {
 		
-		if( !Dom.node.parentNode && Dom.node !== doc ) {
+		if( !Dom.node.parentNode && Dom.node !== doc && Dom.node !== window ) {
 			
 			console.log('Removing node: ', Dom.node);
 			Dom.remove();
