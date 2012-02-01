@@ -183,72 +183,67 @@ PB.browser = function (){
 	return info;
 }();
 
-/**
- * Prototype of pb class system
- * @todo: parent, proto as PB.Class args
- */
-PB.Class = function ( proto ) {
+PB.Class = function ( _parent, base ) {
 
-	var extend = PB.Class.extend,
-		constructor = proto.constructor,
-		_parent = proto.__extends,
-		klass = proto.constructor = proto.__pb__construct = function () {
+	if( !base ) {
 
-			if( proto.hasOwnProperty('constructor') === false && _parent && _parent.prototype.__pb__construct ) {
+		base = _parent;
+		_parent = null;
+	}
 
-				_parent.prototype.__pb__construct.apply( this, arguments );
-				return;
-			} else if ( _parent ) { // Add wrapper for constructor with ref to parent
+	var constructor = base.construct,
+		klass = function () {
+
+			if( _parent !== null ) {
 
 				var _constructor = constructor;
 
 				constructor = function () {
 
-					this.parent = _parent.prototype.__pb__construct;
+					var __parent = this.parent;
+
+					this.parent = _parent.prototype.construct;
 
 					_constructor.apply( this, arguments );
 
-					delete this.parent;
+					this.parent = __parent;
 				};
 			}
 
 			constructor.apply( this, arguments );
 		};
 
-	if( _parent ) {
+	if( _parent !== null ) {
 
 		klass.prototype = PB.overwrite( {}, _parent.prototype );
-
-		delete proto.__extends;
 	}
 
-	for( var key in proto ) {
-
-		extend.call( klass.prototype, key, proto[key] );
-	}
+	PB.each(base, PB.Class.extend, klass.prototype);
 
 	return klass;
 };
 
-/**
- * Extend PB.Class object with key, method
- *
- * Add wrapper if function already defined with
- * ref to parent
- */
 PB.Class.extend = function ( key, method ) {
 
-	var ancestor = this[key];
+	var ancestor = this[key],
+		_method;
 
 	if( typeof ancestor === 'function' ) {
 
-		var _method = method;
+		_method = method;
 
 		method = function () {
 
+			var _parent = this.parent,
+				result;
+
 			this.parent = ancestor;
 
-			return _method.apply( this, arguments );
+		 	result = _method.apply( this, arguments );
+
+			this.parent = _parent;
+
+			return result;
 		}
 	}
 
@@ -695,7 +690,7 @@ function cleanupCache () {
 
 	PB.each(cache, function ( i, Dom ) {
 
-		if( !Dom.node.parentNode && Dom.node !== doc ) {
+		if( !Dom.node.parentNode && Dom.node !== doc && Dom.node !== window ) {
 
 			console.log('Removing node: ', Dom.node);
 			Dom.remove();
