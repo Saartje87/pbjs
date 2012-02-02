@@ -12,12 +12,13 @@ PB.browser = function (){
 		isChrome: ua.indexOf('Chrome') > -1,
 		isFirefox: ua.indexOf('Firefox') > -1,
 		isSafari:ua.indexOf('Safari') > -1,
+		isNokiaBrowser: ua.indexOf('NokiaBrowser') > -1,
 		isOpera: !!window.opera
 	};
 	
 	info.version = info.isIE
 		? parseFloat(ua.match(/MSIE (\d+\.\d+)/)[1])
-		: parseFloat(ua.match(/(Chrome|Firefox|Version)\/(\d+\.\d+)/)[2]);
+		: parseFloat(ua.match(/(Chrome|Firefox|Version|NokiaBrowser)\/(\d+\.\d+)/)[2]);
 	
 	return info;
 }();
