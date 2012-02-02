@@ -29,6 +29,16 @@ Collection.prototype = {
 			method = args.shift(),
 			i = 0;
 		
+		if( typeof method === 'function' ) {
+			
+			for ( ; i < this.length; i++ ){
+
+				method.apply( this[i], args );
+			}
+			
+			return this;
+		}
+		
 		for ( ; i < this.length; i++ ){
 		
 			this[i][method].apply( this[i], args );

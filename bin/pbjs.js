@@ -173,12 +173,13 @@ PB.browser = function (){
 		isChrome: ua.indexOf('Chrome') > -1,
 		isFirefox: ua.indexOf('Firefox') > -1,
 		isSafari:ua.indexOf('Safari') > -1,
+		isNokiaBrowser: ua.indexOf('NokiaBrowser') > -1,
 		isOpera: !!window.opera
 	};
 
 	info.version = info.isIE
 		? parseFloat(ua.match(/MSIE (\d+\.\d+)/)[1])
-		: parseFloat(ua.match(/(Chrome|Firefox|Version)\/(\d+\.\d+)/)[2]);
+		: parseFloat(ua.match(/(Chrome|Firefox|Version|NokiaBrowser)\/(\d+\.\d+)/)[2]);
 
 	return info;
 }();
@@ -783,6 +784,16 @@ Collection.prototype = {
 		var args = PB.toArray(arguments),
 			method = args.shift(),
 			i = 0;
+
+		if( typeof method === 'function' ) {
+
+			for ( ; i < this.length; i++ ){
+
+				method.apply( this[i], args );
+			}
+
+			return this;
+		}
 
 		for ( ; i < this.length; i++ ){
 
@@ -1633,6 +1644,7 @@ PB.overwrite(Dom.prototype, {
 	remove: function () {
 
 		var node = this.node,
+			pbid = node.__PBJS_ID__,
 			morph;
 
 		if( morph = this.get('dom-morph') ) {
@@ -1640,9 +1652,7 @@ PB.overwrite(Dom.prototype, {
 			morph.off();
 		}
 
-		delete cache[node.__PBJS_ID__];
-
-		_Event.purge( node.__PBJS_ID__ );
+		_Event.purge( node.pbid );
 
 		if( node.parentNode ) {
 
@@ -1650,6 +1660,8 @@ PB.overwrite(Dom.prototype, {
 		}
 
 		this.node = node = null;
+
+		delete cache[pbid];
 	},
 
 	empty: function () {

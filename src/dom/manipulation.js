@@ -122,23 +122,24 @@ PB.overwrite(Dom.prototype, {
 	remove: function () {
 		
 		var node = this.node,
+			pbid = node.__PBJS_ID__,
 			morph;
-		
+
 		if( morph = this.get('dom-morph') ) {
-			
+
 			morph.off();
 		}
-		
-		delete cache[node.__PBJS_ID__];
-		
-		_Event.purge( node.__PBJS_ID__ );
-		
+
+		_Event.purge( node.pbid );
+
 		if( node.parentNode ) {
-			
+
 			node.parentNode.removeChild( node );
 		}
-		
+
 		this.node = node = null;
+		
+		delete cache[pbid];
 	},
 	
 	empty: function () {
