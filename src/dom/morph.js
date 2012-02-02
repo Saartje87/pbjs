@@ -9,7 +9,7 @@
 	
 	PB.Morph = PB.Class({
 		
-		constructor: function () {
+		construct: function () {
 			
 			
 		},

@@ -1,6 +1,6 @@
 PB.Observer = PB.Class({
 	
-	constructor: function () {
+	construct: function () {
 		
 		this.listeners = {};
 	},

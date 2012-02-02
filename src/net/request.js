@@ -1,9 +1,7 @@
 /**
  * @todo: Do something with different content-types? Like javascript/css/...
  */
-PB.Request = PB.Class(/*PB.Observer,*/ {
-	
-	__extends: PB.Observer,
+PB.Request = PB.Class(PB.Observer, {
 	
 	// Try reusing object as much as possible, to bad ie7 dont support this..
 	isReusable: PB.browser.isIE && PB.browser.version <= 7,
@@ -13,7 +11,7 @@ PB.Request = PB.Class(/*PB.Observer,*/ {
 	/**
 	 * 
 	 */
-	constructor: function ( options ) {
+	construct: function ( options ) {
 		
 		this.parent();
 		

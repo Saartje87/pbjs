@@ -196,21 +196,30 @@ PB.Class = function ( _parent, base ) {
 
 			if( _parent !== null ) {
 
-				var _constructor = constructor;
+				if( !constructor ) {
 
-				constructor = function () {
+					constructor = _parent.prototype.construct;
+				} else {
 
-					var __parent = this.parent;
+					var _constructor = constructor;
 
-					this.parent = _parent.prototype.construct;
+					constructor = function () {
 
-					_constructor.apply( this, arguments );
+						var __parent = this.parent;
 
-					this.parent = __parent;
-				};
+						this.parent = _parent.prototype.construct;
+
+						_constructor.apply( this, arguments );
+
+						this.parent = __parent;
+					};
+				}
 			}
 
-			constructor.apply( this, arguments );
+			if( typeof constructor === 'function' ) {
+
+				constructor.apply( this, arguments );
+			}
 		};
 
 	if( _parent !== null ) {
@@ -252,7 +261,7 @@ PB.Class.extend = function ( key, method ) {
 
 PB.Observer = PB.Class({
 
-	constructor: function () {
+	construct: function () {
 
 		this.listeners = {};
 	},
@@ -2076,7 +2085,7 @@ PB.overwrite(Dom.prototype, {
 
 	PB.Morph = PB.Class({
 
-		constructor: function () {
+		construct: function () {
 
 
 		},
@@ -2212,9 +2221,7 @@ PB.Net.defaults = {
 /**
  * @todo: Do something with different content-types? Like javascript/css/...
  */
-PB.Request = PB.Class(/*PB.Observer,*/ {
-
-	__extends: PB.Observer,
+PB.Request = PB.Class(PB.Observer, {
 
 	isReusable: PB.browser.isIE && PB.browser.version <= 7,
 
@@ -2223,7 +2230,7 @@ PB.Request = PB.Class(/*PB.Observer,*/ {
 	/**
 	 *
 	 */
-	constructor: function ( options ) {
+	construct: function ( options ) {
 
 		this.parent();
 
