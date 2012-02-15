@@ -121,9 +121,9 @@ PB.each = function ( collection, fn, scope ) {
 
 	for( prop in collection ) {
 
-		if( collection.hasOwnProperty(prop) ) {
+		if( collection.hasOwnProperty(prop) && fn.call(scope, prop, collection[prop], collection) === true ) {
 
-			fn.call(scope, prop, collection[prop], collection);
+			return;
 		}
 	}
 };
@@ -700,9 +700,8 @@ function cleanupCache () {
 
 	PB.each(cache, function ( i, Dom ) {
 
-		if( !Dom.node.parentNode && Dom.node !== doc && Dom.node !== window ) {
+		if( !Dom.descendantOf(body) && Dom.node !== doc && Dom.node !== window ) {
 
-			console.log('Removing node: ', Dom.node);
 			Dom.remove();
 		}
 	});
@@ -1359,7 +1358,7 @@ PB.overwrite(Dom.prototype, {
 
 		do {
 
-			if( first.nodeType === 1 ) {
+			if( first && first.nodeType === 1 ) {
 
 				return Dom.get( first );
 			}
@@ -1487,12 +1486,12 @@ PB.overwrite(Dom.prototype, {
 
 	descendantOf: function ( element, maxDepth ) {
 
-		var node = this;
+		var node = this.node;
 
-		element = Dom.get(element);
+		element = Dom.get(element).node;
 		maxDepth = maxDepth || 50;
 
-		while ( node = node.parent() ) {
+		do {
 
 			if( node === element ) {
 
@@ -1503,7 +1502,7 @@ PB.overwrite(Dom.prototype, {
 
 				break;
 			}
-		}
+		} while( node = node.parentNode );
 
 		return false;
 	},
@@ -1652,7 +1651,7 @@ PB.overwrite(Dom.prototype, {
 			morph.off();
 		}
 
-		_Event.purge( node.pbid );
+		_Event.purge( pbid );
 
 		if( node.parentNode ) {
 

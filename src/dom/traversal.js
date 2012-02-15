@@ -11,7 +11,7 @@ PB.overwrite(Dom.prototype, {
 		
 		do {
 			
-			if( first.nodeType === 1 ) {
+			if( first && first.nodeType === 1 ) {
 				
 				return Dom.get( first );
 			}
@@ -140,24 +140,24 @@ PB.overwrite(Dom.prototype, {
 	
 	descendantOf: function ( element, maxDepth ) {
 		
-		var node = this;
-		
-		element = Dom.get(element);
+		var node = this.node;
+
+		element = Dom.get(element).node;
 		maxDepth = maxDepth || 50;
 		
-		while ( node = node.parent() ) {
+		do {
 			
 			if( node === element ) {
-				
+
 				return true;
 			}
-			
+
 			if( !--maxDepth ) {
-				
+
 				break;
 			}
-		}
-		
+		} while( node = node.parentNode );
+
 		return false;
 	},
 	

@@ -22,10 +22,9 @@ Dom.prototype.toString = function () {
 function cleanupCache () {
 	
 	PB.each(cache, function ( i, Dom ) {
-		
-		if( !Dom.node.parentNode && Dom.node !== doc && Dom.node !== window ) {
-			
-			console.log('Removing node: ', Dom.node);
+
+		if( !Dom.descendantOf(body) && Dom.node !== doc && Dom.node !== window ) {
+
 			Dom.remove();
 		}
 	});

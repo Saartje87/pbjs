@@ -130,7 +130,7 @@ PB.overwrite(Dom.prototype, {
 			morph.off();
 		}
 
-		_Event.purge( node.pbid );
+		_Event.purge( pbid );
 
 		if( node.parentNode ) {
 
