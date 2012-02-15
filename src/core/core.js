@@ -64,9 +64,9 @@ PB.each = function ( collection, fn, scope ) {
 	
 	for( prop in collection ) {
 		
-		if( collection.hasOwnProperty(prop) ) {
+		if( collection.hasOwnProperty(prop) && fn.call(scope, prop, collection[prop], collection) === true ) {
 			
-			fn.call(scope, prop, collection[prop], collection);
+			return;
 		}
 	}
 };
