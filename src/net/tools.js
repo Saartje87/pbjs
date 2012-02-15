@@ -18,6 +18,11 @@ PB.overwrite(PB.Net, {
 		
 		var queryString = '';
 		
+		if( mixed === null ) {
+			
+			return queryString;
+		}
+		
 		if( typeof mixed === 'string' ) {
 			
 			return mixed;
@@ -29,7 +34,7 @@ PB.overwrite(PB.Net, {
 					? PB.Net.buildQueryString( value, (prefix || key)+'[]' )
 					: (prefix || key)+"="+encodeURIComponent(value)+'&';
 			});
-		} else if( typeof mixed === 'object' ) {
+		} else if( PB.is('Object', mixed) ) {
 			
 			Object.keys(mixed).forEach(function ( key ) {
 				

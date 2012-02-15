@@ -59,7 +59,7 @@ PB.each = function ( collection, fn, scope ) {
 	
 	if ( !collection || typeof fn !== 'function' ) {
 
-		throw new TypeError();
+		return;
 	}
 	
 	for( prop in collection ) {
