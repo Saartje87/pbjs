@@ -7,6 +7,18 @@ PB.Observer = PB.Class({
 	
 	on: function ( type, fn, scope ) {
 		
+		var types = type.split(' ');
+		
+		if( types.length > 1 ) {
+
+			types.forEach(function ( type ) {
+
+				this.on( type, fn, scope );
+			}, this);
+			
+			return this;
+		}
+		
 		if( !this.listeners[type] ) {
 			
 			this.listeners[type] = [];
