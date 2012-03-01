@@ -269,6 +269,18 @@ PB.Observer = PB.Class({
 
 	on: function ( type, fn, scope ) {
 
+		var types = type.split(' ');
+
+		if( types.length > 1 ) {
+
+			types.forEach(function ( type ) {
+
+				this.on( type, fn, scope );
+			}, this);
+
+			return this;
+		}
+
 		if( !this.listeners[type] ) {
 
 			this.listeners[type] = [];
@@ -561,7 +573,7 @@ PB.extend(Object, {
 	 */
 	keys: function ( object ) {
 
-		if ( this === null || Object.isObject( object ) === false ) {
+		if ( this === null || PB.is('Object', object) === false ) {
 
 			throw new TypeError();
 		}
@@ -807,7 +819,13 @@ Collection.prototype = {
 		this[this.length++] = item;
 
 		return this;
-	}
+	},
+
+	forEach: Array.prototype.forEach,
+	filter: Array.prototype.filter,
+	every: Array.prototype.every,
+	map: Array.prototype.map,
+	some: Array.prototype.some
 };
 
 PB.overwrite(Dom.prototype, {
@@ -1249,7 +1267,7 @@ PB.overwrite(Dom.prototype, {
 
 			node = node.offsetParent;
 
-			if( !fromBody && Dom.get(node).getStyle('position') !== 'static' ) {
+			if( !node || (!fromBody && Dom.get(node).getStyle('position') !== 'static') ) {
 
 				break;
 			}

@@ -52,6 +52,12 @@ Collection.prototype = {
 		this[this.length++] = item;
 		
 		return this;
-	}
+	},
+	
+	forEach: Array.prototype.forEach,
+	filter: Array.prototype.filter,
+	every: Array.prototype.every,
+	map: Array.prototype.map,
+	some: Array.prototype.some
 };
 
