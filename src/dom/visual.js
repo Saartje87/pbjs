@@ -275,7 +275,7 @@ PB.overwrite(Dom.prototype, {
 			
 			node = node.offsetParent;
 			
-			if( !fromBody && Dom.get(node).getStyle('position') !== 'static' ) {
+			if( !node || (!fromBody && Dom.get(node).getStyle('position') !== 'static') ) {
 
 				break;
 			}
