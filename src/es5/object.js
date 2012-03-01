@@ -8,7 +8,7 @@ PB.extend(Object, {
 	 */
 	keys: function ( object ) {
 		
-		if ( this === null || Object.isObject( object ) === false ) {
+		if ( this === null || PB.is('Object', object) === false ) {
 
 			throw new TypeError();
 		}
