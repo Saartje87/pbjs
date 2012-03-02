@@ -839,7 +839,11 @@ PB.overwrite(Dom.prototype, {
 
 	get: function ( key ) {
 
-		return this.storage[key] || null;
+		var value = this.storage[key];
+
+		return typeof value !== 'undefined'
+			? value
+			: null;
 	},
 
 	unset: function ( key ) {

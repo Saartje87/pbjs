@@ -6,10 +6,14 @@ PB.overwrite(Dom.prototype, {
 		
 		return this;
 	},
-	
-	get: function ( key ) {
 		
-		return this.storage[key] || null;
+	get: function ( key ) {
+
+		var value = this.storage[key];
+
+		return typeof value !== 'undefined'
+			? value
+			: null;
 	},
 	
 	unset: function ( key ) {
