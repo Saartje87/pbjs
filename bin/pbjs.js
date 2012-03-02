@@ -1457,7 +1457,7 @@ PB.overwrite(Dom.prototype, {
 
 		do {
 
-			if( qwery.is( node, expression ) ) {
+			if( qwery.is( node.node, expression ) ) {
 
 				return node;
 			}
