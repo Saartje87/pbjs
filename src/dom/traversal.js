@@ -83,38 +83,7 @@ PB.overwrite(Dom.prototype, {
 		
 		return childs;
 	},
-	
-	match: function ( expression ) {
 		
-		// div[attr=blep]
-		
-		var matchNode = expression.match(/^\w+/),
-			matchClassNames = expression.match(/\.([a-zA-Z0-9-_]+)/g),
-			match = false;
-		
-		if( matchNode && matchNode[0].toUpperCase() === this.nodeName) {
-			
-			match = true;
-		}
-		
-		if( matchClassNames ) {
-			
-			var i = matchClassNames.length;
-			
-			while( i-- ) {
-				
-				match = this.hasClass( matchClassNames[i].replace('.', '') );
-				
-				if( !match ){
-					
-					break;
-				}
-			}
-		}
-		
-		return match;
-	},
-	
 	closest: function ( expression, maxDepth ) {
 		
 		var node = this;
@@ -123,7 +92,7 @@ PB.overwrite(Dom.prototype, {
 		
 		do {
 			
-			if( node.match(expression) ) {
+			if( qwery.is( node, expression ) ) {
 				
 				return node;
 			}
@@ -163,14 +132,7 @@ PB.overwrite(Dom.prototype, {
 	
 	find: function ( expression ) {
 		
-		if( body.querySelectorAll ) {
-			
-			return new Collection( PB.toArray( this.node.querySelectorAll( expression ) ).map(Dom.get) );
-		}
-		
-		// Maybe handle 'older' browsers with an require() of sizzle..
-		
-		alert('Find not yet implented for this browser');
+		return new Collection( qwery( expression, this.node ).map(Dom.get) );
 	}
 });
 

@@ -62,5 +62,7 @@ var cache = {},
 //= require "./net/net"
 
 return PB;
-})
+});
+
+//= require "./qwery/qwery"
 

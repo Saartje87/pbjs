@@ -1,0 +1,3 @@
+[submodule "src/qwery"]
+	path = src/qwery
+	url = https://github.com/ded/qwery.git
