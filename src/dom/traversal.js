@@ -110,24 +110,12 @@ PB.overwrite(Dom.prototype, {
 	descendantOf: function ( element, maxDepth ) {
 		
 		var node = this.node;
-
-		element = Dom.get(element).node;
-		maxDepth = maxDepth || 50;
 		
-		do {
-			
-			if( node === element ) {
-
-				return true;
-			}
-
-			if( !--maxDepth ) {
-
-				break;
-			}
-		} while( node = node.parentNode );
-
-		return false;
+		element = Dom.get(element).node;
+		
+		return element.contains
+			? node !== element && element.contains( node )
+			: !!(node.compareDocumentPosition( element ) & 16);
 	},
 	
 	find: function ( expression ) {
