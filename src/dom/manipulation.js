@@ -152,6 +152,7 @@ PB.overwrite(Dom.prototype, {
 		return this;
 	},
 	
+	// Todo: eval js.. ?
 	html: function ( html ) {	// Todo: add evalJs boolean
 		
 		if( typeof html === 'undefined' ) {
@@ -160,6 +161,23 @@ PB.overwrite(Dom.prototype, {
 		}
 		
 		this.node.innerHTML = html;
+		
+		return this;
+	},
+	
+	// Should this replace content of this.node? or just add..
+	text: function ( str ) {
+		
+		var node = this.node;
+		
+		if( typeof str === 'undefined' ) {
+			
+			return node.text || node.textContent || node.innerHTML || '';
+		}
+		
+		this.empty();
+		
+		node.appendChild( document.createTextNode( str ) );
 		
 		return this;
 	}

@@ -1,6 +1,9 @@
 //= compat
-/**
+/*!
  * pbjs JavaScript Framework v<%= PB_VERSION %>
+ * http://github.com/Saartje87/pbjs/
+ *
+ * This project is powered by Pluxbox
  *
  * Copyright (c) 2011-1012, Niek Saarberg
  * All rights reserved.
@@ -60,6 +63,13 @@ var cache = {},
 //= require "./es5/es5"
 //= require "./dom/dom"
 //= require "./net/net"
+
+PB.noConflict = function () {
+
+	context.PB = old;
+
+	return this;
+};
 
 return PB;
 });

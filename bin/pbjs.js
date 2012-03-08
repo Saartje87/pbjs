@@ -1,5 +1,8 @@
-/**
+/*!
  * pbjs JavaScript Framework v0.5.2
+ * http://github.com/Saartje87/pbjs/
+ *
+ * This project is powered by Pluxbox
  *
  * Copyright (c) 2011-1012, Niek Saarberg
  * All rights reserved.
@@ -1683,6 +1686,22 @@ PB.overwrite(Dom.prototype, {
 		this.node.innerHTML = html;
 
 		return this;
+	},
+
+	text: function ( str ) {
+
+		var node = this.node;
+
+		if( typeof str === 'undefined' ) {
+
+			return node.text || node.textContent || node.innerHTML || '';
+		}
+
+		this.empty();
+
+		node.appendChild( document.createTextNode( str ) );
+
+		return this;
 	}
 });
 
@@ -2413,6 +2432,13 @@ PB.Request = PB.Class(PB.Observer, {
 });
 
 
+
+PB.noConflict = function () {
+
+	context.PB = old;
+
+	return this;
+};
 
 return PB;
 });
