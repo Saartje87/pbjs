@@ -2,7 +2,7 @@
  * In the official ecma5 specifications the trim/trimLeft/trimRight methods can't handle
  * an additional arg to trim the string with. So trim methods will be overwriten!
  */
-PB.overwrite(String.prototype,{
+PB.overwrite(String.prototype, {
 	
 	/**
 	 * Trim begin and end of string
@@ -39,3 +39,4 @@ PB.overwrite(String.prototype,{
 		return this.replace( new RegExp("("+(chr || "\\s")+"+$)", "g"), "" );
 	}
 });
+

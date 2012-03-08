@@ -2,4 +2,5 @@
 //= require "./object"
 //= require "./function"
 //= require "./string"
+//= require "./date"
 
