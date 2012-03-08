@@ -716,6 +716,8 @@ Dom.prototype.toString = function () {
 
 /**
  * Clear cache var
+ *
+ * Exclude objects that got documentFragement as parent?
  */
 function cleanupCache () {
 
@@ -1094,13 +1096,12 @@ PB.overwrite(Dom.prototype, {
 			regexp = domClassCache[className] = new RegExp( "(^|\\s)"+className+"($|\\s)" );
 		}
 
-
 		classes = classes.replace( regexp, ' ' );
-		classes = classes.replace( /(^\s|\s$)/, '' );
+		classes = classes.trim();
 
 		if( classes === '' ) {
 
-			this.attr('class', null);
+			node.className = null;
 		} else {
 
 			node.className = classes;

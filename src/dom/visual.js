@@ -77,14 +77,13 @@ PB.overwrite(Dom.prototype, {
 			regexp = domClassCache[className] = new RegExp( "(^|\\s)"+className+"($|\\s)" );
 		}
 		
-		
 		classes = classes.replace( regexp, ' ' );
-		classes = classes.replace( /(^\s|\s$)/, '' );
+		classes = classes.trim();
 		
 		// Remove attr
 		if( classes === '' ) {
 			
-			this.attr('class', null);
+			node.className = null;
 		} else {
 			
 			node.className = classes;
