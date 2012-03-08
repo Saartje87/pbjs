@@ -18,12 +18,16 @@ Dom.prototype.toString = function () {
 
 /**
  * Clear cache var
+ *
+ * Exclude objects that got documentFragement as parent?
  */
 function cleanupCache () {
 	
+	var _doc = PB(doc);
+	
 	PB.each(cache, function ( i, Dom ) {
 
-		if( !Dom.descendantOf(body) && Dom.node !== doc && Dom.node !== window ) {
+		if( Dom.node != window && !_doc.contains(Dom) ) {
 
 			Dom.remove();
 		}
