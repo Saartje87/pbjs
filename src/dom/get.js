@@ -14,8 +14,13 @@ Dom.get = function ( element ) {
 		return element;
 	}
 
-	// Get node
+	// Handle string argument
 	if( typeof element === 'string' ) {
+		
+		if( element.charAt(0) === '<' ) {
+			
+			return Dom.create( element );
+		}
 
 		element = doc.getElementById( element );
 	}

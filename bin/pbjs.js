@@ -745,6 +745,11 @@ Dom.get = function ( element ) {
 
 	if( typeof element === 'string' ) {
 
+		if( element.charAt(0) === '<' ) {
+
+			return Dom.create( element );
+		}
+
 		element = doc.getElementById( element );
 	}
 
@@ -2102,6 +2107,25 @@ PB.overwrite(Dom.prototype, {
 		}
 	});
 })();
+
+Dom.create = function ( chunk ) {
+
+	var div = document.createElement('div'),
+		childs;
+
+	div.innerHTML = chunk;
+
+	childs = Dom.get(div).childs();
+
+	div = null;
+
+	if( childs.length === 1 ) {
+
+		return childs[0];
+	}
+
+	return childs;
+};
 
 PB.ready = (function () {
 

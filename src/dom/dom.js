@@ -10,5 +10,6 @@
 //= require "./event"
 //= require "./form"
 //= require "./morph"
+//= require "./create"
 //= require "./ready"
 
