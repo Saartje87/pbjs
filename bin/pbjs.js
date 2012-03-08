@@ -1494,14 +1494,23 @@ PB.overwrite(Dom.prototype, {
 		return null;
 	},
 
-	descendantOf: function ( element, maxDepth ) {
+	descendantOf: function ( element ) {
+
+		element = Dom.get(element);
+
+		return element
+			? element.contains( this )
+			: false;
+	},
+
+	contains: function ( element ) {
 
 		var node = this.node;
 
 		element = Dom.get(element).node;
 
-		return element.contains
-			? node !== element && element.contains( node )
+		return node.contains
+			? node !== element && node.contains( element )
 			: !!(node.compareDocumentPosition( element ) & 16);
 	},
 
