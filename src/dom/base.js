@@ -26,9 +26,9 @@ function cleanupCache () {
 	var _doc = PB(doc);
 	
 	PB.each(cache, function ( i, Dom ) {
-
-		if( Dom.node != window && !_doc.contains(Dom) ) {
-
+		
+		if( Dom.node !== win && Dom.node !== doc && !_doc.contains(Dom) ) {
+			
 			Dom.remove();
 		}
 	});

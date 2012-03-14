@@ -49,6 +49,7 @@
 var cache = {},
 	old = context.PB,
 	uid = 0,
+	win = window,
 	doc = document,
 	docElement = doc.documentElement,
 	body = doc.body,

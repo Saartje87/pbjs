@@ -1,5 +1,5 @@
 /*!
- * pbjs JavaScript Framework v0.5.2
+ * pbjs JavaScript Framework v0.5.3Beta
  * http://github.com/Saartje87/pbjs/
  *
  * This project is powered by Pluxbox
@@ -48,6 +48,7 @@
 var cache = {},
 	old = context.PB,
 	uid = 0,
+	win = window,
 	doc = document,
 	docElement = doc.documentElement,
 	body = doc.body,
@@ -728,7 +729,7 @@ function cleanupCache () {
 
 	PB.each(cache, function ( i, Dom ) {
 
-		if( Dom.node != window && !_doc.contains(Dom) ) {
+		if( Dom.node !== win && Dom.node !== doc && !_doc.contains(Dom) ) {
 
 			Dom.remove();
 		}
