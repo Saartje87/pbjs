@@ -365,6 +365,8 @@ PB.overwrite(Dom.prototype, {
 			var _event = document.createEventObject();
 			this.node.fireEvent('on'+type, _event);
 		}
+		
+		return this;
 	}
 });
 
