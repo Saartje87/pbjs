@@ -13,7 +13,7 @@ PB.overwrite(Dom.prototype, {
 
 		return typeof value !== 'undefined'
 			? value
-			: null;
+			: undefined;
 	},
 	
 	unset: function ( key ) {
