@@ -23,14 +23,18 @@ Dom.prototype.toString = function () {
  */
 function cleanupCache () {
 	
-	var _doc = PB(doc);
+	var docEl = PB(docElement),
+		key,
+		Dom;
 	
-	PB.each(cache, function ( i, Dom ) {
+	for( key in cache ) {
 		
-		if( Dom.node !== win && Dom.node !== doc && !_doc.contains(Dom) ) {
+		Dom = cache[key];
+		
+		if( cache.hasOwnProperty(key) && Dom.node !== win && Dom.node !== doc && Dom.node !== docElement && !docEl.contains(Dom) ) {
 			
 			Dom.remove();
 		}
-	});
+	}
 };
 
