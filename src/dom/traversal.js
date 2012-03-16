@@ -122,6 +122,7 @@ PB.overwrite(Dom.prototype, {
 		
 		element = Dom.get(element).node;
 		
+		// Could fail on ie < 9 when using in document
 		return node.contains
 			? node !== element && node.contains( element )
 			: !!(node.compareDocumentPosition( element ) & 16);
