@@ -23,21 +23,11 @@ Collection.prototype = {
 		return '[Object DomCollection]';
 	},
 	
-	invoke: function ( method ) {
+	invoke: function () {
 		
 		var args = PB.toArray(arguments),
 			method = args.shift(),
 			i = 0;
-		
-		if( typeof method === 'function' ) {
-			
-			for ( ; i < this.length; i++ ){
-
-				method.apply( this[i], args );
-			}
-			
-			return this;
-		}
 		
 		for ( ; i < this.length; i++ ){
 		
@@ -58,6 +48,7 @@ Collection.prototype = {
 	filter: Array.prototype.filter,
 	every: Array.prototype.every,
 	map: Array.prototype.map,
-	some: Array.prototype.some
+	some: Array.prototype.some,
+	indexOf: Array.prototype.indexOf
 };
 
