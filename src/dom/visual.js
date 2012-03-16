@@ -246,7 +246,7 @@ PB.overwrite(Dom.prototype, {
 	
 	innerHeight: function () {
 		
-		return this.height() + (this.getStyle('paddingTop') || 0 + this.getStyle('paddingBottom') || 0);
+		return this.height() + (this.getStyle('paddingTop') || 0) + (this.getStyle('paddingBottom') || 0);
 	},
 	
 	outerHeight: function () {
