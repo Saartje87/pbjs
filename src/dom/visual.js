@@ -129,7 +129,7 @@ PB.overwrite(Dom.prototype, {
 	
 	width: function ( width ) {
 		
-		if( typeof width !== 'undefined' ) {
+		if( width !== undefined ) {
 			
 			return this.setStyle('width', width);
 		}
@@ -196,7 +196,7 @@ PB.overwrite(Dom.prototype, {
 	
 	height: function ( height ) {
 		
-		if( typeof height !== 'undefined' ) {
+		if( height !== undefined ) {
 			
 			return this.setStyle('height', height);
 		}
@@ -331,7 +331,7 @@ PB.overwrite(Dom.prototype, {
 	
 	scrollLeft: function ( x ) {
 		
-		if( typeof x === 'undefined' ) {
+		if( x === undefined ) {
 			
 			return this.getScroll().left;
 		}
@@ -351,7 +351,7 @@ PB.overwrite(Dom.prototype, {
 	
 	scrollTop: function ( y ) {
 		
-		if( typeof y === 'undefined' ) {
+		if( y === undefined ) {
 			
 			return this.getScroll().top;
 		}

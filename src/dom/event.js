@@ -127,7 +127,7 @@ var _Event = {
 		}
 		
 		// Which, keyCode
-		event.which = typeof event.keyCode === 'undefined' ? event.charCode : event.keyCode;
+		event.which = event.keyCode === undefined ? event.charCode : event.keyCode;
 		
 		return event;
 	}

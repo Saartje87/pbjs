@@ -16,7 +16,7 @@ PB.overwrite(Dom.prototype, {
 		
 		var node = this.node;
 		
-		if( typeof value === 'undefined' ) {
+		if( value === undefined ) {
 			
 			return node.getAttribute(key);
 		} else if ( value === null ) {
@@ -37,7 +37,7 @@ PB.overwrite(Dom.prototype, {
 		
 		var node = this.node;
 		
-		if( typeof value === 'undefined' ) {
+		if( value === undefined ) {
 			
 			return node.value;
 		}

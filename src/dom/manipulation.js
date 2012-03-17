@@ -155,7 +155,7 @@ PB.overwrite(Dom.prototype, {
 	// Todo: eval js.. ?
 	html: function ( html ) {	// Todo: add evalJs boolean
 		
-		if( typeof html === 'undefined' ) {
+		if( html === undefined ) {
 			
 			return this.node.innerHTML;
 		}
@@ -170,9 +170,9 @@ PB.overwrite(Dom.prototype, {
 		
 		var node = this.node;
 		
-		if( typeof str === 'undefined' ) {
+		if( str === undefined ) {
 			
-			return node.text || node.textContent || node.innerHTML || '';
+			return node.text || node.textContent || node.innerText || node.innerHTML || node.innerText || '';
 		}
 		
 		this.empty();

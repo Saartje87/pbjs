@@ -836,7 +836,7 @@ PB.overwrite(Dom.prototype, {
 
 		var value = this.storage[key];
 
-		return typeof value !== 'undefined'
+		return value !== undefined
 			? value
 			: undefined;
 	},
@@ -865,7 +865,7 @@ PB.overwrite(Dom.prototype, {
 
 		var node = this.node;
 
-		if( typeof value === 'undefined' ) {
+		if( value === undefined ) {
 
 			return node.getAttribute(key);
 		} else if ( value === null ) {
@@ -886,7 +886,7 @@ PB.overwrite(Dom.prototype, {
 
 		var node = this.node;
 
-		if( typeof value === 'undefined' ) {
+		if( value === undefined ) {
 
 			return node.value;
 		}
@@ -912,8 +912,8 @@ var unit = /px$/i,
 		'borderRadius': 'borderRadiusTopleft'
 	},
 	div = document.createElement('div'),
-	supportsOpacity = typeof div.style.opacity !== 'undefined',
-	supportsCssFloat = typeof div.style.cssFloat !== 'undefined';
+	supportsOpacity = div.style.opacity !== undefined,
+	supportsCssFloat = div.style.cssFloat !== undefined;
 
 div = null;
 
@@ -1124,7 +1124,7 @@ PB.overwrite(Dom.prototype, {
 
 	width: function ( width ) {
 
-		if( typeof width !== 'undefined' ) {
+		if( width !== undefined ) {
 
 			return this.setStyle('width', width);
 		}
@@ -1189,7 +1189,7 @@ PB.overwrite(Dom.prototype, {
 
 	height: function ( height ) {
 
-		if( typeof height !== 'undefined' ) {
+		if( height !== undefined ) {
 
 			return this.setStyle('height', height);
 		}
@@ -1322,7 +1322,7 @@ PB.overwrite(Dom.prototype, {
 
 	scrollLeft: function ( x ) {
 
-		if( typeof x === 'undefined' ) {
+		if( x === undefined ) {
 
 			return this.getScroll().left;
 		}
@@ -1342,7 +1342,7 @@ PB.overwrite(Dom.prototype, {
 
 	scrollTop: function ( y ) {
 
-		if( typeof y === 'undefined' ) {
+		if( y === undefined ) {
 
 			return this.getScroll().top;
 		}
@@ -1651,7 +1651,7 @@ PB.overwrite(Dom.prototype, {
 
 	html: function ( html ) {	// Todo: add evalJs boolean
 
-		if( typeof html === 'undefined' ) {
+		if( html === undefined ) {
 
 			return this.node.innerHTML;
 		}
@@ -1665,7 +1665,7 @@ PB.overwrite(Dom.prototype, {
 
 		var node = this.node;
 
-		if( typeof str === 'undefined' ) {
+		if( str === undefined ) {
 
 			return node.text || node.textContent || node.innerText || node.innerHTML || node.innerText || '';
 		}
@@ -1802,7 +1802,7 @@ var _Event = {
 			event.pageY = event.clientY + (docEl.scrollTop || body.scrollTop) - (docEl.clientTop || 0);
 		}
 
-		event.which = typeof event.keyCode === 'undefined' ? event.charCode : event.keyCode;
+		event.which = event.keyCode === undefined ? event.charCode : event.keyCode;
 
 		return event;
 	}

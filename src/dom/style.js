@@ -13,8 +13,8 @@ var unit = /px$/i,
 		'borderRadius': 'borderRadiusTopleft'
 	},
 	div = document.createElement('div'),
-	supportsOpacity = typeof div.style.opacity !== 'undefined',
-	supportsCssFloat = typeof div.style.cssFloat !== 'undefined';
+	supportsOpacity = div.style.opacity !== undefined,
+	supportsCssFloat = div.style.cssFloat !== undefined;
 
 div = null;
 

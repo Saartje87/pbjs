@@ -11,7 +11,7 @@ PB.overwrite(Dom.prototype, {
 
 		var value = this.storage[key];
 
-		return typeof value !== 'undefined'
+		return value !== undefined
 			? value
 			: undefined;
 	},
