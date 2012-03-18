@@ -105,6 +105,9 @@ var _Event = {
 		// Add related target
 		event.target = event.srcElement || _Event.cache[uid].node;
 		
+		// Add
+		event.currentTarget = _Event.cache[uid].node;
+		
 		// Add relatedTarget if needed
 		// Mhh should not be currentTarget right?
 		switch ( event.type ) {
