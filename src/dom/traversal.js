@@ -9,31 +9,28 @@ PB.overwrite(Dom.prototype, {
 		
 		var first = this.node.firstChild;
 		
-		do {
+		while( first && first.nodeType !== 1 ) {
 			
-			if( first && first.nodeType === 1 ) {
-				
-				return Dom.get( first );
-			}
-			
-		} while( first = first.nextSibling );
+			first = first.nextSibling;
+		}
 		
-		return null;
+		return first === null
+			? null
+			: Dom.get(first);
 	},
 	
 	last: function () {
 		
 		var last = this.node.lastChild;
 		
-		do {
+		while( last && last.nodeType !== 1 ) {
 			
-			if( last.nodeType === 1 ) {
-
-				return Dom.get( last );
-			}
-		} while ( last = last.previousSibling );
+			last = last.previousSibling;
+		}
 		
-		return null;
+		return last === null
+			? null
+			: Dom.get(last);
 	},
 	
 	next: function () {
