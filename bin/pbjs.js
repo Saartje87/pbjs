@@ -1446,31 +1446,28 @@ PB.overwrite(Dom.prototype, {
 
 		var first = this.node.firstChild;
 
-		do {
+		while( first && first.nodeType !== 1 ) {
 
-			if( first && first.nodeType === 1 ) {
+			first = first.nextSibling;
+		}
 
-				return Dom.get( first );
-			}
-
-		} while( first = first.nextSibling );
-
-		return null;
+		return first === null
+			? null
+			: Dom.get(first);
 	},
 
 	last: function () {
 
 		var last = this.node.lastChild;
 
-		do {
+		while( last && last.nodeType !== 1 ) {
 
-			if( last.nodeType === 1 ) {
+			last = last.previousSibling;
+		}
 
-				return Dom.get( last );
-			}
-		} while ( last = last.previousSibling );
-
-		return null;
+		return last === null
+			? null
+			: Dom.get(last);
 	},
 
 	next: function () {
@@ -1569,6 +1566,16 @@ PB.overwrite(Dom.prototype, {
 		return new Collection( qwery( expression, this.node ).map(Dom.get) );
 	}
 });
+
+var tableInnerHTMLbuggie = false;
+
+try {
+
+	document.createElement('table').innerHTML = '<tr></tr>';
+} catch (e) {
+
+	tableInnerHTMLbuggie = true;
+}
 
 PB.overwrite(Dom.prototype, {
 
@@ -1728,6 +1735,37 @@ PB.overwrite(Dom.prototype, {
 		if( html === undefined ) {
 
 			return this.node.innerHTML;
+		}
+
+		if( tableInnerHTMLbuggie ) {
+
+			if( /^<(tbody|tr)>/i.test( html ) ) {
+
+				var table = Dom.create('<table>'+html+'</table>');
+
+				this.html('');
+
+				(table.first().nodeName === 'TBODY' ? table.first() : table)
+					.childs().invoke('appendTo', this);
+
+				return this;
+			}
+			if ( /^<(td)>/i.test( html ) ) {
+
+				var table = Dom.create('<table><tr>'+html+'</tr></table>');
+
+				this.html('');
+
+				table.find('td').invoke('appendTo', this);
+
+				return this;
+			}
+			if( /(TBODY|TR|TD|TH)/.test(this.nodeName) ) {
+
+				this.childs().invoke('remove');
+
+				return this;
+			}
 		}
 
 		this.node.innerHTML = html;
