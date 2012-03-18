@@ -1,13 +1,14 @@
-var prefixes = 'Khtml O ms Moz Webkit'.split(' '),
+var div = document.createElement('div'),
+	prefixes = 'Khtml O ms Moz Webkit'.split(' '),
 	i = prefixes.length,
 	animationName = 'animationName',
 	transitionProperty = 'transitionProperty',
 	transitionDuration = 'transitionDuration',
-	supportsCSSAnimation = animationName in body.style;
+	supportsCSSAnimation = animationName in div.style;
 
 while( !supportsCSSAnimation && i-- ) {
 	
-	if( prefixes[i]+'AnimationName' in body.style ) {
+	if( prefixes[i]+'AnimationName' in div.style ) {
 		
 		animationName = prefixes[i]+'AnimationName';
 		transitionProperty = prefixes[i]+'TransitionProperty',
