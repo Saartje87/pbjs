@@ -125,7 +125,7 @@ PB.overwrite(Dom.prototype, {
 			pbid = node.__PBJS_ID__,
 			morph;
 
-		if( morph = this.get('dom-morph') ) {
+		if( morph = this.get('pbjs-morph') ) {
 
 			morph.off();
 		}

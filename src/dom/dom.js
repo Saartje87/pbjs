@@ -4,12 +4,12 @@
 //= require "./store"
 //= require "./attr"
 //= require "./style"
+//= require "./morph"
 //= require "./visual"
 //= require "./traversal"
 //= require "./manipulation"
 //= require "./event"
 //= require "./form"
-//= require "./morph"
 //= require "./create"
 //= require "./ready"
 
