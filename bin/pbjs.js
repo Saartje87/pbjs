@@ -2044,6 +2044,22 @@ PB.overwrite(Dom.prototype, {
 	/**
 	 *
 	 */
+	once: function ( type, handler ) {
+
+		var me = this,
+			_handler = function () {
+
+				me.off( type, _handler );
+
+				handler.apply( null, PB.toArray(arguments) );
+			};
+
+		this.on( type, _handler );
+	},
+
+	/**
+	 *
+	 */
 	off: function ( type, handler ) {
 
 		var node = this.node,
