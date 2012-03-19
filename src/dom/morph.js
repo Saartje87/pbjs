@@ -11,8 +11,8 @@ while( !supportsCSSAnimation && i-- ) {
 	if( prefixes[i]+'AnimationName' in div.style ) {
 		
 		animationName = prefixes[i]+'AnimationName';
-		transitionProperty = prefixes[i]+'TransitionProperty',
-		transitionDuration = prefixes[i]+'TransitionDuration',
+		transitionProperty = prefixes[i]+'TransitionProperty';
+		transitionDuration = prefixes[i]+'TransitionDuration';
 		supportsCSSAnimation = true;
 		break;
 	}
@@ -57,8 +57,6 @@ Dom.prototype.morph = function ( to/* after, duration, effect */ ) {
 	PB.each(options.to, function ( key, value ) {
 		
 		properties += key.replace(/[A-Z]/g, function (m) { return '-'+m.toLowerCase(); })+',';
-		
-		from[key] = me.getStyle( key ) || 0;	// || 0, tmp fix
 	});
 	
 	properties = properties.substr( 0, properties.length-1 );
@@ -66,8 +64,7 @@ Dom.prototype.morph = function ( to/* after, duration, effect */ ) {
 	from[transitionProperty] = properties;
 	from[transitionDuration] = options.duration+'s';
 	
-	this.setStyle(from);
-	
+	// Add to styles for next rendering frame
 	setTimeout(function() {
 		
 		me.setStyle(to);
