@@ -71,7 +71,7 @@ Dom.prototype.morph = function ( to/* after, duration, effect */ ) {
 	setTimeout(function() {
 		
 		me.setStyle(to);
-	}, 5);
+	}, 16.67);
 	
 	// e.addEventListener("animationstart", listener, false);  
 	//   e.addEventListener("animationend", listener, false);  
