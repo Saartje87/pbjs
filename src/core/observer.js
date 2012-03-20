@@ -7,24 +7,15 @@ PB.Observer = PB.Class({
 	
 	on: function ( type, fn, scope ) {
 		
-		var types = type.split(' ');
-		
-		if( types.length > 1 ) {
-
-			types.forEach(function ( type ) {
-
-				this.on( type, fn, scope );
-			}, this);
+		type.split(' ').forEach(function ( type ) {
 			
-			return this;
-		}
-		
-		if( !this.listeners[type] ) {
-			
-			this.listeners[type] = [];
-		}
-		
-		this.listeners[type].push(fn);
+			if( !this.listeners[type] ) {
+
+				this.listeners[type] = [];
+			}
+
+			this.listeners[type].push(fn);
+		}, this);
 		
 		return this;
 	},
@@ -38,7 +29,7 @@ PB.Observer = PB.Class({
 		
 		if( !this.listeners[type] ) {
 			
-			return;
+			return this;
 		}
 		
 		var args = slice.call( arguments, 1 );
@@ -47,6 +38,8 @@ PB.Observer = PB.Class({
 			
 			fn.apply(null, args || []);
 		});
+		
+		return this;
 	}
 });
 
