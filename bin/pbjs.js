@@ -86,10 +86,13 @@ PB.extend = function ( target, source ) {
 };
 
 /**
- * Each trough object
+ * Loop trough object
  *
  * fn arguments: key, value
  *
+ * @param object
+ * @param function
+ * @param object
  * @return void
  */
 PB.each = function ( collection, fn, scope ) {
@@ -115,7 +118,7 @@ PB.each = function ( collection, fn, scope ) {
  */
 PB.toArray = function ( collection ) {
 
-	if( toString.call(collection) === '[object Object]' ) {
+	if( toString.call(collection) === '[object Object]' && collection.length ) {
 
 		var result = [],
 			length = collection.length,
@@ -140,6 +143,27 @@ PB.is = function ( type, mixed ) {
 	return toString.call(mixed) === '[object '+type+']';
 };
 
+/**
+ * Execute script in global scope
+ *
+ * @param string
+ * @return void
+ */
+PB.exec = function ( text ) {
+
+	if( window.execScript ) {
+
+		window.execScript( text );
+	} else {
+
+		var script = document.createElement('script');
+		script.setAttribute('type', 'text/javascript');
+		script.text = text;
+		document.head.appendChild(script);
+		document.head.removeChild(script);
+	}
+};
+
 
 /**
  * @todo: isMobile
@@ -147,7 +171,8 @@ PB.is = function ( type, mixed ) {
 PB.browser = function (){
 
 	var ua = navigator.userAgent,
-		info;
+		info,
+		flash;
 
 	info = {
 
@@ -162,6 +187,25 @@ PB.browser = function (){
 	info.version = info.isIE
 		? parseFloat(ua.match(/MSIE (\d+\.\d+)/)[1])
 		: parseFloat(ua.match(/(Chrome|Firefox|Version|NokiaBrowser)\/(\d+\.\d+)/)[2]);
+
+	if( navigator.plugins && navigator.plugins['Shockwave Flash'] ) {
+
+		flash = navigator.plugins['Shockwave Flash'].description;
+	} else if ( window.ActiveXObject ) {
+
+		try {
+
+			flash = new ActiveXObject('ShockwaveFlash.ShockwaveFlash').GetVariable('$version');
+		} catch (e) {}
+	}
+
+	if( flash ) {
+
+		flash = flash.match(/\d+/g);
+		flash = Number(flash[0]+'.'+flash[1]);
+	}
+
+	info.flash = flash || false;
 
 	return info;
 }();
@@ -251,24 +295,15 @@ PB.Observer = PB.Class({
 
 	on: function ( type, fn, scope ) {
 
-		var types = type.split(' ');
+		type.split(' ').forEach(function ( type ) {
 
-		if( types.length > 1 ) {
+			if( !this.listeners[type] ) {
 
-			types.forEach(function ( type ) {
+				this.listeners[type] = [];
+			}
 
-				this.on( type, fn, scope );
-			}, this);
-
-			return this;
-		}
-
-		if( !this.listeners[type] ) {
-
-			this.listeners[type] = [];
-		}
-
-		this.listeners[type].push(fn);
+			this.listeners[type].push(fn);
+		}, this);
 
 		return this;
 	},
@@ -282,7 +317,7 @@ PB.Observer = PB.Class({
 
 		if( !this.listeners[type] ) {
 
-			return;
+			return this;
 		}
 
 		var args = slice.call( arguments, 1 );
@@ -291,6 +326,8 @@ PB.Observer = PB.Class({
 
 			fn.apply(null, args || []);
 		});
+
+		return this;
 	}
 });
 
@@ -1013,12 +1050,14 @@ while( !supportsCSSAnimation && i-- ) {
 	if( prefixes[i]+'AnimationName' in div.style ) {
 
 		animationName = prefixes[i]+'AnimationName';
-		transitionProperty = prefixes[i]+'TransitionProperty',
-		transitionDuration = prefixes[i]+'TransitionDuration',
+		transitionProperty = prefixes[i]+'TransitionProperty';
+		transitionDuration = prefixes[i]+'TransitionDuration';
 		supportsCSSAnimation = true;
 		break;
 	}
 }
+
+Dom.supportsCSSAnimation = supportsCSSAnimation;
 
 Dom.prototype.morph = function ( to/* after, duration, effect */ ) {
 
@@ -1051,6 +1090,7 @@ Dom.prototype.morph = function ( to/* after, duration, effect */ ) {
 		}
 	}
 
+
 	PB.each(options.to, function ( key, value ) {
 
 		properties += key.replace(/[A-Z]/g, function (m) { return '-'+m.toLowerCase(); })+',';
@@ -1063,12 +1103,12 @@ Dom.prototype.morph = function ( to/* after, duration, effect */ ) {
 	from[transitionProperty] = properties;
 	from[transitionDuration] = options.duration+'s';
 
-	this.setStyle(from);
+	this.setStyle( from );
 
 	setTimeout(function() {
 
 		me.setStyle(to);
-	}, 5);
+	}, 16.67);
 
 
 	return this;
@@ -1730,11 +1770,21 @@ PB.overwrite(Dom.prototype, {
 		return this;
 	},
 
-	html: function ( html ) {	// Todo: add evalJs boolean
+	html: function ( html, execScripts ) {	// Todo: add evalJs boolean
 
 		if( html === undefined ) {
 
 			return this.node.innerHTML;
+		}
+
+		if( execScripts ) {
+
+			html = html.replace(/<script[^>]*>([\s\S]*?)<\/script>/ig, function ( match, text ) {
+
+				PB.exec( text );
+
+				return '';
+			});
 		}
 
 		if( tableInnerHTMLbuggie ) {

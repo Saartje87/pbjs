@@ -47,10 +47,13 @@ PB.extend = function ( target, source ) {
 };
 
 /**
- * Each trough object
+ * Loop trough object
  * 
  * fn arguments: key, value
  * 
+ * @param object
+ * @param function
+ * @param object
  * @return void
  */
 PB.each = function ( collection, fn, scope ) {
@@ -72,11 +75,11 @@ PB.each = function ( collection, fn, scope ) {
 };
 
 /**
- *
+ * 
  */
 PB.toArray = function ( collection ) {
 	
-	if( toString.call(collection) === '[object Object]' ) {
+	if( toString.call(collection) === '[object Object]' && collection.length ) {
 		
 		var result = [],
 			length = collection.length,
@@ -99,6 +102,27 @@ PB.toArray = function ( collection ) {
 PB.is = function ( type, mixed ) {
 	
 	return toString.call(mixed) === '[object '+type+']';
+};
+
+/**
+ * Execute script in global scope
+ *
+ * @param string
+ * @return void
+ */
+PB.exec = function ( text ) {
+	
+	if( window.execScript ) {
+		
+		window.execScript( text );
+	} else {
+		
+		var script = document.createElement('script');
+		script.setAttribute('type', 'text/javascript');
+		script.text = text;
+		document.head.appendChild(script);
+		document.head.removeChild(script);
+	}
 };
 
 
