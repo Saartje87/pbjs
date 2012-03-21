@@ -163,11 +163,23 @@ PB.overwrite(Dom.prototype, {
 	},
 	
 	// Todo: eval js.. ?
-	html: function ( html ) {	// Todo: add evalJs boolean
+	html: function ( html, execScripts ) {	// Todo: add evalJs boolean
 		
 		if( html === undefined ) {
 			
 			return this.node.innerHTML;
+		}
+		
+		if( execScripts ) {
+			
+			// Replace script tags in html string and executes the contents of the
+			// script tag
+			html = html.replace(/<script[^>]*>([\s\S]*?)<\/script>/ig, function ( match, text ) {
+				
+				PB.exec( text );
+				
+				return '';
+			});
 		}
 		
 		// IE <= 9 table innerHTML issue
