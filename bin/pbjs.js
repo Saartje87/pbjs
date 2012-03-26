@@ -1163,14 +1163,17 @@ PB.overwrite(Dom.prototype, {
 	/**
 	 * Add class to element
 	 */
-	addClass: function ( className ) {
+	addClass: function ( classNames ) {
 
-		if( this.hasClass(className) ) {
+		classNames.split(' ').forEach(function ( className ) {
 
-			return this;
-		}
+			if( this.hasClass(className) ) {
 
-		this.node.className += (this.node.className ? ' ' : '')+className;
+				return this;
+			}
+
+			this.node.className += (this.node.className ? ' ' : '')+className;
+		}, this);
 
 		return this;
 	},
@@ -1178,27 +1181,31 @@ PB.overwrite(Dom.prototype, {
 	/**
 	 * Remove class from element
 	 */
-	removeClass: function ( className ) {
+	removeClass: function ( classNames ) {
 
 		var node = this.node,
-			classes = node.className,
-			regexp = domClassCache[className];
+			classes = node.className;
 
-		if( !regexp ) {
+		classNames.split(' ').forEach(function ( className ) {
 
-			regexp = domClassCache[className] = new RegExp( "(^|\\s)"+className+"($|\\s)" );
-		}
+			var regexp = domClassCache[className];
 
-		classes = classes.replace( regexp, ' ' );
-		classes = classes.trim();
+			if( !regexp ) {
 
-		if( classes === '' ) {
+				regexp = domClassCache[className] = new RegExp( "(^|\\s)"+className+"($|\\s)" );
+			}
 
-			node.className = null;
-		} else {
+			classes = classes.replace( regexp, ' ' );
+			classes = classes.trim();
 
-			node.className = classes;
-		}
+			if( classes === '' ) {
+
+				node.className = null;
+			} else {
+
+				node.className = classes;
+			}
+		}, this);
 
 		return this;
 	},

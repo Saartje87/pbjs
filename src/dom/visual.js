@@ -36,29 +36,32 @@ PB.overwrite(Dom.prototype, {
 	 * Check if element has class
 	 */
 	hasClass: function ( className ) {
-		
-		var regexp = domClassCache[className];
-		
-		if( !regexp ) {
 			
+		var regexp = domClassCache[className];
+
+		if( !regexp ) {
+
 			regexp = domClassCache[className] = new RegExp( "(^|\\s)"+className+"($|\\s)" );
 		}
-		
+
 		return regexp.test(this.node.className);
 	},
 	
 	/**
 	 * Add class to element
 	 */
-	addClass: function ( className ) {
+	addClass: function ( classNames ) {
 		
-		// Already exists
-		if( this.hasClass(className) ) {
+		classNames.split(' ').forEach(function ( className ) {
+		
+			// Already exists
+			if( this.hasClass(className) ) {
 			
-			return this;
-		}
+				return this;
+			}
 		
-		this.node.className += (this.node.className ? ' ' : '')+className;
+			this.node.className += (this.node.className ? ' ' : '')+className;
+		}, this);
 		
 		return this;
 	},
@@ -66,28 +69,32 @@ PB.overwrite(Dom.prototype, {
 	/**
 	 * Remove class from element
 	 */
-	removeClass: function ( className ) {
+	removeClass: function ( classNames ) {
 		
 		var node = this.node,
-			classes = node.className,
-			regexp = domClassCache[className];
-
-		if( !regexp ) {
-
-			regexp = domClassCache[className] = new RegExp( "(^|\\s)"+className+"($|\\s)" );
-		}
+			classes = node.className;
 		
-		classes = classes.replace( regexp, ' ' );
-		classes = classes.trim();
-		
-		// Remove attr
-		if( classes === '' ) {
+		classNames.split(' ').forEach(function ( className ) {
 			
-			node.className = null;
-		} else {
-			
-			node.className = classes;
-		}
+			var regexp = domClassCache[className];
+
+			if( !regexp ) {
+
+				regexp = domClassCache[className] = new RegExp( "(^|\\s)"+className+"($|\\s)" );
+			}
+
+			classes = classes.replace( regexp, ' ' );
+			classes = classes.trim();
+
+			// Remove attr
+			if( classes === '' ) {
+
+				node.className = null;
+			} else {
+
+				node.className = classes;
+			}
+		}, this);
 		
 		return this;
 	},
