@@ -52,16 +52,18 @@ PB.overwrite(Dom.prototype, {
 	 */
 	addClass: function ( classNames ) {
 		
-		classNames.split(' ').forEach(function ( className ) {
+		classNames = classNames.split(' ')
 		
+		for( var i = 0; i < classNames.length; i++ ) {
+			
 			// Already exists
-			if( this.hasClass(className) ) {
+			if( this.hasClass(classNames[i]) ) {
 			
 				return this;
 			}
 		
-			this.node.className += (this.node.className ? ' ' : '')+className;
-		}, this);
+			this.node.className += (this.node.className ? ' ' : '')+classNames[i];
+		}
 		
 		return this;
 	},
@@ -72,12 +74,17 @@ PB.overwrite(Dom.prototype, {
 	removeClass: function ( classNames ) {
 		
 		var node = this.node,
-			classes = node.className;
-		
-		classNames.split(' ').forEach(function ( className ) {
-			
-			var regexp = domClassCache[className];
+			classes = node.className,
+			regexp,
+			className;
+	
+		classNames = classNames.split(' ')
 
+		for( var i = 0; i < classNames.length; i++ ) {
+			
+			className = classNames[i];
+			regexp = domClassCache[className];
+			
 			if( !regexp ) {
 
 				regexp = domClassCache[className] = new RegExp( "(^|\\s)"+className+"($|\\s)" );
@@ -94,7 +101,7 @@ PB.overwrite(Dom.prototype, {
 
 				node.className = classes;
 			}
-		}, this);
+		}
 		
 		return this;
 	},
@@ -131,7 +138,7 @@ PB.overwrite(Dom.prototype, {
 	
 	isVisible: function () {
 		
-		return this.getStyle('display') !== 'none';
+		return this.getStyle('display') !== 'none' && this.getStyle('opacity') > 0;
 	},
 	
 	width: function ( width ) {
