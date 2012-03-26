@@ -1004,7 +1004,7 @@ PB.overwrite(Dom.prototype, {
 			value = node.style[property],
 			o;
 
-		if( value !== '' ) {
+		if( !value ) {
 
 			var CSS = computedStyle ? doc.defaultView.getComputedStyle( node, null ) : node.currentStyle;
 
