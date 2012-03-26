@@ -2094,17 +2094,23 @@ PB.overwrite(Dom.prototype, {
 	/**
 	 *
 	 */
-	once: function ( type, handler ) {
+	once: function ( types, handler ) {
 
-		var me = this,
-			_handler = function () {
+		var me = this;
+
+		types.split(' ').forEach(function ( type ) {
+
+			var _handler = function () {
 
 				me.off( type, _handler );
 
 				handler.apply( null, PB.toArray(arguments) );
 			};
 
-		this.on( type, _handler );
+			this.on(type, _handler);
+		}, this);
+
+		return this;
 	},
 
 	/**
