@@ -1,9 +1,10 @@
-# pbjs 0.5.4
+# pbjs 0.5.5
 =============
-pbjs is a small, lightweight object orientated framework based on the ECMAscript 5 specifications. Supports Asynchronous Module Definition (AMD) for dynamic module loading.
+pbjs is a small, crossbrowser and lightweight object orientated framework.
+
 pbjs is built specifically for high performance web applications.
 
-gzipped less then 9kb!
+gzipped less then 10kb!
 
 We offer backwards compatibility with older browsers such as:
 
