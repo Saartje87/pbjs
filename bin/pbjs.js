@@ -1,5 +1,5 @@
 /*!
- * pbjs JavaScript Framework v0.5.4
+ * pbjs JavaScript Framework v0.5.5
  * https://github.com/Saartje87/pbjs
  *
  * This project is powered by Pluxbox
@@ -1091,6 +1091,7 @@ Dom.prototype.morph = function ( to/* after, duration, effect */ ) {
 		}
 	}
 
+	if(options.after) me.once('webkitTransitionEnd oTransitionEnd transitionend', options.after);
 
 	PB.each(options.to, function ( key, value ) {
 
