@@ -36,29 +36,34 @@ PB.overwrite(Dom.prototype, {
 	 * Check if element has class
 	 */
 	hasClass: function ( className ) {
-		
-		var regexp = domClassCache[className];
-		
-		if( !regexp ) {
 			
+		var regexp = domClassCache[className];
+
+		if( !regexp ) {
+
 			regexp = domClassCache[className] = new RegExp( "(^|\\s)"+className+"($|\\s)" );
 		}
-		
+
 		return regexp.test(this.node.className);
 	},
 	
 	/**
 	 * Add class to element
 	 */
-	addClass: function ( className ) {
+	addClass: function ( classNames ) {
 		
-		// Already exists
-		if( this.hasClass(className) ) {
+		classNames = classNames.split(' ')
+		
+		for( var i = 0; i < classNames.length; i++ ) {
 			
-			return this;
-		}
+			// Already exists
+			if( this.hasClass(classNames[i]) ) {
+			
+				return this;
+			}
 		
-		this.node.className += (this.node.className ? ' ' : '')+className;
+			this.node.className += (this.node.className ? ' ' : '')+classNames[i];
+		}
 		
 		return this;
 	},
@@ -66,27 +71,36 @@ PB.overwrite(Dom.prototype, {
 	/**
 	 * Remove class from element
 	 */
-	removeClass: function ( className ) {
+	removeClass: function ( classNames ) {
 		
 		var node = this.node,
 			classes = node.className,
+			regexp,
+			className;
+	
+		classNames = classNames.split(' ')
+
+		for( var i = 0; i < classNames.length; i++ ) {
+			
+			className = classNames[i];
 			regexp = domClassCache[className];
-
-		if( !regexp ) {
-
-			regexp = domClassCache[className] = new RegExp( "(^|\\s)"+className+"($|\\s)" );
-		}
-		
-		classes = classes.replace( regexp, ' ' );
-		classes = classes.trim();
-		
-		// Remove attr
-		if( classes === '' ) {
 			
-			node.className = null;
-		} else {
-			
-			node.className = classes;
+			if( !regexp ) {
+
+				regexp = domClassCache[className] = new RegExp( "(^|\\s)"+className+"($|\\s)" );
+			}
+
+			classes = classes.replace( regexp, ' ' );
+			classes = classes.trim();
+
+			// Remove attr
+			if( classes === '' ) {
+
+				node.className = null;
+			} else {
+
+				node.className = classes;
+			}
 		}
 		
 		return this;
@@ -124,7 +138,7 @@ PB.overwrite(Dom.prototype, {
 	
 	isVisible: function () {
 		
-		return this.getStyle('display') !== 'none';
+		return this.getStyle('display') !== 'none' && this.getStyle('opacity') > 0;
 	},
 	
 	width: function ( width ) {

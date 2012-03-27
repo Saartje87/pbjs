@@ -983,6 +983,7 @@ PB.overwrite(Dom.prototype, {
 
 			value = "alpha(opacity="+(value*100)+")";
 		}
+
 		if( property === 'float' ) {
 
 			property = supportsCssFloat ? 'cssFloat' : 'styleFloat';
@@ -1004,7 +1005,7 @@ PB.overwrite(Dom.prototype, {
 			value = node.style[property],
 			o;
 
-		if( value !== '' ) {
+		if( !value ) {
 
 			var CSS = computedStyle ? doc.defaultView.getComputedStyle( node, null ) : node.currentStyle;
 
@@ -1163,14 +1164,19 @@ PB.overwrite(Dom.prototype, {
 	/**
 	 * Add class to element
 	 */
-	addClass: function ( className ) {
+	addClass: function ( classNames ) {
 
-		if( this.hasClass(className) ) {
+		classNames = classNames.split(' ')
 
-			return this;
+		for( var i = 0; i < classNames.length; i++ ) {
+
+			if( this.hasClass(classNames[i]) ) {
+
+				return this;
+			}
+
+			this.node.className += (this.node.className ? ' ' : '')+classNames[i];
 		}
-
-		this.node.className += (this.node.className ? ' ' : '')+className;
 
 		return this;
 	},
@@ -1178,26 +1184,35 @@ PB.overwrite(Dom.prototype, {
 	/**
 	 * Remove class from element
 	 */
-	removeClass: function ( className ) {
+	removeClass: function ( classNames ) {
 
 		var node = this.node,
 			classes = node.className,
+			regexp,
+			className;
+
+		classNames = classNames.split(' ')
+
+		for( var i = 0; i < classNames.length; i++ ) {
+
+			className = classNames[i];
 			regexp = domClassCache[className];
 
-		if( !regexp ) {
+			if( !regexp ) {
 
-			regexp = domClassCache[className] = new RegExp( "(^|\\s)"+className+"($|\\s)" );
-		}
+				regexp = domClassCache[className] = new RegExp( "(^|\\s)"+className+"($|\\s)" );
+			}
 
-		classes = classes.replace( regexp, ' ' );
-		classes = classes.trim();
+			classes = classes.replace( regexp, ' ' );
+			classes = classes.trim();
 
-		if( classes === '' ) {
+			if( classes === '' ) {
 
-			node.className = null;
-		} else {
+				node.className = null;
+			} else {
 
-			node.className = classes;
+				node.className = classes;
+			}
 		}
 
 		return this;
@@ -1233,7 +1248,7 @@ PB.overwrite(Dom.prototype, {
 
 	isVisible: function () {
 
-		return this.getStyle('display') !== 'none';
+		return this.getStyle('display') !== 'none' && this.getStyle('opacity') > 0;
 	},
 
 	width: function ( width ) {
@@ -2094,17 +2109,23 @@ PB.overwrite(Dom.prototype, {
 	/**
 	 *
 	 */
-	once: function ( type, handler ) {
+	once: function ( types, handler ) {
 
-		var me = this,
-			_handler = function () {
+		var me = this;
+
+		types.split(' ').forEach(function ( type ) {
+
+			var _handler = function () {
 
 				me.off( type, _handler );
 
 				handler.apply( null, PB.toArray(arguments) );
 			};
 
-		this.on( type, _handler );
+			this.on(type, _handler);
+		}, this);
+
+		return this;
 	},
 
 	/**
@@ -2565,6 +2586,21 @@ PB.Request = PB.Class(PB.Observer, {
 });
 
 
+context.JSON || (context.JSON = {});
+
+PB.extend(context.JSON, {
+
+	stringify: function () {
+
+		alert('Not yet implemented for your browser, yet..');
+	},
+
+	parse: function ( text ) {
+
+
+		return eval('('+text+')');
+	}
+});
 
 PB.noConflict = function () {
 

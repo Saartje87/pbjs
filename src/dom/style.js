@@ -47,6 +47,7 @@ PB.overwrite(Dom.prototype, {
 			
 			value = "alpha(opacity="+(value*100)+")";
 		}
+		
 		// Crossbrowser float
 		if( property === 'float' ) {
 			
@@ -70,7 +71,7 @@ PB.overwrite(Dom.prototype, {
 			value = node.style[property],
 			o;
 		
-		if( value !== '' ) {
+		if( !value ) {
 			
 			var CSS = computedStyle ? doc.defaultView.getComputedStyle( node, null ) : node.currentStyle;
 
