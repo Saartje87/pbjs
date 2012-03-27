@@ -806,7 +806,7 @@ Dom.get.extend = function ( methods ) {
 	PB.extend( Dom.prototype, methods );
 };
 
-var Collection = function ( collection ) {
+var Collection = PB.Collection = function ( collection ) {
 
 	var i = 0;
 

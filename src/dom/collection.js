@@ -1,4 +1,4 @@
-var Collection = function ( collection ) {
+var Collection = PB.Collection = function ( collection ) {
 	
 	var i = 0;
 
