@@ -47,6 +47,7 @@ PB.overwrite(Dom.prototype, {
 			
 			value = "alpha(opacity="+(value*100)+")";
 		}
+		
 		// Crossbrowser float
 		if( property === 'float' ) {
 			

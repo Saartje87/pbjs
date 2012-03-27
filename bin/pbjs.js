@@ -983,6 +983,7 @@ PB.overwrite(Dom.prototype, {
 
 			value = "alpha(opacity="+(value*100)+")";
 		}
+
 		if( property === 'float' ) {
 
 			property = supportsCssFloat ? 'cssFloat' : 'styleFloat';
