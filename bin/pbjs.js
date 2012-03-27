@@ -2588,7 +2588,7 @@ PB.Request = PB.Class(PB.Observer, {
 
 context.JSON || (context.JSON = {});
 
-PB.overwrite(context.JSON, {
+PB.extend(context.JSON, {
 
 	stringify: function () {
 
