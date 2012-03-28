@@ -1786,7 +1786,10 @@ PB.overwrite(Dom.prototype, {
 		return this;
 	},
 
-	html: function ( html, execScripts ) {	// Todo: add evalJs boolean
+	/**
+	 * @todo script tags with src tag set should be appended to document
+	 */
+	html: function ( html, execScripts ) {
 
 		if( html === undefined ) {
 
