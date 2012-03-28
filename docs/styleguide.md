@@ -22,6 +22,7 @@ Variable declaration
 		bar;
 
 Indents show the level of indents
+
 	PB('foo')
 		.addClass('bar')
 		.removeClass('foo')
@@ -30,9 +31,11 @@ Indents show the level of indents
 			.invoke('addClass', 'foor bar');
 
 String, note there are no spaces between
+
 	'foo '+bar;
 
 Working with object
+
 	{
 		foo: bar,
 		foo: function () {
@@ -43,6 +46,7 @@ Working with object
 	}
 
 Switch case
+
 	switch ( baz ) {
 	
 		case 'foo':
