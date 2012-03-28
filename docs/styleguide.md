@@ -1,42 +1,44 @@
-function () {
+#Styleguide
+
+	function () {
 	
-};
+	};
 
-function soep() {
+	function soep() {
 	
 	
-};
+	};
 
-var foo,
-	bar;
+	var foo,
+		bar;
 
-PB('foo')
-	.addClass('bar')
-	.removeClass('foo')
-	.morph({ width: 200 })
-	.childs()
-		.invoke('addClass', 'foor bar');
+	PB('foo')
+		.addClass('bar')
+		.removeClass('foo')
+		.morph({ width: 200 })
+		.childs()
+			.invoke('addClass', 'foor bar');
 
-'foo '+bar;
+	'foo '+bar;
 
-{
-	foo: bar,
-	foo: function () {
+	{
+		foo: bar,
+		foo: function () {
 		
 		
+		}
 	}
-}
 
-switch ( baz ) {
+	switch ( baz ) {
 	
-	case 'foo':
-		// Stuff
-		break;
+		case 'foo':
+			// Stuff
+			break;
 	
-	case 'bar':
-		// Stuff
-		break;
+		case 'bar':
+			// Stuff
+			break;
 	
-	default:
-		// Stuff
-}
+		default:
+			// Stuff
+	}
