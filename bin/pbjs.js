@@ -1,5 +1,5 @@
 /*!
- * pbjs JavaScript Framework v0.5.5
+ * pbjs JavaScript Framework v0.5.6
  * https://github.com/Saartje87/pbjs
  *
  * This project is powered by Pluxbox
