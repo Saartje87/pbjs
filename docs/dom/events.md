@@ -1,5 +1,10 @@
 # Events
 
+###on
+###once
+###off
+###emit
+
 ***
 
 ###Assigning events to element
@@ -20,7 +25,7 @@
 
 ###Detaching events from element
 
-	PB('element_id').off('focus', callback);
+	PB('element_id').off('blur', callback);
 
 ***
 
