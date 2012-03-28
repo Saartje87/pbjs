@@ -1,7 +1,8 @@
 # Events
 
-###Assigning events to element
 ***
+
+###Assigning events to element
 
 	var callback = function ( e ) {
 		
@@ -15,11 +16,13 @@
 	
 	PB('element_id').on('focus blur', callback);
 
+***
 
 ###Detaching events from element
 
 	PB('element_id').off('focus', callback);
 
+***
 
 ###Dispatch event
 
