@@ -26,3 +26,17 @@ PB('foo')
 		
 	}
 }
+
+switch ( baz ) {
+	
+	case 'foo':
+		// Stuff
+		break;
+	
+	case 'bar':
+		// Stuff
+		break;
+	
+	default:
+		// Stuff
+}
