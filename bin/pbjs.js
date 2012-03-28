@@ -1884,6 +1884,10 @@ var _Event = {
 
 	supports_mouseenter_mouseleave: 'onmouseenter' in doc.documentElement && 'onmouseleave' in doc.documentElement,
 
+	HTMLEvents: /^(?:load|unload|abort|error|select|change|submit|reset|focus|blur|resize|scroll)$/,
+
+	MouseEvents: /^(?:click|mouse(?:down|up|over|move|out))$/,
+
 	manualExtend: false,
 
 	/**
@@ -2209,17 +2213,33 @@ PB.overwrite(Dom.prototype, {
 	 */
 	emit: function ( type ) {
 
-		if( document.createEvent ) {
+		var evt;
 
-			var _event = document.createEvent('MouseEvents');
+		if( _Event.HTMLEvents.test(type) ) {
 
-			_event.initMouseEvent(
-				type, true, true, window,		// type, canBubble, cancelable, view,
-				0, 0, 0, 0, 0,					// detail, screenX, screenY, clientX, clientY,
-				false, false, false, false,		// ctrlKey, altKey, shiftKey, metaKey,
-				0, null);						// button, relatedTarget
+			this.node[type]();
+		}
+		else if( document.createEvent ) {
 
-			this.node.dispatchEvent(_event);
+			if ( _Event.MouseEvents.test(type) ) {
+
+				evt = document.createEvent('MouseEvents');
+
+				evt.initMouseEvent(
+					type, true, true, window,		// type, canBubble, cancelable, view,
+					0, 0, 0, 0, 0,					// detail, screenX, screenY, clientX, clientY,
+					false, false, false, false,		// ctrlKey, altKey, shiftKey, metaKey,
+					0, null);						// button, relatedTarget
+
+				this.node.dispatchEvent(evt);
+			} else {
+
+				evt = document.createEvent('Events');
+
+				evt.initEvent( type, true, true );
+
+				this.node.dispatchEvent(evt);
+			}
 		}
 		else {
 
