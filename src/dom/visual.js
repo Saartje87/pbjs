@@ -120,7 +120,6 @@ PB.overwrite(Dom.prototype, {
 	
 	hide: function () {
 		
-		// Should be trough getStyle
 		var display = this.getStyle('display');
 		
 		// Already hidden
@@ -139,140 +138,6 @@ PB.overwrite(Dom.prototype, {
 	isVisible: function () {
 		
 		return this.getStyle('display') !== 'none' && this.getStyle('opacity') > 0;
-	},
-	
-	width: function ( width ) {
-		
-		if( width !== undefined ) {
-			
-			return this.setStyle('width', width);
-		}
-		
-		var node = this.node,
-			width;
-		
-		if( node === window ) {
-			
-			return window.innerWidth;
-		} else if ( node.nodeType === 9 ) {
-			
-			return Math.max(docElement.clientWidth, body.scrollWidth, docElement.offsetWidth);
-		}
-		
-		width = this.getStyle('width');
-		
-		if( width > 0 ) {
-			
-			return width;
-		}
-		
-		// CSS value failed, calculate
-		if( !this.isVisible() ) {
-			
-			this.show();
-			width = node.offsetWidth;
-			this.hide()
-		} else {
-			
-			width = node.offsetWidth;
-		}
-		
-		if( boxModel ) {
-			
-			width -= (this.getStyle('paddingLeft') || 0) + (this.getStyle('paddingRight') || 0);
-		}
-		
-		// Some browsers add border to offsetWidth, we remove it:)
-		if( substractBorder ) {
-			
-			width -= (this.getStyle('borderLeftWidth') || 0) + (this.getStyle('borderRightWidth') || 0);
-		}
-		
-		return width;
-	},
-	
-	innerWidth: function () {
-		
-		return this.width() + (this.getStyle('paddingLeft') || 0) + (this.getStyle('paddingRight') || 0);
-	},
-	
-	outerWidth: function () {
-			
-		var rightWidth = this.getStyle('borderRightWidth');
-		
-		return this.innerWidth() + (this.node.clientLeft + (typeof rightWidth === 'string' ? 0 : rightWidth));
-	},
-
-	scrollWidth: function () {
-
-		return this.node.scrollWidth;
-	},
-	
-	height: function ( height ) {
-		
-		if( height !== undefined ) {
-			
-			return this.setStyle('height', height);
-		}
-		
-		var node = this.node,
-			height;
-		
-		if( node === window ) {
-			
-			return window.innerHeight;
-		} else if ( node.nodeType === 9 ) {
-			
-			return Math.max(docElement.clientHeight, body.scrollHeight, docElement.offsetHeight);
-		}
-		
-		height = this.getStyle('height');
-		
-		if( height > 0 ) {
-			
-			return height;
-		}
-		
-		// CSS value failed, calculate
-		if( !this.isVisible() ) {
-			
-			this.show();
-			height = node.offsetHeight;
-			this.hide()
-		} else {
-			
-			height = node.offsetHeight;
-		}
-		
-		if( boxModel ) {
-			
-			height -= (this.getStyle('paddingTop') || 0) + (this.getStyle('paddingBottom') || 0);
-		}
-		
-		// Some browsers add border to offsetHeight, we remove it:)
-		if( substractBorder ) {
-			
-			height -= (this.getStyle('borderTopWidth') || 0) + (this.getStyle('borderBottomWidth') || 0);
-		}
-		
-		return height;
-	},
-	
-	innerHeight: function () {
-		
-		return this.height() + (this.getStyle('paddingTop') || 0) + (this.getStyle('paddingBottom') || 0);
-	},
-	
-	outerHeight: function () {
-			
-		var bottomWidth = this.getStyle('borderBottomWidth');
-		
-		return this.innerHeight() + (this.node.clientTop + (typeof bottomWidth === 'string' ? 0 : bottomWidth));
-	},
-	
-	scrollHeight: function () {
-		
-		return this.node.scrollHeight;
 	},
 	
 	getXY: function ( fromBody ) {
@@ -301,30 +166,6 @@ PB.overwrite(Dom.prototype, {
 		};
 	},
 	
-	left: function ( fromBody ) {
-		
-		if( fromBody && fromBody !== true ) {
-			
-			this.setStyle('left', fromBody);
-			
-			return this;
-		}
-		
-		return this.getXY(fromBody).left;
-	},
-	
-	top: function ( fromBody ) {
-		
-		if( fromBody && fromBody !== true ) {
-			
-			this.setStyle('top', fromBody);
-			
-			return this;
-		}
-		
-		return this.getXY(fromBody).top;
-	},
-	
 	getScroll: function () {
 		
 		var node = this.node,
@@ -341,43 +182,110 @@ PB.overwrite(Dom.prototype, {
 		}
 		
 		return scroll;
-	},
+	}
+});
+
+['Width', 'Height'].forEach(function ( name ) {
 	
-	scrollLeft: function ( x ) {
+	var pos1 = name === 'Width' ? 'Right' : 'Bottom',
+		pos2 = name === 'Width' ? 'Left' : 'Top';
+	
+	Dom.prototype[name.toLowerCase()] = function ( value ) {
 		
-		if( x === undefined ) {
+		if( value !== undefined ) {
 			
-			return this.getScroll().left;
+			return this.setStyle( lowerName, value );
 		}
 		
 		var node = this.node;
 		
-		if( node.nodeType === 9 || node === window ) {
+		if( node === window ) {
 			
-			docElement.scrollLeft = x;
-		} else {
+			return window['inner'+name];
+		} else if ( node.nodeType === 9 ) {
 			
-			node.scrollLeft = x;
+			return Math.max(docElement['clien'+name], body['scroll'+name], docElement['offset'+name]);
 		}
 		
-		return this;
-	},
+		value = this.getStyle('width');
+		
+		if( value > 0 ) {
+			
+			return value;
+		}
+		
+		// CSS value failed, calculate
+		if( !this.isVisible() ) {
+			
+			this.show();
+			width = node['offset'+name];
+			this.hide()
+		} else {
+			
+			width = node['offset'+name];
+		}
+		
+		if( boxModel ) {
+			
+			width -= (this.getStyle('padding'+pos1) || 0) + (this.getStyle('padding'+pos2) || 0);
+		}
+		
+		// Some browsers add border to offsetWidth, we remove it:)
+		if( substractBorder ) {
+			
+			width -= (this.getStyle('border'+pos1+name) || 0) + (this.getStyle('border'+pos2+name) || 0);
+		}
+		
+		return width;
+	};
 	
-	scrollTop: function ( y ) {
+	Dom.prototype['inner'+name] = function () {
 		
-		if( y === undefined ) {
+		return this.width() + (this.getStyle('padding'+pos1) || 0) + (this.getStyle('padding'+pos2) || 0);
+	};
+	
+	Dom.prototype['outer'+name] = function () {
 			
-			return this.getScroll().top;
+		var value = this.getStyle('border'+pos1);
+		
+		return this['inner'+name]() + (this.node['client'+pos2] + (typeof value === 'string' ? 0 : value));
+	};
+	
+	Dom.prototype['scroll'+name] = function () {
+			
+		return this.node['scroll'+name];
+	};
+});
+
+['Left', 'Top'].forEach(function ( name ) {
+	
+	var lowerName = name.toLowerCase();
+	
+	Dom.prototype[lowerName] = function ( fromBody ) {
+		
+		if( fromBody && fromBody !== true ) {
+			
+			this.setStyle(lowerName, fromBody);
+			
+			return this;
 		}
 		
-		var node = this.node;
+		return this.getXY(fromBody)[lowerName];
+	}
+	
+	Dom.prototype['scroll'+name] = function ( value ) {
 		
-		if( node.nodeType === 9 || node === window ) {
+		if( value === undefined ) {
 			
-			docElement.scrollTop = y;
+			return this.getScroll()[lowerName];
+		}
+		
+		if( this.node.nodeType === 9 || this.node === window ) {
+			
+			docElement['scroll'+name] = value;
 		} else {
 			
-			node.scrollTop = y;
+			this.node['scroll'+name] = value;
 		}
 		
 		return this;

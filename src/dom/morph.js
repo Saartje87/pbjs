@@ -89,10 +89,6 @@ Dom.prototype.morph = function ( to/* after, duration, effect */ ) {
 		me.setStyle(to);
 	}, 16.7);
 
-	// e.addEventListener("animationstart", listener, false);
-	//   e.addEventListener("animationend", listener, false);
-	//   e.addEventListener("animationiteration", listener, false);
-
 	return this;
 };
 
