@@ -1991,6 +1991,8 @@ var _Event = {
 
 		event.which = event.keyCode === undefined ? event.charCode : event.keyCode;
 
+		event.which = (event.which === 0 ? 1 : (event.which === 4 ? 2: (event.which === 2 ? 3 : event.which)));
+
 		return event;
 	}
 };
