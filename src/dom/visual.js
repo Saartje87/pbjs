@@ -204,7 +204,7 @@ PB.overwrite(Dom.prototype, {
 			return window['inner'+name];
 		} else if ( node.nodeType === 9 ) {
 			
-			return Math.max(docElement['clien'+name], body['scroll'+name], docElement['offset'+name]);
+			return Math.max(docElement['client'+name], body['scroll'+name], docElement['offset'+name]);
 		}
 		
 		value = this.getStyle('width');
