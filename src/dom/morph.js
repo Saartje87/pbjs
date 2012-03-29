@@ -23,12 +23,6 @@ Dom.supportsCSSAnimation = supportsCSSAnimation;
 
 Dom.prototype.morph = function ( to/* after, duration, effect */ ) {
 
-	// No animation supported, set directly to end styles
-	if( !supportsCSSAnimation ) {
-
-		return this.setStyle(to);
-	}
-
 	var options = {
 
 			to: to,
@@ -56,8 +50,24 @@ Dom.prototype.morph = function ( to/* after, duration, effect */ ) {
 			// 	break;
 		}
 	}
+	
+	// No animation supported, set the styles..
+	if( !supportsCSSAnimation ) {
 
-	if(options.after) me.once('webkitTransitionEnd oTransitionEnd transitionend', options.after);
+		this.setStyle(to);
+		
+		if( options.after ) {
+
+			options.after();
+		}
+		
+		return this;
+	}
+
+	if( options.after ) {
+		
+		me.once('webkitTransitionEnd oTransitionEnd transitionend', options.after);
+	} 
 
 	PB.each(options.to, function ( key, value ) {
 
@@ -77,7 +87,7 @@ Dom.prototype.morph = function ( to/* after, duration, effect */ ) {
 	setTimeout(function() {
 
 		me.setStyle(to);
-	}, 16.67);
+	}, 16.7);
 
 	// e.addEventListener("animationstart", listener, false);
 	//   e.addEventListener("animationend", listener, false);
