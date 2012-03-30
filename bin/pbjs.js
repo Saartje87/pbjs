@@ -1308,10 +1308,11 @@ PB.overwrite(Dom.prototype, {
 
 ['Width', 'Height'].forEach(function ( name ) {
 
-	var pos1 = name === 'Width' ? 'Right' : 'Bottom',
+	var lowerName = name.toLowerCase(),
+		pos1 = name === 'Width' ? 'Right' : 'Bottom',
 		pos2 = name === 'Width' ? 'Left' : 'Top';
 
-	Dom.prototype[name.toLowerCase()] = function ( value ) {
+	Dom.prototype[lowerName] = function ( value ) {
 
 		if( value !== undefined ) {
 
