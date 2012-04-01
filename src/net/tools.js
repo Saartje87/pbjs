@@ -26,7 +26,7 @@ PB.overwrite(PB.Net, {
 		if( typeof mixed === 'string' ) {
 			
 			return mixed;
-		} else if( Array.isArray(mixed) === true ) {
+		} else if( Array.isArray(mixed) ) {
 			
 			mixed.forEach(function ( value, key ) {
 				

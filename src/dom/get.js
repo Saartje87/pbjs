@@ -32,7 +32,7 @@ Dom.get = function ( element ) {
 	}
 
 	// In cache?
-	if( typeof element.__PBJS_ID__ === 'number' && cache.hasOwnProperty(element.__PBJS_ID__) === true ) {
+	if( typeof element.__PBJS_ID__ === 'number' && cache.hasOwnProperty(element.__PBJS_ID__) ) {
 
 		return cache[element.__PBJS_ID__];
 	}

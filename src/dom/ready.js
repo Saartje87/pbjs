@@ -8,7 +8,7 @@ PB.ready = (function () {
 	
 	function handleState () {
 		
-		if( ready === true || doc.readyState !== 'complete' ) {
+		if( ready || doc.readyState !== 'complete' ) {
 			
 			return;
 		}

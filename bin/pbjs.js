@@ -785,7 +785,7 @@ Dom.get = function ( element ) {
 		return null;
 	}
 
-	if( typeof element.__PBJS_ID__ === 'number' && cache.hasOwnProperty(element.__PBJS_ID__) === true ) {
+	if( typeof element.__PBJS_ID__ === 'number' && cache.hasOwnProperty(element.__PBJS_ID__) ) {
 
 		return cache[element.__PBJS_ID__];
 	}
@@ -1303,30 +1303,23 @@ PB.overwrite(Dom.prototype, {
 		}
 
 		return scroll;
-	}
-});
+	},
 
-['Width', 'Height'].forEach(function ( name ) {
-
-	var lowerName = name.toLowerCase(),
-		pos1 = name === 'Width' ? 'Right' : 'Bottom',
-		pos2 = name === 'Width' ? 'Left' : 'Top';
-
-	Dom.prototype[lowerName] = function ( value ) {
+	width: function ( value ) {
 
 		if( value !== undefined ) {
 
-			return this.setStyle( lowerName, value );
+			return this.setStyle('width', value);
 		}
 
 		var node = this.node;
 
 		if( node === window ) {
 
-			return window['inner'+name];
+			return window.innerWidth;
 		} else if ( node.nodeType === 9 ) {
 
-			return Math.max(docElement['client'+name], body['scroll'+name], docElement['offset'+name]);
+			return Math.max(docElement.clientWidth, body.scrollWidth, docElement.offsetWidth);
 		}
 
 		value = this.getStyle('width');
@@ -1339,76 +1332,105 @@ PB.overwrite(Dom.prototype, {
 		if( !this.isVisible() ) {
 
 			this.show();
-			width = node['offset'+name];
+			value = node.offsetWidth;
 			this.hide()
 		} else {
 
-			width = node['offset'+name];
+			value = node.offsetWidth;
 		}
 
 		if( boxModel ) {
 
-			width -= (this.getStyle('padding'+pos1) || 0) + (this.getStyle('padding'+pos2) || 0);
+			value -= (this.getStyle('paddingLeft') || 0) + (this.getStyle('paddingRight') || 0);
 		}
 
 		if( substractBorder ) {
 
-			width -= (this.getStyle('border'+pos1+name) || 0) + (this.getStyle('border'+pos2+name) || 0);
+			value -= (this.getStyle('borderLeftWidth') || 0) + (this.getStyle('borderRightWidth') || 0);
 		}
 
-		return width;
-	};
+		return value;
+	},
 
-	Dom.prototype['inner'+name] = function () {
+	innerWidth: function () {
 
-		return this.width() + (this.getStyle('padding'+pos1) || 0) + (this.getStyle('padding'+pos2) || 0);
-	};
+		return this.width() + (this.getStyle('paddingLeft') || 0) + (this.getStyle('paddingRight') || 0);
+	},
 
-	Dom.prototype['outer'+name] = function () {
+	outerWidth: function () {
 
-		var value = this.getStyle('border'+pos1);
+		var rightWidth = this.getStyle('borderRightWidth');
 
-		return this['inner'+name]() + (this.node['client'+pos2] + (typeof value === 'string' ? 0 : value));
-	};
+		return this.innerWidth() + (this.node.clientLeft + (typeof rightWidth === 'string' ? 0 : rightWidth));
+	},
 
-	Dom.prototype['scroll'+name] = function () {
+	scrollWidth: function () {
 
-		return this.node['scroll'+name];
-	};
-});
+		return this.node.scrollWidth;
+	},
 
-['Left', 'Top'].forEach(function ( name ) {
+	height: function ( value ) {
 
-	var lowerName = name.toLowerCase();
+		if( value !== undefined ) {
 
-	Dom.prototype[lowerName] = function ( fromBody ) {
-
-		if( fromBody && fromBody !== true ) {
-
-			this.setStyle(lowerName, fromBody);
-
-			return this;
+			return this.setStyle('height', value);
 		}
 
-		return this.getXY(fromBody)[lowerName];
-	}
+		var node = this.node;
 
-	Dom.prototype['scroll'+name] = function ( value ) {
+		if( node === window ) {
 
-		if( value === undefined ) {
+			return window.innerHeight;
+		} else if ( node.nodeType === 9 ) {
 
-			return this.getScroll()[lowerName];
+			return Math.max(docElement.clientHeight, body.scrollHeight, docElement.offsetHeight);
 		}
 
-		if( this.node.nodeType === 9 || this.node === window ) {
+		value = this.getStyle('height');
 
-			docElement['scroll'+name] = value;
+		if( value > 0 ) {
+
+			return value;
+		}
+
+		if( !this.isVisible() ) {
+
+			this.show();
+			value = node.offsetHeight;
+			this.hide()
 		} else {
 
-			this.node['scroll'+name] = value;
+			value = node.offsetHeight;
 		}
 
-		return this;
+		if( boxModel ) {
+
+			value -= (this.getStyle('paddingTop') || 0) + (this.getStyle('paddingBottom') || 0);
+		}
+
+		if( substractBorder ) {
+
+			value -= (this.getStyle('borderTopWidth') || 0) + (this.getStyle('borderBottomWidth') || 0);
+		}
+
+		return value;
+	},
+
+	innerHeight: function () {
+
+		return this.height() + (this.getStyle('paddingTop') || 0) + (this.getStyle('paddingBottom') || 0);
+	},
+
+	outerHeight: function () {
+
+		var bottomWidth = this.getStyle('borderBottomWidth');
+
+		return this.innerHeight() + (this.node.clientTop + (typeof bottomWidth === 'string' ? 0 : bottomWidth));
+	},
+
+	scrollHeight: function () {
+
+		return this.node.scrollHeight;
 	}
 });
 
@@ -2258,7 +2280,7 @@ PB.ready = (function () {
 
 	function handleState () {
 
-		if( ready === true || doc.readyState !== 'complete' ) {
+		if( ready || doc.readyState !== 'complete' ) {
 
 			return;
 		}
@@ -2332,7 +2354,7 @@ PB.overwrite(PB.Net, {
 		if( typeof mixed === 'string' ) {
 
 			return mixed;
-		} else if( Array.isArray(mixed) === true ) {
+		} else if( Array.isArray(mixed) ) {
 
 			mixed.forEach(function ( value, key ) {
 
@@ -2407,7 +2429,7 @@ PB.Request = PB.Class(PB.Observer, {
 
 			case 'header':
 			case 'headers':
-				if( PB.is('Object', value) === true ) {
+				if( PB.is('Object', value) ) {
 
 					PB.overwrite(this.headers, value);
 				}
