@@ -1092,7 +1092,7 @@ Dom.prototype.morph = function ( to/* after, duration, effect */ ) {
 
 		if( options.after ) {
 
-			options.after();
+			options.after( this );
 		}
 
 		return this;
@@ -1100,7 +1100,7 @@ Dom.prototype.morph = function ( to/* after, duration, effect */ ) {
 
 	if( options.after ) {
 
-		me.once('webkitTransitionEnd oTransitionEnd transitionend', options.after);
+		me.once('webkitTransitionEnd oTransitionEnd transitionend', options.after.bind( null, this ));
 	}
 
 	PB.each(options.to, function ( key, value ) {
