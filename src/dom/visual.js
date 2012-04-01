@@ -182,30 +182,23 @@ PB.overwrite(Dom.prototype, {
 		}
 		
 		return scroll;
-	}
-});
-
-['Width', 'Height'].forEach(function ( name ) {
+	},
 	
-	var lowerName = name.toLowerCase(),
-		pos1 = name === 'Width' ? 'Right' : 'Bottom',
-		pos2 = name === 'Width' ? 'Left' : 'Top';
-	
-	Dom.prototype[lowerName] = function ( value ) {
+	width: function ( value ) {
 		
 		if( value !== undefined ) {
 			
-			return this.setStyle( lowerName, value );
+			return this.setStyle('width', value);
 		}
 		
 		var node = this.node;
 		
 		if( node === window ) {
 			
-			return window['inner'+name];
+			return window.innerWidth;
 		} else if ( node.nodeType === 9 ) {
 			
-			return Math.max(docElement['client'+name], body['scroll'+name], docElement['offset'+name]);
+			return Math.max(docElement.clientWidth, body.scrollWidth, docElement.offsetWidth);
 		}
 		
 		value = this.getStyle('width');
@@ -219,77 +212,108 @@ PB.overwrite(Dom.prototype, {
 		if( !this.isVisible() ) {
 			
 			this.show();
-			width = node['offset'+name];
+			value = node.offsetWidth;
 			this.hide()
 		} else {
 			
-			width = node['offset'+name];
+			value = node.offsetWidth;
 		}
 		
 		if( boxModel ) {
 			
-			width -= (this.getStyle('padding'+pos1) || 0) + (this.getStyle('padding'+pos2) || 0);
+			value -= (this.getStyle('paddingLeft') || 0) + (this.getStyle('paddingRight') || 0);
 		}
 		
 		// Some browsers add border to offsetWidth, we remove it:)
 		if( substractBorder ) {
 			
-			width -= (this.getStyle('border'+pos1+name) || 0) + (this.getStyle('border'+pos2+name) || 0);
+			value -= (this.getStyle('borderLeftWidth') || 0) + (this.getStyle('borderRightWidth') || 0);
 		}
 		
-		return width;
-	};
+		return value;
+	},
 	
-	Dom.prototype['inner'+name] = function () {
+	innerWidth: function () {
 		
-		return this.width() + (this.getStyle('padding'+pos1) || 0) + (this.getStyle('padding'+pos2) || 0);
-	};
+		return this.width() + (this.getStyle('paddingLeft') || 0) + (this.getStyle('paddingRight') || 0);
+	},
 	
-	Dom.prototype['outer'+name] = function () {
+	outerWidth: function () {
 			
-		var value = this.getStyle('border'+pos1);
+		var rightWidth = this.getStyle('borderRightWidth');
 		
-		return this['inner'+name]() + (this.node['client'+pos2] + (typeof value === 'string' ? 0 : value));
-	};
-	
-	Dom.prototype['scroll'+name] = function () {
-			
-		return this.node['scroll'+name];
-	};
-});
+		return this.innerWidth() + (this.node.clientLeft + (typeof rightWidth === 'string' ? 0 : rightWidth));
+	},
 
-['Left', 'Top'].forEach(function ( name ) {
+	scrollWidth: function () {
+
+		return this.node.scrollWidth;
+	},
 	
-	var lowerName = name.toLowerCase();
-	
-	Dom.prototype[lowerName] = function ( fromBody ) {
+	height: function ( value ) {
 		
-		if( fromBody && fromBody !== true ) {
+		if( value !== undefined ) {
 			
-			this.setStyle(lowerName, fromBody);
-			
-			return this;
+			return this.setStyle('height', value);
 		}
 		
-		return this.getXY(fromBody)[lowerName];
-	}
-	
-	Dom.prototype['scroll'+name] = function ( value ) {
+		var node = this.node;
 		
-		if( value === undefined ) {
+		if( node === window ) {
 			
-			return this.getScroll()[lowerName];
+			return window.innerHeight;
+		} else if ( node.nodeType === 9 ) {
+			
+			return Math.max(docElement.clientHeight, body.scrollHeight, docElement.offsetHeight);
 		}
 		
-		if( this.node.nodeType === 9 || this.node === window ) {
+		value = this.getStyle('height');
+		
+		if( value > 0 ) {
 			
-			docElement['scroll'+name] = value;
+			return value;
+		}
+		
+		// CSS value failed, calculate
+		if( !this.isVisible() ) {
+			
+			this.show();
+			value = node.offsetHeight;
+			this.hide()
 		} else {
 			
-			this.node['scroll'+name] = value;
+			value = node.offsetHeight;
 		}
 		
-		return this;
+		if( boxModel ) {
+			
+			value -= (this.getStyle('paddingTop') || 0) + (this.getStyle('paddingBottom') || 0);
+		}
+		
+		// Some browsers add border to offsetHeight, we remove it:)
+		if( substractBorder ) {
+			
+			value -= (this.getStyle('borderTopWidth') || 0) + (this.getStyle('borderBottomWidth') || 0);
+		}
+		
+		return value;
+	},
+	
+	innerHeight: function () {
+		
+		return this.height() + (this.getStyle('paddingTop') || 0) + (this.getStyle('paddingBottom') || 0);
+	},
+	
+	outerHeight: function () {
+			
+		var bottomWidth = this.getStyle('borderBottomWidth');
+		
+		return this.innerHeight() + (this.node.clientTop + (typeof bottomWidth === 'string' ? 0 : bottomWidth));
+	},
+	
+	scrollHeight: function () {
+		
+		return this.node.scrollHeight;
 	}
 });
 
