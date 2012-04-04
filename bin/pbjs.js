@@ -755,6 +755,8 @@ function cleanupCache () {
 	}
 };
 
+setInterval(cleanupCache, 30000);
+
 /**
  * Retrieve element with Dom closure
  */
@@ -793,17 +795,6 @@ Dom.get = function ( element ) {
 	element.__PBJS_ID__ = PB.id();
 
 	return cache[element.__PBJS_ID__] = new Dom( element );
-};
-
-Dom.get.extend = function ( methods ) {
-
-	if( arguments.length === 2 ) {
-
-		Dom.prototype[arguments[0]] = arguments[1];
-		return;
-	}
-
-	PB.extend( Dom.prototype, methods );
 };
 
 var Collection = PB.Collection = function ( collection ) {
@@ -1747,8 +1738,6 @@ PB.overwrite(Dom.prototype, {
 	empty: function () {
 
 		this.html('');
-
-		cleanupCache();
 
 		return this;
 	},

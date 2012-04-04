@@ -43,15 +43,3 @@ Dom.get = function ( element ) {
 	return cache[element.__PBJS_ID__] = new Dom( element );
 };
 
-Dom.get.extend = function ( methods ) {
-	
-	if( arguments.length === 2 ) {
-		
-		Dom.prototype[arguments[0]] = arguments[1];
-		return;
-	}
-	
-	// Extend Dom prototype
-	PB.extend( Dom.prototype, methods );
-};
-

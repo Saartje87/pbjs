@@ -36,5 +36,7 @@ function cleanupCache () {
 			Dom.remove();
 		}
 	}
-};
+};	
+
+setInterval(cleanupCache, 30000);
 

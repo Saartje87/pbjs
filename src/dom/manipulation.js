@@ -156,9 +156,6 @@ PB.overwrite(Dom.prototype, {
 		
 		this.html('');
 		
-		// Cleanup cache
-		cleanupCache();
-		
 		return this;
 	},
 	
