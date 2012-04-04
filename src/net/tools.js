@@ -38,6 +38,11 @@ PB.overwrite(PB.Net, {
 			
 			Object.keys(mixed).forEach(function ( key ) {
 				
+				if( queryString ) {
+					
+					queryString += '&';
+				}
+				
 				queryString += typeof mixed[key] === 'object'
 					? PB.Net.buildQueryString( mixed[key], key+'[]' )
 					: (prefix || key)+"="+encodeURIComponent(mixed[key])+'&';
