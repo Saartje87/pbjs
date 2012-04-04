@@ -1,7 +1,7 @@
 var domClassCache = {},
 	boxModel = false,
 	substractBorder = false;
-	
+
 (function support (){
 	
 	if( !doc.body ) {
@@ -111,9 +111,13 @@ PB.overwrite(Dom.prototype, {
 	 */
 	show: function () {
 		
-		this.node.style.display = this.get('css-display') || 'block';
+		// Not needed I guess
+		// if( this.getStyle('display') !== 'none' ) {
+		// 	
+		// 	return this;
+		// }
 		
-		this.unset('css-display');
+		this.node.style.display = this.get('css-display') || 'block';
 		
 		return this;
 	},
@@ -314,6 +318,31 @@ PB.overwrite(Dom.prototype, {
 	scrollHeight: function () {
 		
 		return this.node.scrollHeight;
+	}
+});
+
+PB.each({ left: 'Left', top: 'Top' }, function ( lower, upper ) {
+	
+	Dom.prototype['scroll'+upper] =  function ( value ) {
+		
+		if( value !== undefined ) {
+			
+			this.node['scroll'+upper] = value;
+		}
+		
+		return this.getScroll()[lower];
+	};
+	
+	Dom.prototype[lower] = function ( fromBody ) {
+		
+		if( fromBody && fromBody !== true ) {
+
+			this.setStyle(lower, fromBody);
+
+			return this;
+		}
+
+		return this.getXY(fromBody)[lower];
 	}
 });
 
