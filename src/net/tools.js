@@ -16,40 +16,38 @@ PB.overwrite(PB.Net, {
 	 */
 	buildQueryString: function ( mixed, prefix ) {
 		
-		var queryString = '';
+		var query = '',
+			isArray = false;
 		
-		if( mixed === null ) {
-			
-			return queryString;
-		}
-		
-		if( typeof mixed === 'string' ) {
+		if( !mixed ) {
 			
 			return mixed;
-		} else if( Array.isArray(mixed) ) {
-			
-			mixed.forEach(function ( value, key ) {
-				
-				queryString += typeof value === 'object'
-					? PB.Net.buildQueryString( value, (prefix || key)+'[]' )
-					: (prefix || key)+"="+encodeURIComponent(value)+'&';
-			});
-		} else if( PB.is('Object', mixed) ) {
-			
-			Object.keys(mixed).forEach(function ( key ) {
-				
-				if( queryString ) {
-					
-					queryString += '&';
-				}
-				
-				queryString += typeof mixed[key] === 'object'
-					? PB.Net.buildQueryString( mixed[key], key+'[]' )
-					: (prefix || key)+"="+encodeURIComponent(mixed[key])+'&';
-			});
 		}
 		
-		return queryString.replace(/&$/, '');
+		if( PB.is('Object', mixed) || (isArray = PB.is('Array', mixed)) ) {
+			
+			PB.each(mixed, function ( key, value ) {
+				
+				if( typeof value === 'object' ) {
+					
+					query += PB.Net.buildQueryString( value, prefix ? prefix+'['+key+']' : key );
+				} else {
+					
+					// Add key, if object add prefix[key] if array prefix[]
+					query += prefix
+						? prefix+(isArray ? '[]' : '['+key+']')
+						: key;
+				
+					query += '='+encodeURIComponent( value )+'&';
+				}
+			});
+		} else {
+			
+			query = String(mixed);
+			query = encodeURIComponent(query);
+		}
+		
+		return prefix ? query : query.replace(/&$/, '');
 	}
 });
 
