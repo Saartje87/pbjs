@@ -2021,12 +2021,9 @@ PB.overwrite(Dom.prototype, {
 			eventsType,
 			i;
 
-		if( type === 'mouseenter' && _Event.supports_mouseenter_mouseleave === false ) {
+		if( _Event.supports_mouseenter_mouseleave === false ) {
 
-			type = 'mouseover';
-		} else if ( type === 'mouseleave' && _Event.supports_mouseenter_mouseleave === false ) {
-
-			type = 'mouseout';
+			type = (type === 'mouseenter' ? 'mouseover' : (type === 'mouseleave' ? 'mouseout' : type));
 		}
 
 		if( !events ) {

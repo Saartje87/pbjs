@@ -213,12 +213,9 @@ PB.overwrite(Dom.prototype, {
 			i;
 		
 		// Add mouseenter/mouseleave 'type' support...
-		if( type === 'mouseenter' && _Event.supports_mouseenter_mouseleave === false ) {
+		if( _Event.supports_mouseenter_mouseleave === false ) {
 			
-			type = 'mouseover';
-		} else if ( type === 'mouseleave' && _Event.supports_mouseenter_mouseleave === false ) {
-			
-			type = 'mouseout';
+			type = (type === 'mouseenter' ? 'mouseover' : (type === 'mouseleave' ? 'mouseout' : type));
 		}
 		
 		// Cache exists for node?
