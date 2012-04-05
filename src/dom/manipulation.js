@@ -8,7 +8,7 @@ try {
 	tableInnerHTMLbuggie = true;
 }
 
-PB.overwrite(Dom.prototype, {
+PB.overwrite(PB.dom, {
 	
 	/**
 	 * Append element to self

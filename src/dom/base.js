@@ -15,7 +15,10 @@ var Dom = PB.Dom = function ( node ) {
 	this._flagged_ = (node === win || node === doc || node === docElement || node === body);
 };
 
-Dom.prototype.toString = function () {
+// Use PB.dom for extenstions
+PB.dom = PB.Dom.prototype;
+
+PB.dom.toString = function () {
 	
 	return '[Object Dom]';
 };

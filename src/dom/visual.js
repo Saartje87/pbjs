@@ -30,7 +30,7 @@ var domClassCache = {},
 	testElement = null;
 })();
 
-PB.overwrite(Dom.prototype, {
+PB.overwrite(PB.dom, {
 	
 	/**
 	 * Check if element has class
@@ -323,7 +323,7 @@ PB.overwrite(Dom.prototype, {
 
 PB.each({ left: 'Left', top: 'Top' }, function ( lower, upper ) {
 	
-	Dom.prototype['scroll'+upper] =  function ( value ) {
+	PB.dom['scroll'+upper] =  function ( value ) {
 		
 		if( value !== undefined ) {
 			
@@ -333,7 +333,7 @@ PB.each({ left: 'Left', top: 'Top' }, function ( lower, upper ) {
 		return this.getScroll()[lower];
 	};
 	
-	Dom.prototype[lower] = function ( fromBody ) {
+	PB.dom[lower] = function ( fromBody ) {
 		
 		if( fromBody && fromBody !== true ) {
 

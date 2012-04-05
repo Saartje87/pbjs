@@ -187,7 +187,7 @@ if( window.attachEvent && !window.addEventListener ) {
 /**
  *
  */
-PB.overwrite(Dom.prototype, {
+PB.overwrite(PB.dom, {
 	
 	/**
 	 * 

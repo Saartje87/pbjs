@@ -730,7 +730,9 @@ var Dom = PB.Dom = function ( node ) {
 	this._flagged_ = (node === win || node === doc || node === docElement || node === body);
 };
 
-Dom.prototype.toString = function () {
+PB.dom = PB.Dom.prototype;
+
+PB.dom.toString = function () {
 
 	return '[Object Dom]';
 };
@@ -855,7 +857,7 @@ Collection.prototype = {
 	indexOf: Array.prototype.indexOf
 };
 
-PB.overwrite(Dom.prototype, {
+PB.overwrite(PB.dom, {
 
 	set: function ( key, value ) {
 
@@ -879,7 +881,7 @@ PB.overwrite(Dom.prototype, {
 	}
 });
 
-PB.overwrite(Dom.prototype, {
+PB.overwrite(PB.dom, {
 
 	/**
 	 * Set/get/remove attribute
@@ -964,7 +966,7 @@ function removeUnits ( value ) {
 	return unit.test( value ) ? parseInt( value, 10 ) : value;
 }
 
-PB.overwrite(Dom.prototype, {
+PB.overwrite(PB.dom, {
 
 	setStyle: function ( property, value ) {
 
@@ -1055,7 +1057,7 @@ while( !supportsCSSAnimation && i-- ) {
 
 Dom.supportsCSSAnimation = supportsCSSAnimation;
 
-Dom.prototype.morph = function ( to/* after, duration, effect */ ) {
+PB.dom.morph = function ( to/* after, duration, effect */ ) {
 
 	var options = {
 
@@ -1149,7 +1151,7 @@ var domClassCache = {},
 	testElement = null;
 })();
 
-PB.overwrite(Dom.prototype, {
+PB.overwrite(PB.dom, {
 
 	/**
 	 * Check if element has class
@@ -1430,7 +1432,7 @@ PB.overwrite(Dom.prototype, {
 
 PB.each({ left: 'Left', top: 'Top' }, function ( lower, upper ) {
 
-	Dom.prototype['scroll'+upper] =  function ( value ) {
+	PB.dom['scroll'+upper] =  function ( value ) {
 
 		if( value !== undefined ) {
 
@@ -1440,7 +1442,7 @@ PB.each({ left: 'Left', top: 'Top' }, function ( lower, upper ) {
 		return this.getScroll()[lower];
 	};
 
-	Dom.prototype[lower] = function ( fromBody ) {
+	PB.dom[lower] = function ( fromBody ) {
 
 		if( fromBody && fromBody !== true ) {
 
@@ -1453,7 +1455,7 @@ PB.each({ left: 'Left', top: 'Top' }, function ( lower, upper ) {
 	}
 });
 
-PB.overwrite(Dom.prototype, {
+PB.overwrite(PB.dom, {
 
 	parent: function () {
 
@@ -1595,7 +1597,7 @@ try {
 	tableInnerHTMLbuggie = true;
 }
 
-PB.overwrite(Dom.prototype, {
+PB.overwrite(PB.dom, {
 
 	/**
 	 * Append element to self
@@ -2011,7 +2013,7 @@ if( window.attachEvent && !window.addEventListener ) {
 /**
  *
  */
-PB.overwrite(Dom.prototype, {
+PB.overwrite(PB.dom, {
 
 	/**
 	 *
@@ -2223,7 +2225,7 @@ PB.overwrite(Dom.prototype, {
 	}
 });
 
-PB.overwrite(Dom.prototype, {
+PB.overwrite(PB.dom, {
 
 	/**
 	 * Serialize form element to object

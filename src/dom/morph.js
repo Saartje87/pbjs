@@ -21,7 +21,7 @@ while( !supportsCSSAnimation && i-- ) {
 // For external modules
 Dom.supportsCSSAnimation = supportsCSSAnimation;
 
-Dom.prototype.morph = function ( to/* after, duration, effect */ ) {
+PB.dom.morph = function ( to/* after, duration, effect */ ) {
 
 	var options = {
 
