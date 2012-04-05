@@ -1,4 +1,4 @@
-var unit = /px$/i,
+var unit = /^[\d.]+px$/i,
 	opacity = /alpha\(opacity=(.*)\)/i,
 	computedStyle = doc.defaultView && doc.defaultView.getComputedStyle,
 	skipUnits = 'zIndex zoom fontWeight opacity', //.split(' '),
