@@ -281,7 +281,7 @@ PB.overwrite(Dom.prototype, {
 				
 				me.off( type, _handler );
 				
-				handler.apply( null, PB.toArray(arguments) );
+				handler.apply( me.node, PB.toArray(arguments) );
 			};
 			
 			// Assign event
