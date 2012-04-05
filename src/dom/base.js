@@ -9,6 +9,10 @@ var Dom = PB.Dom = function ( node ) {
 	
 	// 
 	this.storage = {};
+	
+	// window, document, documentElement and body shouldn't be removed
+	// So flag the instance
+	this._flagged_ = (node === win || node === doc || node === docElement || node === body);
 };
 
 Dom.prototype.toString = function () {
@@ -21,7 +25,7 @@ Dom.prototype.toString = function () {
  *
  * Exclude objects that got documentFragement as parent?
  */
-function cleanupCache () {
+function collectGarbage () {
 	
 	var docEl = PB(docElement),
 		key,
@@ -31,12 +35,15 @@ function cleanupCache () {
 		
 		Dom = cache[key];
 		
-		if( cache.hasOwnProperty(key) && Dom.node !== win && Dom.node !== doc && Dom.node !== docElement && !docEl.contains(Dom) ) {
+		if( cache.hasOwnProperty(key) && !Dom._flagged_ && !docEl.contains(Dom) ) {
 			
+		//	console.log( 'Removing: ', Dom.node );
 			Dom.remove();
 		}
 	}
+	
+	setTimeout(collectGarbage, 30000);
 };	
 
-setInterval(cleanupCache, 30000);
+setTimeout(collectGarbage, 30000);
 

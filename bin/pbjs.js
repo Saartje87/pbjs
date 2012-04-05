@@ -726,6 +726,8 @@ var Dom = PB.Dom = function ( node ) {
 	}
 
 	this.storage = {};
+
+	this._flagged_ = (node === win || node === doc || node === docElement || node === body);
 };
 
 Dom.prototype.toString = function () {
@@ -738,7 +740,7 @@ Dom.prototype.toString = function () {
  *
  * Exclude objects that got documentFragement as parent?
  */
-function cleanupCache () {
+function collectGarbage () {
 
 	var docEl = PB(docElement),
 		key,
@@ -748,14 +750,16 @@ function cleanupCache () {
 
 		Dom = cache[key];
 
-		if( cache.hasOwnProperty(key) && Dom.node !== win && Dom.node !== doc && Dom.node !== docElement && !docEl.contains(Dom) ) {
+		if( cache.hasOwnProperty(key) && !Dom._flagged_ && !docEl.contains(Dom) ) {
 
 			Dom.remove();
 		}
 	}
+
+	setTimeout(collectGarbage, 30000);
 };
 
-setInterval(cleanupCache, 30000);
+setTimeout(collectGarbage, 30000);
 
 /**
  * Retrieve element with Dom closure
@@ -1605,6 +1609,8 @@ PB.overwrite(Dom.prototype, {
 
 		this.node.appendChild( element.node );
 
+		element._flagged_ = 0;
+
 		return this;
 	},
 
@@ -1635,6 +1641,8 @@ PB.overwrite(Dom.prototype, {
 
 		target.parent().node.insertBefore( this.node, target.node );
 
+		this._flagged_ = 0;
+
 		return this;
 	},
 
@@ -1657,6 +1665,8 @@ PB.overwrite(Dom.prototype, {
 
 			target.parent().node.insertBefore( this.node, next.node );
 		}
+
+		this._flagged_ = 0;
 
 		return this;
 	},
@@ -1709,6 +1719,8 @@ PB.overwrite(Dom.prototype, {
 			childs[i].removeAttribute('__PBJS_ID__');
 		}
 
+		this._flagged_ = true;
+
 		return Dom.get(clone);
 	},
 
@@ -1729,6 +1741,8 @@ PB.overwrite(Dom.prototype, {
 
 			node.parentNode.removeChild( node );
 		}
+
+		this._flagged_ = 0;
 
 		this.node = node = null;
 
@@ -2272,6 +2286,8 @@ Dom.create = function ( chunk ) {
 
 	div = null;
 
+	childs.forEach( Dom.create.flag );
+
 	if( childs.length === 1 ) {
 
 		return childs[0];
@@ -2279,6 +2295,11 @@ Dom.create = function ( chunk ) {
 
 	return childs;
 };
+
+Dom.create.flag = function ( element ) {
+
+	element._flagged_ = true;
+}
 
 PB.ready = (function () {
 
