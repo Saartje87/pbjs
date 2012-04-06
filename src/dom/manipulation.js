@@ -8,7 +8,7 @@ try {
 	tableInnerHTMLbuggie = true;
 }
 
-PB.overwrite(Dom.prototype, {
+PB.overwrite(PB.dom, {
 	
 	/**
 	 * Append element to self
@@ -21,6 +21,8 @@ PB.overwrite(Dom.prototype, {
 		}
 		
 		this.node.appendChild( element.node );
+		
+		element._flagged_ = 0;
 		
 		return this;
 	},
@@ -52,6 +54,8 @@ PB.overwrite(Dom.prototype, {
 		
 		target.parent().node.insertBefore( this.node, target.node );
 		
+		this._flagged_ = 0;
+		
 		return this;
 	},
 	
@@ -74,6 +78,8 @@ PB.overwrite(Dom.prototype, {
 			
 			target.parent().node.insertBefore( this.node, next.node );
 		}
+		
+		this._flagged_ = 0;
 		
 		return this;
 	},
@@ -126,6 +132,8 @@ PB.overwrite(Dom.prototype, {
 			childs[i].removeAttribute('__PBJS_ID__');
 		}
 		
+		this._flagged_ = true;
+		
 		return Dom.get(clone);
 	},
 	
@@ -146,6 +154,8 @@ PB.overwrite(Dom.prototype, {
 
 			node.parentNode.removeChild( node );
 		}
+		
+		this._flagged_ = 0;
 
 		this.node = node = null;
 		
@@ -156,14 +166,13 @@ PB.overwrite(Dom.prototype, {
 		
 		this.html('');
 		
-		// Cleanup cache
-		cleanupCache();
-		
 		return this;
 	},
 	
-	// Todo: eval js.. ?
-	html: function ( html, execScripts ) {	// Todo: add evalJs boolean
+	/**
+	 * @todo script tags with src tag set should be appended to document
+	 */
+	html: function ( html, execScripts ) {
 		
 		if( html === undefined ) {
 			

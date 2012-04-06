@@ -1,4 +1,4 @@
-PB.overwrite(Dom.prototype, {
+PB.overwrite(PB.dom, {
 	
 	/**
 	 * Serialize form element to object

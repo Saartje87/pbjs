@@ -25,6 +25,10 @@ cache = {
 var _Event = {
 	
 	supports_mouseenter_mouseleave: 'onmouseenter' in doc.documentElement && 'onmouseleave' in doc.documentElement,
+	
+	HTMLEvents: /^(?:load|unload|abort|error|select|change|submit|reset|focus|blur|resize|scroll)$/,
+	
+	MouseEvents: /^(?:click|mouse(?:down|up|over|move|out))$/,
 
 	manualExtend: false,
 	
@@ -132,6 +136,9 @@ var _Event = {
 		// Which, keyCode
 		event.which = event.keyCode === undefined ? event.charCode : event.keyCode;
 		
+		// Corrent button codes 0 => 1, 4 => 2, 2 => 3
+		event.which = (event.which === 0 ? 1 : (event.which === 4 ? 2: (event.which === 2 ? 3 : event.which)));
+		
 		return event;
 	}
 };
@@ -180,7 +187,7 @@ if( window.attachEvent && !window.addEventListener ) {
 /**
  *
  */
-PB.overwrite(Dom.prototype, {
+PB.overwrite(PB.dom, {
 	
 	/**
 	 * 
@@ -206,12 +213,9 @@ PB.overwrite(Dom.prototype, {
 			i;
 		
 		// Add mouseenter/mouseleave 'type' support...
-		if( type === 'mouseenter' && _Event.supports_mouseenter_mouseleave === false ) {
+		if( _Event.supports_mouseenter_mouseleave === false ) {
 			
-			type = 'mouseover';
-		} else if ( type === 'mouseleave' && _Event.supports_mouseenter_mouseleave === false ) {
-			
-			type = 'mouseout';
+			type = (type === 'mouseenter' ? 'mouseover' : (type === 'mouseleave' ? 'mouseout' : type));
 		}
 		
 		// Cache exists for node?
@@ -277,7 +281,7 @@ PB.overwrite(Dom.prototype, {
 				
 				me.off( type, _handler );
 				
-				handler.apply( null, PB.toArray(arguments) );
+				handler.apply( me.node, PB.toArray(arguments) );
 			};
 			
 			// Assign event
@@ -373,18 +377,35 @@ PB.overwrite(Dom.prototype, {
 	 */
 	emit: function ( type ) {
 		
-		// Handle W3C event type
-		if( document.createEvent ) {
+		var evt;
+		
+		// Handle html events, see _Event.HTMLEvents
+		if( _Event.HTMLEvents.test(type) ) {
 			
-			var _event = document.createEvent('MouseEvents');
+			this.node[type]();
+		}
+		// Handle W3C mouse event type
+		else if( document.createEvent ) {
 			
-			_event.initMouseEvent(
-				type, true, true, window,		// type, canBubble, cancelable, view, 
-				0, 0, 0, 0, 0,					// detail, screenX, screenY, clientX, clientY, 
-				false, false, false, false,		// ctrlKey, altKey, shiftKey, metaKey, 
-				0, null);						// button, relatedTarget
-					
-			this.node.dispatchEvent(_event);
+			if ( _Event.MouseEvents.test(type) ) {
+				
+				evt = document.createEvent('MouseEvents');
+
+				evt.initMouseEvent(
+					type, true, true, window,		// type, canBubble, cancelable, view, 
+					0, 0, 0, 0, 0,					// detail, screenX, screenY, clientX, clientY, 
+					false, false, false, false,		// ctrlKey, altKey, shiftKey, metaKey, 
+					0, null);						// button, relatedTarget
+
+				this.node.dispatchEvent(evt);
+			} else {
+				
+				evt = document.createEvent('Events');
+				
+				evt.initEvent( type, true, true );
+
+				this.node.dispatchEvent(evt);
+			}
 		}
 		// IE <= 8
 		else {

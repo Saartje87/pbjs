@@ -32,7 +32,7 @@ PB.Request = PB.Class(PB.Observer, {
 			
 			case 'header':
 			case 'headers':
-				if( PB.is('Object', value) === true ) {
+				if( PB.is('Object', value) ) {
 					
 					PB.overwrite(this.headers, value);
 				}
