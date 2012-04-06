@@ -8,7 +8,7 @@
  * copyright 2011-1012, Niek Saarberg
  * MIT License
  */
-!function ( name, context, definition ) {
+(function ( name, context, definition ) {
 	
 	if( typeof module !== 'undefined' && typeof module.exports === 'object' ) {
 		
@@ -20,7 +20,7 @@
 		
 		this[name] = definition(context);
 	}
-}('PB', this, function ( context, undefined ) {
+})('PB', this, function ( context, undefined ) {
 
 "use strict";
 

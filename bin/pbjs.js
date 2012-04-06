@@ -7,7 +7,7 @@
  * copyright 2011-1012, Niek Saarberg
  * MIT License
  */
-!function ( name, context, definition ) {
+(function ( name, context, definition ) {
 
 	if( typeof module !== 'undefined' && typeof module.exports === 'object' ) {
 
@@ -19,7 +19,7 @@
 
 		this[name] = definition(context);
 	}
-}('PB', this, function ( context, undefined ) {
+})('PB', this, function ( context, undefined ) {
 
 "use strict";
 
@@ -2608,13 +2608,61 @@ context.JSON || (context.JSON = {});
 
 PB.extend(context.JSON, {
 
-	stringify: function () {
+	stringify: function ( mixed ) {
 
-		alert('Not yet implemented for your browser, yet..');
+		var jsonString = '',
+			key,
+			length;
+
+		switch( toString.call(mixed) ) {
+
+			case '[object Number]':
+				jsonString += mixed;
+				break;
+
+			case '[object String]':
+				jsonString += '"'+mixed+'"';
+				break;
+
+			case '[object Array]':
+				jsonString += '[';
+
+				for( key = 0, length = mixed.length; key < length; key++) {
+
+					jsonString += JSON.stringify( mixed[key] )+', ';
+				}
+
+				jsonString = jsonString.trimRight(', ')+']';
+				break;
+
+			case '[object Object]':
+				jsonString += '{';
+
+				for( key in mixed ) {
+
+					if( mixed.hasOwnProperty(key) ) {
+
+						jsonString += '"'+key+'": '+JSON.stringify( mixed[key] )+', ';
+					}
+				}
+
+				jsonString = jsonString.trimRight(', ')+'}';
+				break;
+
+			default:
+				jsonString += 'null';
+				break;
+		}
+
+		return jsonString;
 	},
 
 	parse: function ( text ) {
 
+		if( /:[\t\s\n]*function/.test( text ) ) {
+
+			return null;
+		}
 
 		return eval('('+text+')');
 	}
@@ -2637,11 +2685,11 @@ return PB;
   * MIT License
   */
 
-!function (name, definition) {
+(function (name, definition) {
   if (typeof module != 'undefined') module.exports = definition()
   else if (typeof define == 'function' && typeof define.amd == 'object') define(definition)
   else this[name] = definition()
-}('qwery', function () {
+})('qwery', function () {
   var doc = document
     , html = doc.documentElement
     , byClass = 'getElementsByClassName'
@@ -2971,5 +3019,5 @@ return PB;
   qwery.pseudos = {}
 
   return qwery
-})
+});
 
