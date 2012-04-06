@@ -5,16 +5,16 @@ Preferred function declaration
 	var foo = function () {
 		
 		
-	};
+	}
 	
 	function () {
 	
-	};
+	}
 
 	function foo() {
 	
 	
-	};
+	}
 
 Variable declaration
 

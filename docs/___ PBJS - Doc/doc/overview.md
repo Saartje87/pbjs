@@ -57,5 +57,4 @@ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 *3rd Party libaries*
 --------------------
 
-##### json -   *polyfill for JSON support || @douglas crockford*
 ##### qwuery - *lightweight CSS selector engine || @diaz*
