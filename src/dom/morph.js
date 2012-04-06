@@ -1,16 +1,16 @@
 var div = document.createElement('div'),
 	prefixes = 'Khtml O ms Moz Webkit'.split(' '),
 	i = prefixes.length,
-	animationName = 'animationName',
+//	animationName = 'animationName',
 	transitionProperty = 'transitionProperty',
 	transitionDuration = 'transitionDuration',
-	supportsCSSAnimation = animationName in div.style;
+	supportsCSSAnimation = 'animationName' in div.style;
 
 while( !supportsCSSAnimation && i-- ) {
 
 	if( prefixes[i]+'AnimationName' in div.style ) {
 
-		animationName = prefixes[i]+'AnimationName';
+//		animationName = prefixes[i]+'AnimationName';
 		transitionProperty = prefixes[i]+'TransitionProperty';
 		transitionDuration = prefixes[i]+'TransitionDuration';
 		supportsCSSAnimation = true;
@@ -18,16 +18,12 @@ while( !supportsCSSAnimation && i-- ) {
 	}
 }
 
+div = null;
+
 // For external modules
 Dom.supportsCSSAnimation = supportsCSSAnimation;
 
-Dom.prototype.morph = function ( to/* after, duration, effect */ ) {
-
-	// No animation supported, set directly to end styles
-	if( !supportsCSSAnimation ) {
-
-		return this.setStyle(to);
-	}
+PB.dom.morph = function ( to/* after, duration, effect */ ) {
 
 	var options = {
 
@@ -37,7 +33,8 @@ Dom.prototype.morph = function ( to/* after, duration, effect */ ) {
 		i = 1,
 		from = {},
 		properties = '',
-		me = this;
+		me = this,
+		after;
 
 	for( ; i < arguments.length; i++ ) {
 
@@ -56,8 +53,19 @@ Dom.prototype.morph = function ( to/* after, duration, effect */ ) {
 			// 	break;
 		}
 	}
+	
+	// No animation supported, set the styles..
+	if( !supportsCSSAnimation ) {
 
-	if(options.after) me.once('webkitTransitionEnd oTransitionEnd transitionend', options.after);
+		this.setStyle(to);
+		
+		if( options.after ) {
+
+			options.after( this );
+		}
+		
+		return this;
+	}
 
 	PB.each(options.to, function ( key, value ) {
 
@@ -67,21 +75,37 @@ Dom.prototype.morph = function ( to/* after, duration, effect */ ) {
 	});
 
 	properties = properties.substr( 0, properties.length-1 );
+	
+	// Basic implementation to cleanup animation styles
+	after = function ( element ) {
+		
+		element.setStyle(from);
+		element.setStyle(to);
+		
+		!options.after || options.after( element );
+		
+		from = to = null;
+	}
 
+	if( options.after ) {
+		
+		me.once('webkitTransitionEnd oTransitionEnd transitionend', after.bind( null, this ));
+	}
+	
 	from[transitionProperty] = properties;
 	from[transitionDuration] = options.duration+'s';
 
 	this.setStyle( from );
+	
+	// Clear reference
+	from[transitionProperty] = '';
+	from[transitionDuration] = '';
 
 	// Add to styles for next rendering frame
 	setTimeout(function() {
 
 		me.setStyle(to);
-	}, 16.67);
-
-	// e.addEventListener("animationstart", listener, false);
-	//   e.addEventListener("animationend", listener, false);
-	//   e.addEventListener("animationiteration", listener, false);
+	}, 16.7);
 
 	return this;
 };

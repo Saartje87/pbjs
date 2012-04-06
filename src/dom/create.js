@@ -9,6 +9,8 @@ Dom.create = function ( chunk ) {
 	
 	div = null;
 	
+	childs.forEach( Dom.create.flag );
+	
 	if( childs.length === 1 ) {
 		
 		return childs[0];
@@ -16,4 +18,9 @@ Dom.create = function ( chunk ) {
 	
 	return childs;
 };
+
+Dom.create.flag = function ( element ) {
+	
+	element._flagged_ = true;
+}
 

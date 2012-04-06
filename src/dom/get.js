@@ -32,7 +32,7 @@ Dom.get = function ( element ) {
 	}
 
 	// In cache?
-	if( typeof element.__PBJS_ID__ === 'number' && cache.hasOwnProperty(element.__PBJS_ID__) === true ) {
+	if( typeof element.__PBJS_ID__ === 'number' && cache.hasOwnProperty(element.__PBJS_ID__) ) {
 
 		return cache[element.__PBJS_ID__];
 	}
@@ -41,17 +41,5 @@ Dom.get = function ( element ) {
 	element.__PBJS_ID__ = PB.id();
 
 	return cache[element.__PBJS_ID__] = new Dom( element );
-};
-
-Dom.get.extend = function ( methods ) {
-	
-	if( arguments.length === 2 ) {
-		
-		Dom.prototype[arguments[0]] = arguments[1];
-		return;
-	}
-	
-	// Extend Dom prototype
-	PB.extend( Dom.prototype, methods );
 };
 

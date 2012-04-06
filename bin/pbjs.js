@@ -1,5 +1,5 @@
 /*!
- * pbjs JavaScript Framework v0.5.5
+ * pbjs JavaScript Framework v0.5.6
  * https://github.com/Saartje87/pbjs
  *
  * This project is powered by Pluxbox
@@ -7,7 +7,7 @@
  * copyright 2011-1012, Niek Saarberg
  * MIT License
  */
-!function ( name, context, definition ) {
+(function ( name, context, definition ) {
 
 	if( typeof module !== 'undefined' && typeof module.exports === 'object' ) {
 
@@ -19,7 +19,7 @@
 
 		this[name] = definition(context);
 	}
-}('PB', this, function ( context, undefined ) {
+})('PB', this, function ( context, undefined ) {
 
 "use strict";
 
@@ -726,9 +726,13 @@ var Dom = PB.Dom = function ( node ) {
 	}
 
 	this.storage = {};
+
+	this._flagged_ = (node === win || node === doc || node === docElement || node === body);
 };
 
-Dom.prototype.toString = function () {
+PB.dom = PB.Dom.prototype;
+
+PB.dom.toString = function () {
 
 	return '[Object Dom]';
 };
@@ -738,7 +742,7 @@ Dom.prototype.toString = function () {
  *
  * Exclude objects that got documentFragement as parent?
  */
-function cleanupCache () {
+function collectGarbage () {
 
 	var docEl = PB(docElement),
 		key,
@@ -748,12 +752,16 @@ function cleanupCache () {
 
 		Dom = cache[key];
 
-		if( cache.hasOwnProperty(key) && Dom.node !== win && Dom.node !== doc && Dom.node !== docElement && !docEl.contains(Dom) ) {
+		if( cache.hasOwnProperty(key) && !Dom._flagged_ && !docEl.contains(Dom) ) {
 
 			Dom.remove();
 		}
 	}
+
+	setTimeout(collectGarbage, 30000);
 };
+
+setTimeout(collectGarbage, 30000);
 
 /**
  * Retrieve element with Dom closure
@@ -785,7 +793,7 @@ Dom.get = function ( element ) {
 		return null;
 	}
 
-	if( typeof element.__PBJS_ID__ === 'number' && cache.hasOwnProperty(element.__PBJS_ID__) === true ) {
+	if( typeof element.__PBJS_ID__ === 'number' && cache.hasOwnProperty(element.__PBJS_ID__) ) {
 
 		return cache[element.__PBJS_ID__];
 	}
@@ -793,17 +801,6 @@ Dom.get = function ( element ) {
 	element.__PBJS_ID__ = PB.id();
 
 	return cache[element.__PBJS_ID__] = new Dom( element );
-};
-
-Dom.get.extend = function ( methods ) {
-
-	if( arguments.length === 2 ) {
-
-		Dom.prototype[arguments[0]] = arguments[1];
-		return;
-	}
-
-	PB.extend( Dom.prototype, methods );
 };
 
 var Collection = PB.Collection = function ( collection ) {
@@ -860,7 +857,7 @@ Collection.prototype = {
 	indexOf: Array.prototype.indexOf
 };
 
-PB.overwrite(Dom.prototype, {
+PB.overwrite(PB.dom, {
 
 	set: function ( key, value ) {
 
@@ -884,7 +881,7 @@ PB.overwrite(Dom.prototype, {
 	}
 });
 
-PB.overwrite(Dom.prototype, {
+PB.overwrite(PB.dom, {
 
 	/**
 	 * Set/get/remove attribute
@@ -934,7 +931,7 @@ PB.overwrite(Dom.prototype, {
 	}
 });
 
-var unit = /px$/i,
+var unit = /^[\d.]+px$/i,
 	opacity = /alpha\(opacity=(.*)\)/i,
 	computedStyle = doc.defaultView && doc.defaultView.getComputedStyle,
 	skipUnits = 'zIndex zoom fontWeight opacity', //.split(' '),
@@ -969,7 +966,7 @@ function removeUnits ( value ) {
 	return unit.test( value ) ? parseInt( value, 10 ) : value;
 }
 
-PB.overwrite(Dom.prototype, {
+PB.overwrite(PB.dom, {
 
 	setStyle: function ( property, value ) {
 
@@ -1041,16 +1038,14 @@ PB.overwrite(Dom.prototype, {
 var div = document.createElement('div'),
 	prefixes = 'Khtml O ms Moz Webkit'.split(' '),
 	i = prefixes.length,
-	animationName = 'animationName',
 	transitionProperty = 'transitionProperty',
 	transitionDuration = 'transitionDuration',
-	supportsCSSAnimation = animationName in div.style;
+	supportsCSSAnimation = 'animationName' in div.style;
 
 while( !supportsCSSAnimation && i-- ) {
 
 	if( prefixes[i]+'AnimationName' in div.style ) {
 
-		animationName = prefixes[i]+'AnimationName';
 		transitionProperty = prefixes[i]+'TransitionProperty';
 		transitionDuration = prefixes[i]+'TransitionDuration';
 		supportsCSSAnimation = true;
@@ -1058,14 +1053,11 @@ while( !supportsCSSAnimation && i-- ) {
 	}
 }
 
+div = null;
+
 Dom.supportsCSSAnimation = supportsCSSAnimation;
 
-Dom.prototype.morph = function ( to/* after, duration, effect */ ) {
-
-	if( !supportsCSSAnimation ) {
-
-		return this.setStyle(to);
-	}
+PB.dom.morph = function ( to/* after, duration, effect */ ) {
 
 	var options = {
 
@@ -1075,7 +1067,8 @@ Dom.prototype.morph = function ( to/* after, duration, effect */ ) {
 		i = 1,
 		from = {},
 		properties = '',
-		me = this;
+		me = this,
+		after;
 
 	for( ; i < arguments.length; i++ ) {
 
@@ -1091,7 +1084,17 @@ Dom.prototype.morph = function ( to/* after, duration, effect */ ) {
 		}
 	}
 
-	if(options.after) me.once('webkitTransitionEnd oTransitionEnd transitionend', options.after);
+	if( !supportsCSSAnimation ) {
+
+		this.setStyle(to);
+
+		if( options.after ) {
+
+			options.after( this );
+		}
+
+		return this;
+	}
 
 	PB.each(options.to, function ( key, value ) {
 
@@ -1102,16 +1105,33 @@ Dom.prototype.morph = function ( to/* after, duration, effect */ ) {
 
 	properties = properties.substr( 0, properties.length-1 );
 
+	after = function ( element ) {
+
+		element.setStyle(from);
+		element.setStyle(to);
+
+		!options.after || options.after( element );
+
+		from = to = null;
+	}
+
+	if( options.after ) {
+
+		me.once('webkitTransitionEnd oTransitionEnd transitionend', after.bind( null, this ));
+	}
+
 	from[transitionProperty] = properties;
 	from[transitionDuration] = options.duration+'s';
 
 	this.setStyle( from );
 
+	from[transitionProperty] = '';
+	from[transitionDuration] = '';
+
 	setTimeout(function() {
 
 		me.setStyle(to);
-	}, 16.67);
-
+	}, 16.7);
 
 	return this;
 };
@@ -1145,7 +1165,7 @@ var domClassCache = {},
 	testElement = null;
 })();
 
-PB.overwrite(Dom.prototype, {
+PB.overwrite(PB.dom, {
 
 	/**
 	 * Check if element has class
@@ -1224,9 +1244,8 @@ PB.overwrite(Dom.prototype, {
 	 */
 	show: function () {
 
-		this.node.style.display = this.get('css-display') || 'block';
 
-		this.unset('css-display');
+		this.node.style.display = this.get('css-display') || 'block';
 
 		return this;
 	},
@@ -1250,136 +1269,6 @@ PB.overwrite(Dom.prototype, {
 	isVisible: function () {
 
 		return this.getStyle('display') !== 'none' && this.getStyle('opacity') > 0;
-	},
-
-	width: function ( width ) {
-
-		if( width !== undefined ) {
-
-			return this.setStyle('width', width);
-		}
-
-		var node = this.node,
-			width;
-
-		if( node === window ) {
-
-			return window.innerWidth;
-		} else if ( node.nodeType === 9 ) {
-
-			return Math.max(docElement.clientWidth, body.scrollWidth, docElement.offsetWidth);
-		}
-
-		width = this.getStyle('width');
-
-		if( width > 0 ) {
-
-			return width;
-		}
-
-		if( !this.isVisible() ) {
-
-			this.show();
-			width = node.offsetWidth;
-			this.hide()
-		} else {
-
-			width = node.offsetWidth;
-		}
-
-		if( boxModel ) {
-
-			width -= (this.getStyle('paddingLeft') || 0) + (this.getStyle('paddingRight') || 0);
-		}
-
-		if( substractBorder ) {
-
-			width -= (this.getStyle('borderLeftWidth') || 0) + (this.getStyle('borderRightWidth') || 0);
-		}
-
-		return width;
-	},
-
-	innerWidth: function () {
-
-		return this.width() + (this.getStyle('paddingLeft') || 0) + (this.getStyle('paddingRight') || 0);
-	},
-
-	outerWidth: function () {
-
-		var rightWidth = this.getStyle('borderRightWidth');
-
-		return this.innerWidth() + (this.node.clientLeft + (typeof rightWidth === 'string' ? 0 : rightWidth));
-	},
-
-	scrollWidth: function () {
-
-		return this.node.scrollWidth;
-	},
-
-	height: function ( height ) {
-
-		if( height !== undefined ) {
-
-			return this.setStyle('height', height);
-		}
-
-		var node = this.node,
-			height;
-
-		if( node === window ) {
-
-			return window.innerHeight;
-		} else if ( node.nodeType === 9 ) {
-
-			return Math.max(docElement.clientHeight, body.scrollHeight, docElement.offsetHeight);
-		}
-
-		height = this.getStyle('height');
-
-		if( height > 0 ) {
-
-			return height;
-		}
-
-		if( !this.isVisible() ) {
-
-			this.show();
-			height = node.offsetHeight;
-			this.hide()
-		} else {
-
-			height = node.offsetHeight;
-		}
-
-		if( boxModel ) {
-
-			height -= (this.getStyle('paddingTop') || 0) + (this.getStyle('paddingBottom') || 0);
-		}
-
-		if( substractBorder ) {
-
-			height -= (this.getStyle('borderTopWidth') || 0) + (this.getStyle('borderBottomWidth') || 0);
-		}
-
-		return height;
-	},
-
-	innerHeight: function () {
-
-		return this.height() + (this.getStyle('paddingTop') || 0) + (this.getStyle('paddingBottom') || 0);
-	},
-
-	outerHeight: function () {
-
-		var bottomWidth = this.getStyle('borderBottomWidth');
-
-		return this.innerHeight() + (this.node.clientTop + (typeof bottomWidth === 'string' ? 0 : bottomWidth));
-	},
-
-	scrollHeight: function () {
-
-		return this.node.scrollHeight;
 	},
 
 	getXY: function ( fromBody ) {
@@ -1408,30 +1297,6 @@ PB.overwrite(Dom.prototype, {
 		};
 	},
 
-	left: function ( fromBody ) {
-
-		if( fromBody && fromBody !== true ) {
-
-			this.setStyle('left', fromBody);
-
-			return this;
-		}
-
-		return this.getXY(fromBody).left;
-	},
-
-	top: function ( fromBody ) {
-
-		if( fromBody && fromBody !== true ) {
-
-			this.setStyle('top', fromBody);
-
-			return this;
-		}
-
-		return this.getXY(fromBody).top;
-	},
-
 	getScroll: function () {
 
 		var node = this.node,
@@ -1450,48 +1315,161 @@ PB.overwrite(Dom.prototype, {
 		return scroll;
 	},
 
-	scrollLeft: function ( x ) {
+	width: function ( value ) {
 
-		if( x === undefined ) {
+		if( value !== undefined ) {
 
-			return this.getScroll().left;
+			return this.setStyle('width', value);
 		}
 
 		var node = this.node;
 
-		if( node.nodeType === 9 || node === window ) {
+		if( node === window ) {
 
-			docElement.scrollLeft = x;
-		} else {
+			return window.innerWidth;
+		} else if ( node.nodeType === 9 ) {
 
-			node.scrollLeft = x;
+			return Math.max(docElement.clientWidth, body.scrollWidth, docElement.offsetWidth);
 		}
 
-		return this;
+		value = this.getStyle('width');
+
+		if( value > 0 ) {
+
+			return value;
+		}
+
+		if( !this.isVisible() ) {
+
+			this.show();
+			value = node.offsetWidth;
+			this.hide()
+		} else {
+
+			value = node.offsetWidth;
+		}
+
+		if( boxModel ) {
+
+			value -= (this.getStyle('paddingLeft') || 0) + (this.getStyle('paddingRight') || 0);
+		}
+
+		if( substractBorder ) {
+
+			value -= (this.getStyle('borderLeftWidth') || 0) + (this.getStyle('borderRightWidth') || 0);
+		}
+
+		return value;
 	},
 
-	scrollTop: function ( y ) {
+	innerWidth: function () {
 
-		if( y === undefined ) {
+		return this.width() + (this.getStyle('paddingLeft') || 0) + (this.getStyle('paddingRight') || 0);
+	},
 
-			return this.getScroll().top;
+	outerWidth: function () {
+
+		var rightWidth = this.getStyle('borderRightWidth');
+
+		return this.innerWidth() + (this.node.clientLeft + (typeof rightWidth === 'string' ? 0 : rightWidth));
+	},
+
+	scrollWidth: function () {
+
+		return this.node.scrollWidth;
+	},
+
+	height: function ( value ) {
+
+		if( value !== undefined ) {
+
+			return this.setStyle('height', value);
 		}
 
 		var node = this.node;
 
-		if( node.nodeType === 9 || node === window ) {
+		if( node === window ) {
 
-			docElement.scrollTop = y;
-		} else {
+			return window.innerHeight;
+		} else if ( node.nodeType === 9 ) {
 
-			node.scrollTop = y;
+			return Math.max(docElement.clientHeight, body.scrollHeight, docElement.offsetHeight);
 		}
 
-		return this;
+		value = this.getStyle('height');
+
+		if( value > 0 ) {
+
+			return value;
+		}
+
+		if( !this.isVisible() ) {
+
+			this.show();
+			value = node.offsetHeight;
+			this.hide()
+		} else {
+
+			value = node.offsetHeight;
+		}
+
+		if( boxModel ) {
+
+			value -= (this.getStyle('paddingTop') || 0) + (this.getStyle('paddingBottom') || 0);
+		}
+
+		if( substractBorder ) {
+
+			value -= (this.getStyle('borderTopWidth') || 0) + (this.getStyle('borderBottomWidth') || 0);
+		}
+
+		return value;
+	},
+
+	innerHeight: function () {
+
+		return this.height() + (this.getStyle('paddingTop') || 0) + (this.getStyle('paddingBottom') || 0);
+	},
+
+	outerHeight: function () {
+
+		var bottomWidth = this.getStyle('borderBottomWidth');
+
+		return this.innerHeight() + (this.node.clientTop + (typeof bottomWidth === 'string' ? 0 : bottomWidth));
+	},
+
+	scrollHeight: function () {
+
+		return this.node.scrollHeight;
 	}
 });
 
-PB.overwrite(Dom.prototype, {
+PB.each({ left: 'Left', top: 'Top' }, function ( lower, upper ) {
+
+	PB.dom['scroll'+upper] =  function ( value ) {
+
+		if( value !== undefined ) {
+
+			this.node['scroll'+upper] = value;
+		}
+
+		return this.getScroll()[lower];
+	};
+
+	PB.dom[lower] = function ( fromBody ) {
+
+		if( fromBody && fromBody !== true ) {
+
+			this.setStyle(lower, fromBody);
+
+			return this;
+		}
+
+		return this.getXY(fromBody)[lower];
+	}
+});
+
+PB.overwrite(PB.dom, {
 
 	parent: function () {
 
@@ -1633,7 +1611,7 @@ try {
 	tableInnerHTMLbuggie = true;
 }
 
-PB.overwrite(Dom.prototype, {
+PB.overwrite(PB.dom, {
 
 	/**
 	 * Append element to self
@@ -1646,6 +1624,8 @@ PB.overwrite(Dom.prototype, {
 		}
 
 		this.node.appendChild( element.node );
+
+		element._flagged_ = 0;
 
 		return this;
 	},
@@ -1677,6 +1657,8 @@ PB.overwrite(Dom.prototype, {
 
 		target.parent().node.insertBefore( this.node, target.node );
 
+		this._flagged_ = 0;
+
 		return this;
 	},
 
@@ -1699,6 +1681,8 @@ PB.overwrite(Dom.prototype, {
 
 			target.parent().node.insertBefore( this.node, next.node );
 		}
+
+		this._flagged_ = 0;
 
 		return this;
 	},
@@ -1751,6 +1735,8 @@ PB.overwrite(Dom.prototype, {
 			childs[i].removeAttribute('__PBJS_ID__');
 		}
 
+		this._flagged_ = true;
+
 		return Dom.get(clone);
 	},
 
@@ -1772,6 +1758,8 @@ PB.overwrite(Dom.prototype, {
 			node.parentNode.removeChild( node );
 		}
 
+		this._flagged_ = 0;
+
 		this.node = node = null;
 
 		delete cache[pbid];
@@ -1781,12 +1769,13 @@ PB.overwrite(Dom.prototype, {
 
 		this.html('');
 
-		cleanupCache();
-
 		return this;
 	},
 
-	html: function ( html, execScripts ) {	// Todo: add evalJs boolean
+	/**
+	 * @todo script tags with src tag set should be appended to document
+	 */
+	html: function ( html, execScripts ) {
 
 		if( html === undefined ) {
 
@@ -1883,6 +1872,10 @@ cache = {
 var _Event = {
 
 	supports_mouseenter_mouseleave: 'onmouseenter' in doc.documentElement && 'onmouseleave' in doc.documentElement,
+
+	HTMLEvents: /^(?:load|unload|abort|error|select|change|submit|reset|focus|blur|resize|scroll)$/,
+
+	MouseEvents: /^(?:click|mouse(?:down|up|over|move|out))$/,
 
 	manualExtend: false,
 
@@ -1984,6 +1977,8 @@ var _Event = {
 
 		event.which = event.keyCode === undefined ? event.charCode : event.keyCode;
 
+		event.which = (event.which === 0 ? 1 : (event.which === 4 ? 2: (event.which === 2 ? 3 : event.which)));
+
 		return event;
 	}
 };
@@ -2032,7 +2027,7 @@ if( window.attachEvent && !window.addEventListener ) {
 /**
  *
  */
-PB.overwrite(Dom.prototype, {
+PB.overwrite(PB.dom, {
 
 	/**
 	 *
@@ -2056,12 +2051,9 @@ PB.overwrite(Dom.prototype, {
 			eventsType,
 			i;
 
-		if( type === 'mouseenter' && _Event.supports_mouseenter_mouseleave === false ) {
+		if( _Event.supports_mouseenter_mouseleave === false ) {
 
-			type = 'mouseover';
-		} else if ( type === 'mouseleave' && _Event.supports_mouseenter_mouseleave === false ) {
-
-			type = 'mouseout';
+			type = (type === 'mouseenter' ? 'mouseover' : (type === 'mouseleave' ? 'mouseout' : type));
 		}
 
 		if( !events ) {
@@ -2120,7 +2112,7 @@ PB.overwrite(Dom.prototype, {
 
 				me.off( type, _handler );
 
-				handler.apply( null, PB.toArray(arguments) );
+				handler.apply( me.node, PB.toArray(arguments) );
 			};
 
 			this.on(type, _handler);
@@ -2209,17 +2201,33 @@ PB.overwrite(Dom.prototype, {
 	 */
 	emit: function ( type ) {
 
-		if( document.createEvent ) {
+		var evt;
 
-			var _event = document.createEvent('MouseEvents');
+		if( _Event.HTMLEvents.test(type) ) {
 
-			_event.initMouseEvent(
-				type, true, true, window,		// type, canBubble, cancelable, view,
-				0, 0, 0, 0, 0,					// detail, screenX, screenY, clientX, clientY,
-				false, false, false, false,		// ctrlKey, altKey, shiftKey, metaKey,
-				0, null);						// button, relatedTarget
+			this.node[type]();
+		}
+		else if( document.createEvent ) {
 
-			this.node.dispatchEvent(_event);
+			if ( _Event.MouseEvents.test(type) ) {
+
+				evt = document.createEvent('MouseEvents');
+
+				evt.initMouseEvent(
+					type, true, true, window,		// type, canBubble, cancelable, view,
+					0, 0, 0, 0, 0,					// detail, screenX, screenY, clientX, clientY,
+					false, false, false, false,		// ctrlKey, altKey, shiftKey, metaKey,
+					0, null);						// button, relatedTarget
+
+				this.node.dispatchEvent(evt);
+			} else {
+
+				evt = document.createEvent('Events');
+
+				evt.initEvent( type, true, true );
+
+				this.node.dispatchEvent(evt);
+			}
 		}
 		else {
 
@@ -2231,7 +2239,7 @@ PB.overwrite(Dom.prototype, {
 	}
 });
 
-PB.overwrite(Dom.prototype, {
+PB.overwrite(PB.dom, {
 
 	/**
 	 * Serialize form element to object
@@ -2294,6 +2302,8 @@ Dom.create = function ( chunk ) {
 
 	div = null;
 
+	childs.forEach( Dom.create.flag );
+
 	if( childs.length === 1 ) {
 
 		return childs[0];
@@ -2301,6 +2311,11 @@ Dom.create = function ( chunk ) {
 
 	return childs;
 };
+
+Dom.create.flag = function ( element ) {
+
+	element._flagged_ = true;
+}
 
 PB.ready = (function () {
 
@@ -2312,7 +2327,7 @@ PB.ready = (function () {
 
 	function handleState () {
 
-		if( ready === true || doc.readyState !== 'complete' ) {
+		if( ready || doc.readyState !== 'complete' ) {
 
 			return;
 		}
@@ -2376,35 +2391,37 @@ PB.overwrite(PB.Net, {
 	 */
 	buildQueryString: function ( mixed, prefix ) {
 
-		var queryString = '';
+		var query = '',
+			isArray = false;
 
-		if( mixed === null ) {
-
-			return queryString;
-		}
-
-		if( typeof mixed === 'string' ) {
+		if( !mixed ) {
 
 			return mixed;
-		} else if( Array.isArray(mixed) === true ) {
-
-			mixed.forEach(function ( value, key ) {
-
-				queryString += typeof value === 'object'
-					? PB.Net.buildQueryString( value, (prefix || key)+'[]' )
-					: (prefix || key)+"="+encodeURIComponent(value)+'&';
-			});
-		} else if( PB.is('Object', mixed) ) {
-
-			Object.keys(mixed).forEach(function ( key ) {
-
-				queryString += typeof mixed[key] === 'object'
-					? PB.Net.buildQueryString( mixed[key], key+'[]' )
-					: (prefix || key)+"="+encodeURIComponent(mixed[key])+'&';
-			});
 		}
 
-		return queryString.replace(/&$/, '');
+		if( PB.is('Object', mixed) || (isArray = PB.is('Array', mixed)) ) {
+
+			PB.each(mixed, function ( key, value ) {
+
+				if( typeof value === 'object' ) {
+
+					query += PB.Net.buildQueryString( value, prefix ? prefix+'['+key+']' : key );
+				} else {
+
+					query += prefix
+						? prefix+(isArray ? '[]' : '['+key+']')
+						: key;
+
+					query += '='+encodeURIComponent( value )+'&';
+				}
+			});
+		} else {
+
+			query = String(mixed);
+			query = encodeURIComponent(query);
+		}
+
+		return prefix ? query : query.replace(/&$/, '');
 	}
 });
 
@@ -2461,7 +2478,7 @@ PB.Request = PB.Class(PB.Observer, {
 
 			case 'header':
 			case 'headers':
-				if( PB.is('Object', value) === true ) {
+				if( PB.is('Object', value) ) {
 
 					PB.overwrite(this.headers, value);
 				}
@@ -2591,13 +2608,61 @@ context.JSON || (context.JSON = {});
 
 PB.extend(context.JSON, {
 
-	stringify: function () {
+	stringify: function ( mixed ) {
 
-		alert('Not yet implemented for your browser, yet..');
+		var jsonString = '',
+			key,
+			length;
+
+		switch( toString.call(mixed) ) {
+
+			case '[object Number]':
+				jsonString += mixed;
+				break;
+
+			case '[object String]':
+				jsonString += '"'+mixed+'"';
+				break;
+
+			case '[object Array]':
+				jsonString += '[';
+
+				for( key = 0, length = mixed.length; key < length; key++) {
+
+					jsonString += JSON.stringify( mixed[key] )+', ';
+				}
+
+				jsonString = jsonString.trimRight(', ')+']';
+				break;
+
+			case '[object Object]':
+				jsonString += '{';
+
+				for( key in mixed ) {
+
+					if( mixed.hasOwnProperty(key) ) {
+
+						jsonString += '"'+key+'": '+JSON.stringify( mixed[key] )+', ';
+					}
+				}
+
+				jsonString = jsonString.trimRight(', ')+'}';
+				break;
+
+			default:
+				jsonString += 'null';
+				break;
+		}
+
+		return jsonString;
 	},
 
 	parse: function ( text ) {
 
+		if( /:[\t\s\n]*function/.test( text ) ) {
+
+			return null;
+		}
 
 		return eval('('+text+')');
 	}
@@ -2620,11 +2685,11 @@ return PB;
   * MIT License
   */
 
-!function (name, definition) {
+(function (name, definition) {
   if (typeof module != 'undefined') module.exports = definition()
   else if (typeof define == 'function' && typeof define.amd == 'object') define(definition)
   else this[name] = definition()
-}('qwery', function () {
+})('qwery', function () {
   var doc = document
     , html = doc.documentElement
     , byClass = 'getElementsByClassName'
@@ -2954,5 +3019,5 @@ return PB;
   qwery.pseudos = {}
 
   return qwery
-})
+});
 

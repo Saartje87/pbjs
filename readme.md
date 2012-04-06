@@ -1,4 +1,4 @@
-# pbjs 0.5.5
+# pbjs 0.5.6
 =============
 pbjs is a small, crossbrowser and lightweight object orientated framework.
 

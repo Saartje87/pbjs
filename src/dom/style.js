@@ -1,4 +1,4 @@
-var unit = /px$/i,
+var unit = /^[\d.]+px$/i,
 	opacity = /alpha\(opacity=(.*)\)/i,
 	computedStyle = doc.defaultView && doc.defaultView.getComputedStyle,
 	skipUnits = 'zIndex zoom fontWeight opacity', //.split(' '),
@@ -33,7 +33,7 @@ function removeUnits ( value ) {
 	return unit.test( value ) ? parseInt( value, 10 ) : value;
 }
 
-PB.overwrite(Dom.prototype, {
+PB.overwrite(PB.dom, {
 	
 	setStyle: function ( property, value ) {
 		

@@ -1,4 +1,4 @@
-PB.overwrite(Dom.prototype, {
+PB.overwrite(PB.dom, {
 	
 	set: function ( key, value ) {
 		
