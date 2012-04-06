@@ -878,6 +878,11 @@ PB.overwrite(PB.dom, {
 	unset: function ( key ) {
 
 		return delete this.storage[key];
+	},
+
+	isset: function ( key ) {
+
+		return this.storage[key] !== undefined;
 	}
 });
 
