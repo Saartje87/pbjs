@@ -1,27 +1,5 @@
-var div = document.createElement('div'),
-	prefixes = 'Khtml O ms Moz Webkit'.split(' '),
-	i = prefixes.length,
-//	animationName = 'animationName',
-	transitionProperty = 'transitionProperty',
-	transitionDuration = 'transitionDuration',
-	supportsCSSAnimation = 'animationName' in div.style;
-
-while( !supportsCSSAnimation && i-- ) {
-
-	if( prefixes[i]+'AnimationName' in div.style ) {
-
-//		animationName = prefixes[i]+'AnimationName';
-		transitionProperty = prefixes[i]+'TransitionProperty';
-		transitionDuration = prefixes[i]+'TransitionDuration';
-		supportsCSSAnimation = true;
-		break;
-	}
-}
-
-div = null;
-
 // For external modules
-Dom.supportsCSSAnimation = supportsCSSAnimation;
+Dom.supportsCSSAnimation = !!cssPropertyMap['animationName'];
 
 PB.dom.morph = function ( to/* after, duration, effect */ ) {
 
@@ -55,7 +33,7 @@ PB.dom.morph = function ( to/* after, duration, effect */ ) {
 	}
 	
 	// No animation supported, set the styles..
-	if( !supportsCSSAnimation ) {
+	if( !Dom.supportsCSSAnimation ) {
 
 		this.setStyle(to);
 		
@@ -70,7 +48,7 @@ PB.dom.morph = function ( to/* after, duration, effect */ ) {
 	PB.each(options.to, function ( key, value ) {
 
 		properties += key.replace(/[A-Z]/g, function (m) { return '-'+m.toLowerCase(); })+',';
-
+		
 		from[key] = me.getStyle( key ) || 0;	// || 0, tmp fix
 	});
 
@@ -92,14 +70,14 @@ PB.dom.morph = function ( to/* after, duration, effect */ ) {
 		me.once('webkitTransitionEnd oTransitionEnd transitionend', after.bind( null, this ));
 	}
 	
-	from[transitionProperty] = properties;
-	from[transitionDuration] = options.duration+'s';
+	from.transitionProperty = properties;
+	from.transitionDuration = options.duration+'s';
 
 	this.setStyle( from );
 	
 	// Clear reference
-	from[transitionProperty] = '';
-	from[transitionDuration] = '';
+	from.transitionProperty = '';
+	from.transitionDuration = '';
 
 	// Add to styles for next rendering frame
 	setTimeout(function() {

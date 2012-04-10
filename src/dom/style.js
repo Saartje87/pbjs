@@ -12,11 +12,33 @@ var unit = /^[\d.]+px$/i,
 		'margin': 'marginTop marginRight marginBottom marginLeft',
 		'borderRadius': 'borderRadiusTopleft'
 	},
-	div = document.createElement('div'),
-	supportsOpacity = div.style.opacity !== undefined,
-	supportsCssFloat = div.style.cssFloat !== undefined;
+	cssPropertyMap = { animationName: undefined, transform: undefined, transition: undefined, transitionProperty: undefined, transitionDuration: undefined },
+	vendorPrefixes = 'O ms Moz Webkit'.split(' '),
+	vendorDiv = document.createElement('div'),
+	supportsOpacity = vendorDiv.style.opacity !== undefined,
+	supportsCssFloat = vendorDiv.style.cssFloat !== undefined,
+	i = vendorPrefixes.length;
 
-div = null;
+PB.each(cssPropertyMap, function ( property ) {
+	
+	if( property in vendorDiv.style ) {
+		
+		return cssPropertyMap[property] = property;
+	}
+	
+	var j = i,
+		prop = property.charAt(0).toUpperCase()+property.substr(1);
+	
+	while( j-- ) {
+		
+		if( vendorPrefixes[j]+prop in vendorDiv.style ) {
+			
+			return cssPropertyMap[property] = vendorPrefixes[j]+prop;
+		}
+	}
+});
+
+vendorDiv = null;
 
 function addUnits ( property, value ) {
 	
@@ -31,6 +53,30 @@ function addUnits ( property, value ) {
 function removeUnits ( value ) {
 	
 	return unit.test( value ) ? parseInt( value, 10 ) : value;
+}
+
+function getVendorPrefix ( property ) {
+	
+	if( vendorDiv.style[property] !== undefined ) {
+		
+		return 
+	}
+}
+
+function getCssProp ( property ) {
+	
+	// Crossbrowser float
+	if( property === 'float' ) {
+		
+		property = supportsCssFloat ? 'cssFloat' : 'styleFloat';
+	}
+	
+	if( property in cssPropertyMap ) {
+		
+		return cssPropertyMap[property];
+	}
+	
+	return property;
 }
 
 PB.overwrite(PB.dom, {
@@ -48,11 +94,7 @@ PB.overwrite(PB.dom, {
 			value = "alpha(opacity="+(value*100)+")";
 		}
 		
-		// Crossbrowser float
-		if( property === 'float' ) {
-			
-			property = supportsCssFloat ? 'cssFloat' : 'styleFloat';
-		}
+		property = getCssProp( property );
 		
 		this.node.style[property] = addUnits( property, value );
 		
@@ -61,11 +103,9 @@ PB.overwrite(PB.dom, {
 	
 	getStyle: function ( property ) {
 		
-		// Crossbrowser float
-		if( property === 'float' ) {
-			
-			property = supportsCssFloat ? 'cssFloat' : 'styleFloat';
-		}
+		property = getCssProp( property );
+		
+		console.log( property );
 		
 		var node = this.node,
 			value = node.style[property],

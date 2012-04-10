@@ -950,11 +950,33 @@ var unit = /^[\d.]+px$/i,
 		'margin': 'marginTop marginRight marginBottom marginLeft',
 		'borderRadius': 'borderRadiusTopleft'
 	},
-	div = document.createElement('div'),
-	supportsOpacity = div.style.opacity !== undefined,
-	supportsCssFloat = div.style.cssFloat !== undefined;
+	cssPropertyMap = { animationName: undefined, transform: undefined, transition: undefined, transitionProperty: undefined, transitionDuration: undefined },
+	vendorPrefixes = 'O ms Moz Webkit'.split(' '),
+	vendorDiv = document.createElement('div'),
+	supportsOpacity = vendorDiv.style.opacity !== undefined,
+	supportsCssFloat = vendorDiv.style.cssFloat !== undefined,
+	i = vendorPrefixes.length;
 
-div = null;
+PB.each(cssPropertyMap, function ( property ) {
+
+	if( property in vendorDiv.style ) {
+
+		return cssPropertyMap[property] = property;
+	}
+
+	var j = i,
+		prop = property.charAt(0).toUpperCase()+property.substr(1);
+
+	while( j-- ) {
+
+		if( vendorPrefixes[j]+prop in vendorDiv.style ) {
+
+			return cssPropertyMap[property] = vendorPrefixes[j]+prop;
+		}
+	}
+});
+
+vendorDiv = null;
 
 function addUnits ( property, value ) {
 
@@ -969,6 +991,29 @@ function addUnits ( property, value ) {
 function removeUnits ( value ) {
 
 	return unit.test( value ) ? parseInt( value, 10 ) : value;
+}
+
+function getVendorPrefix ( property ) {
+
+	if( vendorDiv.style[property] !== undefined ) {
+
+		return
+	}
+}
+
+function getCssProp ( property ) {
+
+	if( property === 'float' ) {
+
+		property = supportsCssFloat ? 'cssFloat' : 'styleFloat';
+	}
+
+	if( property in cssPropertyMap ) {
+
+		return cssPropertyMap[property];
+	}
+
+	return property;
 }
 
 PB.overwrite(PB.dom, {
@@ -986,10 +1031,7 @@ PB.overwrite(PB.dom, {
 			value = "alpha(opacity="+(value*100)+")";
 		}
 
-		if( property === 'float' ) {
-
-			property = supportsCssFloat ? 'cssFloat' : 'styleFloat';
-		}
+		property = getCssProp( property );
 
 		this.node.style[property] = addUnits( property, value );
 
@@ -998,10 +1040,9 @@ PB.overwrite(PB.dom, {
 
 	getStyle: function ( property ) {
 
-		if( property === 'float' ) {
+		property = getCssProp( property );
 
-			property = supportsCssFloat ? 'cssFloat' : 'styleFloat';
-		}
+		console.log( property );
 
 		var node = this.node,
 			value = node.style[property],
@@ -1040,27 +1081,7 @@ PB.overwrite(PB.dom, {
 	}
 });
 
-var div = document.createElement('div'),
-	prefixes = 'Khtml O ms Moz Webkit'.split(' '),
-	i = prefixes.length,
-	transitionProperty = 'transitionProperty',
-	transitionDuration = 'transitionDuration',
-	supportsCSSAnimation = 'animationName' in div.style;
-
-while( !supportsCSSAnimation && i-- ) {
-
-	if( prefixes[i]+'AnimationName' in div.style ) {
-
-		transitionProperty = prefixes[i]+'TransitionProperty';
-		transitionDuration = prefixes[i]+'TransitionDuration';
-		supportsCSSAnimation = true;
-		break;
-	}
-}
-
-div = null;
-
-Dom.supportsCSSAnimation = supportsCSSAnimation;
+Dom.supportsCSSAnimation = !!cssPropertyMap['animationName'];
 
 PB.dom.morph = function ( to/* after, duration, effect */ ) {
 
@@ -1089,7 +1110,7 @@ PB.dom.morph = function ( to/* after, duration, effect */ ) {
 		}
 	}
 
-	if( !supportsCSSAnimation ) {
+	if( !Dom.supportsCSSAnimation ) {
 
 		this.setStyle(to);
 
@@ -1125,13 +1146,13 @@ PB.dom.morph = function ( to/* after, duration, effect */ ) {
 		me.once('webkitTransitionEnd oTransitionEnd transitionend', after.bind( null, this ));
 	}
 
-	from[transitionProperty] = properties;
-	from[transitionDuration] = options.duration+'s';
+	from.transitionProperty = properties;
+	from.transitionDuration = options.duration+'s';
 
 	this.setStyle( from );
 
-	from[transitionProperty] = '';
-	from[transitionDuration] = '';
+	from.transitionProperty = '';
+	from.transitionDuration = '';
 
 	setTimeout(function() {
 
