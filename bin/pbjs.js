@@ -902,17 +902,15 @@ PB.overwrite(PB.dom, {
 			return this;
 		}
 
-		var node = this.node;
-
 		if( value === undefined ) {
 
-			return node.getAttribute(key);
+			return this.node.getAttribute(key);
 		} else if ( value === null ) {
 
-			node.removeAttribute(key);
+			this.node.removeAttribute(key);
 		} else {
 
-			node.setAttribute(key, value);
+			this.node.setAttribute(key, value);
 		}
 
 		return this;
@@ -923,14 +921,12 @@ PB.overwrite(PB.dom, {
 	 */
 	val: function ( value ) {
 
-		var node = this.node;
-
 		if( value === undefined ) {
 
-			return node.value;
+			return this.node.value;
 		}
 
-		node.value = value;
+		this.node.value = value;
 
 		return this;
 	}
@@ -1009,30 +1005,52 @@ function getCssProperty ( property ) {
 PB.overwrite(PB.dom, {
 
 	/**
+	 * Set CSS styles
 	 *
+	 * @param object
+	 * @return PB.Dom
 	 */
-	setStyle: function ( property, value ) {
+	setStyle: function ( values ) {
 
-		if( arguments.length === 1 ) {
+		var property;
 
-			PB.each(arguments[0], this.setStyle, this);
-			return this;
+		if( arguments.length === 2 ) {
+
+			var property = values;
+
+			value = {};
+			value[property] = arguments[1];
 		}
 
-		if( property === 'opacity' && !supportsOpacity ) {
+		for( property in values ) {
 
-			value = "alpha(opacity="+(value*100)+")";
+			if( values.hasOwnProperty(property) ) {
+
+				property = getCssProperty( property );
+
+				if( property === 'opacity' && !supportsOpacity ) {
+
+					if( !this.node.currentStyle || !this.node.currentStyle.hasLayout ) {
+
+						this.node.style.zoom = 1;
+					}
+
+					this.node.style.filter = 'alpha(opacity='+(values[property]*100)+')';
+				} else {
+
+					this.node.style[property] = addUnits( property, values[property] );
+				}
+			}
 		}
-
-		property = getCssProperty( property );
-
-		this.node.style[property] = addUnits( property, value );
 
 		return this;
 	},
 
 	/**
+	 * Get CSS style
 	 *
+	 * @param string
+	 * @return number/string
 	 */
 	getStyle: function ( property ) {
 
@@ -1042,7 +1060,7 @@ PB.overwrite(PB.dom, {
 			value = node.style[property],
 			o;
 
-		if( !value ) {
+		if( !value || value === 'auto' ) {
 
 			var CSS = computedStyle ? doc.defaultView.getComputedStyle( node, null ) : node.currentStyle;
 
