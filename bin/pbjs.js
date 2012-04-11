@@ -940,16 +940,6 @@ var unit = /^[\d.]+px$/i,
 	opacity = /alpha\(opacity=(.*)\)/i,
 	computedStyle = doc.defaultView && doc.defaultView.getComputedStyle,
 	skipUnits = 'zIndex zoom fontWeight opacity',
-	hooks = {
-
-		'border': 'borderLeftWidth borderLeftStyle borderLeftColor',
-		'borderColor': 'borderLeftColor',
-		'borderWidth': 'borderLeftWidth',
-		'borderStyle': 'borderLeftStyle',
-		'padding': 'paddingTop paddingRight paddingBottom paddingLeft',
-		'margin': 'marginTop marginRight marginBottom marginLeft',
-		'borderRadius': 'borderRadiusTopleft'
-	},
 	cssPrefixProperties = 'animationName transform transition transitionProperty transitionDuration'.split(' '),
 	cssPropertyMap = {},
 	vendorPrefixes = 'O ms Moz Webkit'.split(' '),
@@ -1055,18 +1045,6 @@ PB.overwrite(PB.dom, {
 		if( !value ) {
 
 			var CSS = computedStyle ? doc.defaultView.getComputedStyle( node, null ) : node.currentStyle;
-
-			if( property in hooks ) {
-
-				value = hooks[property].split(' ').map(function( value ){
-
-					return CSS[value];
-				});
-
-				return value.length === 1
-					? removeUnits(value[0])
-					: value.join(' ');
-			}
 
 			value = CSS[property];
 		}

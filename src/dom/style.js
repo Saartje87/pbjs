@@ -3,18 +3,6 @@ var unit = /^[\d.]+px$/i,
 	computedStyle = doc.defaultView && doc.defaultView.getComputedStyle,
 	// Do not add px when using there properties
 	skipUnits = 'zIndex zoom fontWeight opacity',
-	// Hooks are used to retrieve a group op css properties
-	// `these can properly be removed from pbjs!`
-	hooks = {
-	
-		'border': 'borderLeftWidth borderLeftStyle borderLeftColor',
-		'borderColor': 'borderLeftColor',
-		'borderWidth': 'borderLeftWidth',
-		'borderStyle': 'borderLeftStyle',
-		'padding': 'paddingTop paddingRight paddingBottom paddingLeft',
-		'margin': 'marginTop marginRight marginBottom marginLeft',
-		'borderRadius': 'borderRadiusTopleft'
-	},
 	// Css properties that proberly need an prefix
 	// Like transition should be MozTransition in firefox
 	cssPrefixProperties = 'animationName transform transition transitionProperty transitionDuration'.split(' '),
@@ -127,20 +115,6 @@ PB.overwrite(PB.dom, {
 		if( !value ) {
 			
 			var CSS = computedStyle ? doc.defaultView.getComputedStyle( node, null ) : node.currentStyle;
-
-			// Do hooks
-			if( property in hooks ) {
-
-				// Todo: Add browser prefix when needed
-				value = hooks[property].split(' ').map(function( value ){
-
-					return CSS[value];
-				});
-
-				return value.length === 1
-					? removeUnits(value[0])
-					: value.join(' ');
-			}
 
 			value = CSS[property];
 		}
