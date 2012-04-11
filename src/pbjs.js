@@ -43,6 +43,7 @@ var cache = {},
 //= require "./dom/dom"
 //= require "./net/net"
 //= require "./json/json"
+//= require "./string/string"
 
 PB.noConflict = function () {
 
