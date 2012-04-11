@@ -79,40 +79,68 @@ function getCssProperty ( property ) {
 PB.overwrite(PB.dom, {
 	
 	/**
+	 * Set CSS styles
 	 *
+	 * @param object
+	 * @return PB.Dom
 	 */
-	setStyle: function ( property, value ) {
+	setStyle: function ( values ) {
 		
-		if( arguments.length === 1 ) {
+		var property;
+		
+		// Create object if 2 args are given `property, value`
+		if( arguments.length === 2 ) {
 			
-			PB.each(arguments[0], this.setStyle, this);
-			return this;
+			var property = values;
+			
+			value = {};
+			value[property] = arguments[1];
 		}
 		
-		if( property === 'opacity' && !supportsOpacity ) {
+		// Loop trough values
+		for( property in values ) {
 			
-			value = "alpha(opacity="+(value*100)+")";
+			if( values.hasOwnProperty(property) ) {
+				
+				property = getCssProperty( property );
+				
+				// Set IE <= 8 opacity trough filter
+				if( property === 'opacity' && !supportsOpacity ) {
+					
+					// Solves buggie behavior of IE`s opacity
+					if( !this.node.currentStyle || !this.node.currentStyle.hasLayout ) {
+
+						this.node.style.zoom = 1;
+					}
+					
+					this.node.style.filter = 'alpha(opacity='+(values[property]*100)+')';
+				} else {
+					
+					this.node.style[property] = addUnits( property, values[property] );
+				}
+			}
 		}
-		
-		property = getCssProperty( property );
-		
-		this.node.style[property] = addUnits( property, value );
 		
 		return this;
 	},
 	
 	/**
+	 * Get CSS style
 	 *
+	 * @param string
+	 * @return number/string
 	 */
 	getStyle: function ( property ) {
 		
+		// Translate property if needed, eq transform => MozTransform
 		property = getCssProperty( property );
 		
 		var node = this.node,
 			value = node.style[property],
 			o;
 		
-		if( !value ) {
+		// No inline style, get trough calculated
+		if( !value || value === 'auto' ) {
 			
 			var CSS = computedStyle ? doc.defaultView.getComputedStyle( node, null ) : node.currentStyle;
 
@@ -121,6 +149,7 @@ PB.overwrite(PB.dom, {
 		
 		if( property === 'opacity' ) {
 			
+			// Parse IE <= 8 opacity value
 			if( node.style.filter && (o = node.style.filter.match(opacity)) && o[1] ) {
 				
 				return parseFloat(o[1]) / 100;
