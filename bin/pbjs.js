@@ -2344,55 +2344,54 @@ Dom.create.flag = function ( element ) {
 
 PB.ready = (function () {
 
-	var ready = !!doc.body || doc.readyState === 'complete',
-		queue = [],
-		eventMethod = doc.addEventListener ? 'addEventListener' : 'attachEvent',
-		eventMethodRemove = doc.addEventListener ? 'removeEventListener' : 'detachEvent',
-		eventTypePrefix = doc.addEventListener ? '' : 'on';
+	var ready = doc.readyState === 'complete',
+		queue = [];
 
-	function handleState () {
+	function execQueue () {
 
-		if( ready || doc.readyState !== 'complete' ) {
+		var callback;
 
+		while( callback = queue.shift() ) {
+
+			callback();
+		}
+	}
+
+	function domready () {
+
+		try {
+
+			docElement.doScroll('left');
+			execQueue();
+		} catch ( e ) {
+
+			setTimeout(execQueue, 16.7);
 			return;
 		}
-
-		var fn;
-
-		ready = true;
-
-		doc[eventMethodRemove](eventTypePrefix+'DOMContentLoaded', handleState, false);
-		doc[eventMethodRemove](eventTypePrefix+'readystatechange', handleState, false);
-		window[eventMethodRemove](eventTypePrefix+'load', handleState, false);
-
-		while( fn = queue.shift() ) {
-
-			fn();
-		}
-
-		queue = null;
 	}
 
-	if( !ready ) {
+	if( document.addEventListener ) {
 
-		doc[eventMethod](eventTypePrefix+'DOMContentLoaded', handleState, false);
-		doc[eventMethod](eventTypePrefix+'readystatechange', handleState, false);
-		window[eventMethod](eventTypePrefix+'load', handleState, false);
+		PB(document).once('DOMContentLoaded', function () {
+
+			ready = true;
+
+			execQueue();
+		});
+	} else {
+
+		domready();
 	}
 
-	/**
-	 * Ananomous queue method
-	 */
-	return function ( fn ) {
+	return function ( callback ) {
 
-		if( ready ) {
+		if( !ready ) {
 
-			fn();
-		} else if ( queue.indexOf(fn) === -1 ) {
-
-			queue.push( fn );
+			return queue.push( callback );
 		}
-	};
+
+		callback();
+	}
 })();
 
 
