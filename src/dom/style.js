@@ -102,8 +102,6 @@ PB.overwrite(PB.dom, {
 			
 			if( values.hasOwnProperty(property) ) {
 				
-				property = getCssProperty( property );
-				
 				// Set IE <= 8 opacity trough filter
 				if( property === 'opacity' && !supportsOpacity ) {
 					
@@ -116,7 +114,7 @@ PB.overwrite(PB.dom, {
 					this.node.style.filter = 'alpha(opacity='+(values[property]*100)+')';
 				} else {
 					
-					this.node.style[property] = addUnits( property, values[property] );
+					this.node.style[getCssProperty( property )] = addUnits( property, values[property] );
 				}
 			}
 		}
