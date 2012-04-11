@@ -1026,8 +1026,6 @@ PB.overwrite(PB.dom, {
 
 			if( values.hasOwnProperty(property) ) {
 
-				property = getCssProperty( property );
-
 				if( property === 'opacity' && !supportsOpacity ) {
 
 					if( !this.node.currentStyle || !this.node.currentStyle.hasLayout ) {
@@ -1038,7 +1036,7 @@ PB.overwrite(PB.dom, {
 					this.node.style.filter = 'alpha(opacity='+(values[property]*100)+')';
 				} else {
 
-					this.node.style[property] = addUnits( property, values[property] );
+					this.node.style[getCssProperty( property )] = addUnits( property, values[property] );
 				}
 			}
 		}
@@ -1081,85 +1079,86 @@ PB.overwrite(PB.dom, {
 	}
 });
 
-Dom.supportsCSSAnimation = !!cssPropertyMap['animationName'];
+PB.browser.supportsCSSAnimation = !!cssPropertyMap['animationName'];
 
-PB.dom.morph = function ( to/* after, duration, effect */ ) {
+function morphArgs ( args ) {
 
 	var options = {
 
-			to: to,
-			duration: .4	// Default duraton
-		},
-		i = 1,
-		from = {},
-		properties = '',
-		me = this,
-		after;
+		duration: .4
+	};
 
-	for( ; i < arguments.length; i++ ) {
+	for( var i = 1 ; i < args.length; i++ ) {
 
-		switch( typeof arguments[i] ) {
+		switch( typeof args[i] ) {
 
 			case 'function':
-				options.after = arguments[i];
+				options.callback = args[i];
 				break;
 
 			case 'number':
-				options.duration = arguments[i];
+				options.duration = args[i];
 				break;
 		}
 	}
 
-	if( !Dom.supportsCSSAnimation ) {
+	return options;
+}
 
-		this.setStyle(to);
+/**
+ * @todo add 'effect' arguments
+ */
+PB.dom.morph = PB.browser.supportsCSSAnimation ?
+function ( to ) {
 
-		if( options.after ) {
+	var me = this,
+		from = {},
+		properties = '',
+		options = morphArgs( arguments );
 
-			options.after( this );
-		}
+	PB.each(to, function ( key, value ) {
 
-		return this;
-	}
-
-	PB.each(options.to, function ( key, value ) {
-
-		properties += key.replace(/[A-Z]/g, function (m) { return '-'+m.toLowerCase(); })+',';
-
-		from[key] = me.getStyle( key ) || 0;	// || 0, tmp fix
+		properties += PB.str.camelCase( key )+',';
+		from[key] = me.getStyle( key );
 	});
 
 	properties = properties.substr( 0, properties.length-1 );
 
-	after = function ( element ) {
-
-		element.setStyle(from);
-		element.setStyle(to);
-
-		!options.after || options.after( element );
-
-		from = to = null;
-	}
-
-	if( options.after ) {
-
-		me.once('webkitTransitionEnd oTransitionEnd transitionend', after.bind( null, this ));
-	}
-
 	from.transitionProperty = properties;
 	from.transitionDuration = options.duration+'s';
 
-	this.setStyle( from );
+	me.once('webkitTransitionEnd oTransitionEnd transitionend', function () {
 
-	from.transitionProperty = '';
-	from.transitionDuration = '';
+		me.setStyle({
+
+			'transitionProperty': '',
+			'transitionDuration': ''
+		});
+
+		if( options.callback ) {
+
+			options.callback( me.node );
+		}
+	});
+
+	this.setStyle(from);
 
 	setTimeout(function() {
 
 		me.setStyle(to);
 	}, 16.7);
 
-	return this;
+} :
+function ( to ) {
+
+	var options = morphArgs( arguments );
+
+	this.setStyle(to);
+
+	if( options.callback ) {
+
+		options.callback( this.node );
+	}
 };
 
 var domClassCache = {},
@@ -2693,6 +2692,19 @@ PB.extend(context.JSON, {
 		return eval('('+text+')');
 	}
 });
+function camelCase ( str ) {
+
+	return '-'+str.toLowerCase();
+}
+
+PB.str = {
+
+	camelCase: function ( str ) {
+
+		return str.replace(/[A-Z]/g, camelCase);
+	}
+};
+
 
 PB.noConflict = function () {
 
