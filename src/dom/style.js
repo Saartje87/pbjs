@@ -1,7 +1,10 @@
 var unit = /^[\d.]+px$/i,
 	opacity = /alpha\(opacity=(.*)\)/i,
 	computedStyle = doc.defaultView && doc.defaultView.getComputedStyle,
-	skipUnits = 'zIndex zoom fontWeight opacity', //.split(' '),
+	// Do not add px when using there properties
+	skipUnits = 'zIndex zoom fontWeight opacity',
+	// Hooks are used to retrieve a group op css properties
+	// `these can properly be removed from pbjs!`
 	hooks = {
 	
 		'border': 'borderLeftWidth borderLeftStyle borderLeftColor',
@@ -12,18 +15,27 @@ var unit = /^[\d.]+px$/i,
 		'margin': 'marginTop marginRight marginBottom marginLeft',
 		'borderRadius': 'borderRadiusTopleft'
 	},
-	cssPropertyMap = { animationName: undefined, transform: undefined, transition: undefined, transitionProperty: undefined, transitionDuration: undefined },
+	// Css properties that proberly need an prefix
+	// Like transition should be MozTransition in firefox
+	cssPrefixProperties = 'animationName transform transition transitionProperty transitionDuration'.split(' '),
+	// Translation object for properties with a prefix
+	// transition => MozTransition, firefox
+	// transition => WebkitTransition, chrome/safari..
+	cssPropertyMap = {},
 	vendorPrefixes = 'O ms Moz Webkit'.split(' '),
 	vendorDiv = document.createElement('div'),
 	supportsOpacity = vendorDiv.style.opacity !== undefined,
 	supportsCssFloat = vendorDiv.style.cssFloat !== undefined,
 	i = vendorPrefixes.length;
 
-PB.each(cssPropertyMap, function ( property ) {
+/**
+ * Add prefixes to cssPropertyMap map if needed/supported
+ */
+cssPrefixProperties.forEach(function ( property ) {
 	
 	if( property in vendorDiv.style ) {
 		
-		return cssPropertyMap[property] = property;
+		return;
 	}
 	
 	var j = i,
@@ -38,8 +50,12 @@ PB.each(cssPropertyMap, function ( property ) {
 	}
 });
 
-vendorDiv = null;
+// Clear vars
+cssPrefixProperties = vendorDiv = null;
 
+/**
+ * Add px numeric values
+ */
 function addUnits ( property, value ) {
 	
 	if( skipUnits.indexOf(property) >= 0 ) {
@@ -50,20 +66,18 @@ function addUnits ( property, value ) {
 	return typeof value === 'string' ? value : value+'px';
 }
 
+/**
+ * Remove units from px values
+ */
 function removeUnits ( value ) {
 	
 	return unit.test( value ) ? parseInt( value, 10 ) : value;
 }
 
-function getVendorPrefix ( property ) {
-	
-	if( vendorDiv.style[property] !== undefined ) {
-		
-		return 
-	}
-}
-
-function getCssProp ( property ) {
+/**
+ * Get the right property name for this browser
+ */
+function getCssProperty ( property ) {
 	
 	// Crossbrowser float
 	if( property === 'float' ) {
@@ -71,16 +85,14 @@ function getCssProp ( property ) {
 		property = supportsCssFloat ? 'cssFloat' : 'styleFloat';
 	}
 	
-	if( property in cssPropertyMap ) {
-		
-		return cssPropertyMap[property];
-	}
-	
-	return property;
+	return cssPropertyMap[property] || property;
 }
 
 PB.overwrite(PB.dom, {
 	
+	/**
+	 *
+	 */
 	setStyle: function ( property, value ) {
 		
 		if( arguments.length === 1 ) {
@@ -94,18 +106,19 @@ PB.overwrite(PB.dom, {
 			value = "alpha(opacity="+(value*100)+")";
 		}
 		
-		property = getCssProp( property );
+		property = getCssProperty( property );
 		
 		this.node.style[property] = addUnits( property, value );
 		
 		return this;
 	},
 	
+	/**
+	 *
+	 */
 	getStyle: function ( property ) {
 		
-		property = getCssProp( property );
-		
-		console.log( property );
+		property = getCssProperty( property );
 		
 		var node = this.node,
 			value = node.style[property],
