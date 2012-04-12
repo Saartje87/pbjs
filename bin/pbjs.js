@@ -768,7 +768,7 @@ function collectGarbage () {
 
 setTimeout(collectGarbage, 30000);
 
-var exprIsHtml = /<\w*[^>]>/;
+var exprIsHtml = /<\w*[^>]*>/;
 
 /**
  * Retrieve element with Dom closure

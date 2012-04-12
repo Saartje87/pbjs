@@ -1,4 +1,4 @@
-var exprIsHtml = /<\w*[^>]>/;
+var exprIsHtml = /<\w*[^>]*>/;
 
 /**
  * Retrieve element with Dom closure
