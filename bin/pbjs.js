@@ -1680,7 +1680,7 @@ PB.overwrite(PB.dom, {
 			return null;
 		}
 
-		target.parent().node.insertBefore( this.node, target.node );
+		target.node.parentNode.insertBefore( this.node, target.node );
 
 		this._flagged_ = 0;
 
