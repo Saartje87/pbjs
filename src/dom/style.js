@@ -93,8 +93,8 @@ PB.overwrite(PB.dom, {
 			
 			var property = values;
 			
-			value = {};
-			value[property] = arguments[1];
+			values = {};
+			values[property] = arguments[1];
 		}
 		
 		// Loop trough values
