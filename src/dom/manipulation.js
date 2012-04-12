@@ -22,8 +22,6 @@ PB.overwrite(PB.dom, {
 		
 		this.node.appendChild( element.node );
 		
-		element._flagged_ = 0;
-		
 		return this;
 	},
 	
@@ -54,8 +52,6 @@ PB.overwrite(PB.dom, {
 		
 		target.node.parentNode.insertBefore( this.node, target.node );
 		
-		this._flagged_ = 0;
-		
 		return this;
 	},
 	
@@ -78,8 +74,6 @@ PB.overwrite(PB.dom, {
 			
 			target.parent().node.insertBefore( this.node, next.node );
 		}
-		
-		this._flagged_ = 0;
 		
 		return this;
 	},
@@ -154,8 +148,6 @@ PB.overwrite(PB.dom, {
 
 			node.parentNode.removeChild( node );
 		}
-		
-		this._flagged_ = 0;
 
 		this.node = node = null;
 		

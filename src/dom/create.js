@@ -1,3 +1,13 @@
+function flagDom ( element ) {
+	
+	element._flagged_ = 1;
+}
+
+function unflagDom ( element ) {
+	
+	element._flagged_ = 0;
+}
+
 Dom.create = function ( chunk ) {
 	
 	var div = document.createElement('div'),
@@ -9,7 +19,14 @@ Dom.create = function ( chunk ) {
 	
 	div = null;
 	
-	childs.forEach( Dom.create.flag );
+	childs.forEach( flagDom );
+	
+	// Unflag childs after 2 minutes so our
+	// garbage collecter can remove them from memory
+	setTimeout(function() {
+		
+		childs.forEach( unflagDom );
+	}, 120000);
 	
 	if( childs.length === 1 ) {
 		
@@ -17,10 +34,5 @@ Dom.create = function ( chunk ) {
 	}
 	
 	return childs;
-};
-
-Dom.create.flag = function ( element ) {
-	
-	element._flagged_ = true;
 }
 

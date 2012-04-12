@@ -763,6 +763,8 @@ function collectGarbage () {
 
 setTimeout(collectGarbage, 30000);
 
+var exprIsHtml = /<\w*[^>]>/;
+
 /**
  * Retrieve element with Dom closure
  */
@@ -780,7 +782,7 @@ Dom.get = function ( element ) {
 
 	if( typeof element === 'string' ) {
 
-		if( element.charAt(0) === '<' ) {
+		if( exprIsHtml.test(element) ) {
 
 			return Dom.create( element );
 		}
@@ -1018,8 +1020,8 @@ PB.overwrite(PB.dom, {
 
 			var property = values;
 
-			value = {};
-			value[property] = arguments[1];
+			values = {};
+			values[property] = arguments[1];
 		}
 
 		for( property in values ) {
@@ -1650,8 +1652,6 @@ PB.overwrite(PB.dom, {
 
 		this.node.appendChild( element.node );
 
-		element._flagged_ = 0;
-
 		return this;
 	},
 
@@ -1682,8 +1682,6 @@ PB.overwrite(PB.dom, {
 
 		target.node.parentNode.insertBefore( this.node, target.node );
 
-		this._flagged_ = 0;
-
 		return this;
 	},
 
@@ -1706,8 +1704,6 @@ PB.overwrite(PB.dom, {
 
 			target.parent().node.insertBefore( this.node, next.node );
 		}
-
-		this._flagged_ = 0;
 
 		return this;
 	},
@@ -1782,8 +1778,6 @@ PB.overwrite(PB.dom, {
 
 			node.parentNode.removeChild( node );
 		}
-
-		this._flagged_ = 0;
 
 		this.node = node = null;
 
@@ -2316,6 +2310,16 @@ PB.overwrite(PB.dom, {
 	}
 });
 
+function flagDom ( element ) {
+
+	element._flagged_ = 1;
+}
+
+function unflagDom ( element ) {
+
+	element._flagged_ = 0;
+}
+
 Dom.create = function ( chunk ) {
 
 	var div = document.createElement('div'),
@@ -2327,7 +2331,12 @@ Dom.create = function ( chunk ) {
 
 	div = null;
 
-	childs.forEach( Dom.create.flag );
+	childs.forEach( flagDom );
+
+	setTimeout(function() {
+
+		childs.forEach( unflagDom );
+	}, 120000);
 
 	if( childs.length === 1 ) {
 
@@ -2335,11 +2344,6 @@ Dom.create = function ( chunk ) {
 	}
 
 	return childs;
-};
-
-Dom.create.flag = function ( element ) {
-
-	element._flagged_ = true;
 }
 
 PB.ready = (function () {
