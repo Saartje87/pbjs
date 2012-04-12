@@ -20,7 +20,12 @@ PB.Observer = PB.Class({
 		return this;
 	},
 	
-	off: function ( type, fn, scope ) {
+	off: function ( type, fn ) {
+		
+		if( !fn ) {
+			
+			this.listeners[type].length = 0;
+		}
 		
 		this.listeners[type].remove(fn);
 	},
