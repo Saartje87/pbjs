@@ -1,3 +1,5 @@
+var exprIsHtml = /<\w*[^>]>/;
+
 /**
  * Retrieve element with Dom closure
  */
@@ -17,7 +19,7 @@ Dom.get = function ( element ) {
 	// Handle string argument
 	if( typeof element === 'string' ) {
 		
-		if( element.charAt(0) === '<' ) {
+		if( exprIsHtml.test(element) ) {
 			
 			return Dom.create( element );
 		}
