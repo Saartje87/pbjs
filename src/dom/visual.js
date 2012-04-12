@@ -2,12 +2,7 @@ var domClassCache = {},
 	boxModel = false,
 	substractBorder = false;
 
-(function support (){
-	
-	if( !doc.body ) {
-		
-		return window.setTimeout(support, 10);
-	}
+PB.ready(function (){
 	
 	body = doc.body;
 	
@@ -28,7 +23,7 @@ var domClassCache = {},
 	// Cleanup DOM
 	body.removeChild( testElement );
 	testElement = null;
-})();
+});
 
 PB.overwrite(PB.dom, {
 	
