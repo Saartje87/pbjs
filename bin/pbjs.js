@@ -1799,7 +1799,9 @@ PB.overwrite(PB.dom, {
 
 		if( node === window ) {
 
-			return window.innerWidth;
+			// different behavior of IE7/8 (undefined)
+			return window.innerWidth || docElement.offsetWidth;			
+						
 		} else if ( node.nodeType === 9 ) {
 
 			return Math.max(docElement.clientWidth, body.scrollWidth, docElement.offsetWidth);
@@ -1863,7 +1865,9 @@ PB.overwrite(PB.dom, {
 
 		if( node === window ) {
 
-			return window.innerHeight;
+			// different behavior of IE7/8 (undefined)
+			return window.innerHeight || docElement.offsetHeight;			
+			
 		} else if ( node.nodeType === 9 ) {
 
 			return Math.max(docElement.clientHeight, body.scrollHeight, docElement.offsetHeight);
@@ -2617,7 +2621,9 @@ PB.Request = PB.Class(PB.Observer, {
 
 				if( request.getResponseHeader('Content-type').indexOf( 'application/json' ) >= 0 ) {
 
-					request.responseJSON = JSON.parse( request.responseText );
+
+						request.responseJSON = JSON.parse( request.responseText );
+
 				}
 
 				this.emit( 'success', request, request.status );
