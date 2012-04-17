@@ -1589,7 +1589,7 @@ function ( to ) {
 
 		if( options.callback ) {
 
-			options.callback( me.node );
+			options.callback( me );
 		}
 	});
 
@@ -1609,7 +1609,7 @@ function ( to ) {
 
 	if( options.callback ) {
 
-		options.callback( this.node );
+		options.callback( this );
 	}
 };
 
