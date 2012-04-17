@@ -18,7 +18,7 @@ PB.browser = function (){
 	
 	info.version = info.isIE
 		? parseFloat(ua.match(/MSIE (\d+\.\d+)/)[1])
-		: parseFloat(ua.match(/(Chrome|Firefox|Version)\/(\d+\.\d+)/)[2]);
+		: parseFloat(ua.match(/(Chrome|Firefox|Version|NokiaBrowser)\/(\d+\.\d+)/)[2]);
 		
 	// Flash detection
 	if( navigator.plugins && navigator.plugins['Shockwave Flash'] ) {

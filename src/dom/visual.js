@@ -194,7 +194,8 @@ PB.overwrite(PB.dom, {
 		
 		if( node === window ) {
 			
-			return window.innerWidth;
+			// different behavior of IE7/8 (undefined)
+			return window.innerWidth || docElement.offsetWidth;
 		} else if ( node.nodeType === 9 ) {
 			
 			return Math.max(docElement.clientWidth, body.scrollWidth, docElement.offsetWidth);
@@ -260,7 +261,8 @@ PB.overwrite(PB.dom, {
 		
 		if( node === window ) {
 			
-			return window.innerHeight;
+			// different behavior of IE7/8 (undefined)
+			return window.innerHeight || docElement.offsetHeight;
 		} else if ( node.nodeType === 9 ) {
 			
 			return Math.max(docElement.clientHeight, body.scrollHeight, docElement.offsetHeight);
