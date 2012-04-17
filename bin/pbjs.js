@@ -179,14 +179,13 @@ PB.browser = function (){
 		isIE: ua.indexOf('MSIE') > -1,
 		isChrome: ua.indexOf('Chrome') > -1,
 		isFirefox: ua.indexOf('Firefox') > -1,
-		isSafari:ua.indexOf('Safari') > -1,
-		isNokiaBrowser: ua.indexOf('NokiaBrowser') > -1,
+		isSafari:ua.indexOf('Safari') > -1,		
 		isOpera: !!window.opera
 	};
 
 	info.version = info.isIE
 		? parseFloat(ua.match(/MSIE (\d+\.\d+)/)[1])
-		: parseFloat(ua.match(/(Chrome|Firefox|Version|NokiaBrowser)\/(\d+\.\d+)/)[2]);
+		: parseFloat(ua.match(/(Chrome|Firefox|Version)\/(\d+\.\d+)/)[2]);
 
 	if( navigator.plugins && navigator.plugins['Shockwave Flash'] ) {
 
@@ -1373,7 +1372,7 @@ PB.overwrite(PB.dom, {
 	 * Set / get value from form element
 	 */
 	val: function ( value ) {
-
+		
 		if( value === undefined ) {
 
 			return this.node.value;
@@ -1798,10 +1797,10 @@ PB.overwrite(PB.dom, {
 		var node = this.node;
 
 		if( node === window ) {
-
+			
 			// different behavior of IE7/8 (undefined)
-			return window.innerWidth || docElement.offsetWidth;			
-						
+			return window.innerWidth || docElement.offsetWidth;						
+
 		} else if ( node.nodeType === 9 ) {
 
 			return Math.max(docElement.clientWidth, body.scrollWidth, docElement.offsetWidth);
