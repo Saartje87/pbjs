@@ -1381,6 +1381,16 @@ PB.overwrite(PB.dom, {
 		this.node.value = value;
 
 		return this;
+	},
+
+	/**
+	 * Set or retrieve 'data-' attribute
+	 */
+	data: function ( key, value ) {
+
+		key = key ? 'data-'+key : key;
+
+		return this.attr( key, value );
 	}
 });
 
@@ -2706,7 +2716,15 @@ PB.str = {
 		return str.replace(/[A-Z]/g, camelCase);
 	}
 };
+/*
+'asd-asd'.toCamelCase();
 
+PB.Date('2012');
+var name = PB.String.toCamelCase('name-last');
+var name = 'name-last'.toCamelCase();
+PB.Number(19);
+
+var upperCase = PB.str.camelCase( 's-asdasd' );*/
 
 PB.noConflict = function () {
 

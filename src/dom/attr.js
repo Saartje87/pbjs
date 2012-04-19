@@ -41,6 +41,16 @@ PB.overwrite(PB.dom, {
 		this.node.value = value;
 		
 		return this;
+	},
+	
+	/**
+	 * Set or retrieve 'data-' attribute
+	 */
+	data: function ( key, value ) {
+		
+		key = key ? 'data-'+key : key;
+		
+		return this.attr( key, value );
 	}
 });
 
