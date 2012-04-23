@@ -172,8 +172,8 @@ PB.overwrite(PB.dom, {
 		
 		if( node.nodeType === 9 || node === window ) {
 			
-			scroll.left = docElement.scrollLeft;	// || body.scrollLeft;
-			scroll.top = docElement.scrollTop;		// || body.scrollTop;
+			scroll.left = Math.max( docElement.scrollLeft, body.scrollLeft );
+			scroll.top = Math.max( docElement.scrollTop, body.scrollTop );
 		} else {
 			
 			scroll.left = node.scrollLeft;
@@ -328,7 +328,7 @@ PB.each({ left: 'Left', top: 'Top' }, function ( lower, upper ) {
 		}
 		
 		return this.getScroll()[lower];
-	};
+	}
 	
 	PB.dom[lower] = function ( fromBody ) {
 		
