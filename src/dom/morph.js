@@ -73,7 +73,12 @@ function ( to ) {
 	// Add to styles for next rendering frame
 	// Needed for atleast firefox
 	setTimeout(function() {
-
+		
+		if( !me.node ) {
+			
+			return;
+		}
+		
 		me.setStyle(to);
 	}, 16.7);
 	

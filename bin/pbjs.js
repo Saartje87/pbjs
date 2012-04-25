@@ -1607,6 +1607,11 @@ function ( to ) {
 
 	setTimeout(function() {
 
+		if( !me.node ) {
+
+			return;
+		}
+
 		me.setStyle(to);
 	}, 16.7);
 
