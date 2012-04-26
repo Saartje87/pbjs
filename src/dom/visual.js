@@ -325,6 +325,8 @@ PB.each({ left: 'Left', top: 'Top' }, function ( lower, upper ) {
 		if( value !== undefined ) {
 			
 			this.node['scroll'+upper] = value;
+			
+			return this;
 		}
 		
 		return this.getScroll()[lower];
