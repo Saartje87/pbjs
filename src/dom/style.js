@@ -1,4 +1,4 @@
-var unit = /^[\d.]+px$/i,
+var unit = /^-?[\d.]+px$/i,
 	opacity = /alpha\(opacity=(.*)\)/i,
 	computedStyle = doc.defaultView && doc.defaultView.getComputedStyle,
 	// Do not add px when using there properties
