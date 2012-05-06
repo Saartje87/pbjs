@@ -5,11 +5,14 @@ pbjs is small(**Production (gzip): ~ 10kb**) and lightweight object orientated f
 ## Syntax
 
 PB(\<element_id\>)
+
 PB(\<node\>)
+
 PB(\<html_string\>)
 
 	// Retrieve single element wrapper
 	PB('element_id')
+	PB(document.body)
 	
 	// Create an element
 	PB('<h1>Peanut Butter and Jelly Sandwich!</h1>').appendTo( [Object PBDom] )
