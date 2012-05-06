@@ -3,6 +3,7 @@
 pbjs is small(**Production (gzip): ~ 10kb**) and lightweight object orientated framework. Compatible with desktop and mobile browsers. Compared to other DOM based alternatives to jQuery like [Zepto](http://zeptojs.com/) or [QuoJS](http://quojs.tapquo.com/), it has a focus on cross-browser compatibility and performance. Through the modular design - it can be enhanced with various plugins.
 
 ## Syntax
+
 PB(\<element_id\>)
 PB(\<node\>)
 PB(\<html_string\>)
@@ -21,16 +22,19 @@ PB(\<html_string\>)
 	})
 
 ## Using a selector
+
 	// Will return a collections
 	PB('element_id').find('div.peanut')
 
 ## Using collections
+
 Collections are used to change a set of elements. Methods that supposedly return multiple elements will always return a collection. 
 
 	// Store collection, crawling is heavy :)
 	var collection = PB('element_id').find('div.peanut)
 	
 ### Possible mutators
+
 	// Invoke collection with PB.Dom method
 	collection.invoke('setStyle', { color: 'brown', backgroundColor: 'purple })
 	
@@ -43,6 +47,7 @@ Collections are used to change a set of elements. Methods that supposedly return
 	collection.indexOf([Function])
 
 ## Compatible with
+
 - IE7+
 - Firefox 3+
 - Safari 4+
