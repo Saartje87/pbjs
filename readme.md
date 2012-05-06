@@ -29,6 +29,8 @@ Collections are used to change a set of elements. Methods that supposedly return
 ### Possible mutators
 	// Invoke collection with PB.Dom method
 	collection.invoke('setStyle', { color: 'brown', backgroundColor: 'purple })
+	
+	// Ecma 5 like mutators
 	collection.forEach([Function])
 	collection.filter([Function])
 	collection.every([Function])
