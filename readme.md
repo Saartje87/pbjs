@@ -24,7 +24,7 @@ PB(\<html_string\>)
 		backgroundColor: 'purple'
 	})
 
-## Using a selector
+## Selector
 
 	// Will return a collections
 	PB('element_id').find('div.peanut')
@@ -49,6 +49,17 @@ Collections are used to change a set of elements. Methods that supposedly return
 	collection.some([Function])
 	collection.indexOf([Function])
 
+## Ecma5 polyfills
+
+For older browsers pbjs adds some polyfills.
+
+* Array
+* Date
+* Function
+* Object
+* String
+
+
 ## Compatible with
 
 - IE7+
@@ -56,4 +67,4 @@ Collections are used to change a set of elements. Methods that supposedly return
 - Safari 4+
 - Opera
 - Chrome
-- Mobile
+- Mobile (Tested with *Android, iPhone, Nokia*)
