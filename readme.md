@@ -22,7 +22,8 @@ pbjs is small(**Production (gzip): ~ 10kb**) and lightweight object orientated f
 	PB('element_id').find('div.peanut')
 
 ## Using collections
-Collections are used to change a set of elements. Methods that supposedly return multiple elements will always return a collection.
+Collections are used to change a set of elements. Methods that supposedly return multiple elements will always return a collection. 
+
 	// Store collection, crawling is heavy :)
 	var collection = PB('element_id').find('div.peanut)
 	
