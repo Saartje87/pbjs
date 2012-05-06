@@ -187,6 +187,16 @@ PB.browser = function (){
 		? parseFloat(ua.match(/MSIE (\d+\.\d+)/)[1])
 		: parseFloat(ua.match(/(Chrome|Firefox|Version|NokiaBrowser)\/(\d+\.\d+)/)[2]);
 
+	return info;
+}();
+
+/**
+ *
+ */
+PB.support = (function () {
+
+	var flash;
+
 	if( navigator.plugins && navigator.plugins['Shockwave Flash'] ) {
 
 		flash = navigator.plugins['Shockwave Flash'].description;
@@ -204,10 +214,12 @@ PB.browser = function (){
 		flash = Number(flash[0]+'.'+flash[1]);
 	}
 
-	info.flash = flash || false;
+	return {
 
-	return info;
-}();
+		flash: flash || false,
+		touch: 'ontouchstart' in win
+	};
+})();
 
 PB.Class = function ( _parent, base ) {
 
@@ -736,9 +748,12 @@ var Dom = PB.Dom = function ( node ) {
 
 PB.dom = PB.Dom.prototype;
 
+/**
+ *
+ */
 PB.dom.toString = function () {
 
-	return '[Object Dom]';
+	return '[Object PBDom]';
 };
 
 /**
@@ -1394,7 +1409,7 @@ PB.overwrite(PB.dom, {
 	}
 });
 
-var unit = /^[\d.]+px$/i,
+var unit = /^-?[\d.]+px$/i,
 	opacity = /alpha\(opacity=(.*)\)/i,
 	computedStyle = doc.defaultView && doc.defaultView.getComputedStyle,
 	skipUnits = 'zIndex zoom fontWeight opacity',
@@ -2087,7 +2102,48 @@ PB.overwrite(PB.dom, {
 	find: function ( expression ) {
 
 		return new Collection( qwery( expression, this.node ).map(Dom.get) );
+	},
+
+	/**
+	 * Find first parent with non static position property
+	 */
+	/* Not sure if code is needed :)
+	offsetParent: function () {
+
+		var element = this,
+			position = element.getStyle('position');
+
+		if( position === 'relative' ) {
+
+			return element.parent();
+		}
+
+		while( element = element.parent() ) {
+
+			if( element.nodeName === 'BODY' || element.getStyle('position') !== 'static' ) {
+
+				break;
+			}
+		}
+
+		return element;
+	},
+
+	scrollParent: function () {
+
+		var element = this;
+
+		while( element = element.parent() ) {
+
+			if( element.nodeName === 'BODY' || element.getStyle('overflow') !== 'hidden' ) {
+
+				break;
+			}
+		}
+
+		return element;
 	}
+	*/
 });
 
 var tableInnerHTMLbuggie = false;

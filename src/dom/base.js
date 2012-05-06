@@ -18,9 +18,12 @@ var Dom = PB.Dom = function ( node ) {
 // Use PB.dom for extenstions
 PB.dom = PB.Dom.prototype;
 
+/**
+ * 
+ */
 PB.dom.toString = function () {
 	
-	return '[Object Dom]';
+	return '[Object PBDom]';
 };
 
 /**
