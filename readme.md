@@ -3,9 +3,9 @@
 pbjs is small(**Production (gzip): ~ 10kb**) and lightweight object orientated framework. Compatible with desktop and mobile browsers. Compared to other DOM based alternatives to jQuery like [Zepto](http://zeptojs.com/) or [QuoJS](http://quojs.tapquo.com/), it has a focus on cross-browser compatibility and performance. Through the modular design - it can be enhanced with various plugins.
 
 ## Syntax
-PB(&lt;element_id&gt;)
-PB(&lt;node&gt;)
-PB(&lt;html_string&gt;)
+PB(\<element_id\>)
+PB(\<node\>)
+PB(\<html_string\>)
 
 	// Retrieve single element wrapper
 	PB('element_id')
