@@ -851,7 +851,7 @@ Collection.prototype = {
 
 	toString: function () {
 
-		return '[Object DomCollection]';
+		return '[Object PBDomCollection]';
 	},
 
 	invoke: function () {
@@ -1988,11 +1988,21 @@ PB.each({ left: 'Left', top: 'Top' }, function ( lower, upper ) {
 
 PB.overwrite(PB.dom, {
 
+	/**
+	 * Retrieve parent node
+	 *
+	 * @return <PBDom>
+	 */
 	parent: function () {
 
 		return Dom.get( this.node.parentNode );
 	},
 
+	/**
+	 * Retrieve the first child that is an ELEMENT_NODE
+	 *
+	 * @return <PBDom>
+	 */
 	first: function () {
 
 		var first = this.node.firstChild;
@@ -2007,6 +2017,11 @@ PB.overwrite(PB.dom, {
 			: Dom.get(first);
 	},
 
+	/**
+	 * Retrieve the last child that is an ELEMENT_NODE
+	 *
+	 * @return <PBDom>
+	 */
 	last: function () {
 
 		var last = this.node.lastChild;
@@ -2021,6 +2036,11 @@ PB.overwrite(PB.dom, {
 			: Dom.get(last);
 	},
 
+	/**
+	 * Retrieve the next sibling that is an ELEMENT_NODE
+	 *
+	 * @return <PBDom>
+	 */
 	next: function () {
 
 		var sibling = this.node;
@@ -2036,6 +2056,11 @@ PB.overwrite(PB.dom, {
 		return null;
 	},
 
+	/**
+	 * Retrieve the previous sibling that is an ELEMENT_NODE
+	 *
+	 * @return <PBDom>
+	 */
 	prev: function () {
 
 		var sibling = this.node;
@@ -2051,6 +2076,11 @@ PB.overwrite(PB.dom, {
 		return null;
 	},
 
+	/**
+	 * Retrieve childs of the current node
+	 *
+	 * @return <PBDomCollection>
+	 */
 	childs: function () {
 
 		var childs = new Collection,	// new Collection
@@ -2069,6 +2099,13 @@ PB.overwrite(PB.dom, {
 		return childs;
 	},
 
+	/**
+	 * Tries to find a matching parent that matches the given expression
+	 *
+	 * @param string CSS expression
+	 * @param number max parents to crawl up
+	 * @return <PBDom>
+	 */
 	closest: function ( expression, maxDepth ) {
 
 		var node = this;
@@ -2092,6 +2129,12 @@ PB.overwrite(PB.dom, {
 		return null;
 	},
 
+	/**
+	 * Current node is a descendant of the given element?
+	 *
+	 * @param string/node/PBDom
+	 * @return boolean
+	 */
 	descendantOf: function ( element ) {
 
 		element = Dom.get(element);
@@ -2101,6 +2144,12 @@ PB.overwrite(PB.dom, {
 			: false;
 	},
 
+	/**
+	 * Current node contains the given element?
+	 *
+	 * @param string/node/PBDom
+	 * @return boolean
+	 */
 	contains: function ( element ) {
 
 		var node = this.node;
@@ -2112,10 +2161,16 @@ PB.overwrite(PB.dom, {
 			: !!(node.compareDocumentPosition( element ) & 16);
 	},
 
+	/**
+	 * Find elements contained in the current node
+	 *
+	 * @param string
+	 * @return <PBDomCollection>
+	 */
 	find: function ( expression ) {
 
 		return new Collection( qwery( expression, this.node ).map(Dom.get) );
-	},
+	}
 
 	/**
 	 * Find first parent with non static position property
