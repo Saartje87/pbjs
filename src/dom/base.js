@@ -27,15 +27,18 @@ PB.dom.toString = function () {
 };
 
 /**
- * Clear cache var
+ * Collect detached nodes and remove them from the cache
+ * 
+ * Flagged nodes are skipped
  *
- * Exclude objects that got documentFragement as parent?
+ * @todo Exclude objects that got documentFragement as parent?
  */
 function collectGarbage () {
 	
 	var docEl = PB(docElement),
 		key,
-		Dom;
+		Dom,
+		cache = PB.cache;
 	
 	for( key in cache ) {
 		
@@ -43,13 +46,13 @@ function collectGarbage () {
 		
 		if( cache.hasOwnProperty(key) && !Dom._flagged_ && !docEl.contains(Dom) ) {
 			
-		//	console.log( 'Removing: ', Dom.node );
 			Dom.remove();
 		}
 	}
-	
-	setTimeout(collectGarbage, 30000);
 };	
 
-setTimeout(collectGarbage, 30000);
+if( !old ) {
+	
+	setInterval(collectGarbage, 30000);
+}
 

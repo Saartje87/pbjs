@@ -151,7 +151,7 @@ PB.overwrite(PB.dom, {
 
 		this.node = node = null;
 		
-		delete cache[pbid];
+		delete PB.cache[pbid];
 	},
 	
 	empty: function () {

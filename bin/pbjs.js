@@ -23,8 +23,7 @@
 
 "use strict";
 
-var cache = {},
-	old = context.PB,
+var old = context.PB,
 	uid = 0,
 	win = window,
 	doc = document,
@@ -36,6 +35,8 @@ var cache = {},
 
 		return Dom.get(id);
 	};
+
+PB.cache = old && old.cache ? old.cache : {};
 
 /**
  * Get unique id inside PB
@@ -757,15 +758,18 @@ PB.dom.toString = function () {
 };
 
 /**
- * Clear cache var
+ * Collect detached nodes and remove them from the cache
  *
- * Exclude objects that got documentFragement as parent?
+ * Flagged nodes are skipped
+ *
+ * @todo Exclude objects that got documentFragement as parent?
  */
 function collectGarbage () {
 
 	var docEl = PB(docElement),
 		key,
-		Dom;
+		Dom,
+		cache = PB.cache;
 
 	for( key in cache ) {
 
@@ -776,11 +780,12 @@ function collectGarbage () {
 			Dom.remove();
 		}
 	}
-
-	setTimeout(collectGarbage, 30000);
 };
 
-setTimeout(collectGarbage, 30000);
+if( !old ) {
+
+	setInterval(collectGarbage, 30000);
+}
 
 var exprIsHtml = /<\w*[^>]*>/;
 
@@ -814,14 +819,14 @@ Dom.get = function ( element ) {
 		return null;
 	}
 
-	if( typeof element.__PBJS_ID__ === 'number' && cache.hasOwnProperty(element.__PBJS_ID__) ) {
+	if( typeof element.__PBJS_ID__ === 'number' && PB.cache.hasOwnProperty(element.__PBJS_ID__) ) {
 
-		return cache[element.__PBJS_ID__];
+		return PB.cache[element.__PBJS_ID__];
 	}
 
 	element.__PBJS_ID__ = PB.id();
 
-	return cache[element.__PBJS_ID__] = new Dom( element );
+	return PB.cache[element.__PBJS_ID__] = new Dom( element );
 };
 
 var Collection = PB.Collection = function ( collection ) {
@@ -2299,7 +2304,7 @@ PB.overwrite(PB.dom, {
 
 		this.node = node = null;
 
-		delete cache[pbid];
+		delete PB.cache[pbid];
 	},
 
 	empty: function () {
