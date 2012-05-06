@@ -324,7 +324,15 @@ PB.each({ left: 'Left', top: 'Top' }, function ( lower, upper ) {
 		
 		if( value !== undefined ) {
 			
-			this.node['scroll'+upper] = value;
+			var node = this.node;
+			
+			if( node === win || node === doc || node === docElement ) {
+				
+				window.scrollTo( lower === 'left' ? value : this.scrollLeft(), lower === 'top' ? value : this.scrollTop() );
+			} else {
+				
+				node['scroll'+upper] = value;
+			}
 			
 			return this;
 		}
