@@ -127,6 +127,7 @@ PB.exec = function ( text ) {
 
 
 //= require "./browser"
+//= require "./support"
 //= require "./class"
 //= require "./observer"
 

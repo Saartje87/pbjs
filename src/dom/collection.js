@@ -20,7 +20,7 @@ Collection.prototype = {
 	
 	toString: function () {
 		
-		return '[Object DomCollection]';
+		return '[Object PBDomCollection]';
 	},
 	
 	invoke: function () {

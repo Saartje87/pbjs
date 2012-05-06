@@ -1,6 +1,8 @@
 //= require "./base"
 //= require "./get"
 //= require "./collection"
+//= require "./event"
+//= require "./ready"
 //= require "./store"
 //= require "./attr"
 //= require "./style"
@@ -8,8 +10,6 @@
 //= require "./visual"
 //= require "./traversal"
 //= require "./manipulation"
-//= require "./event"
 //= require "./form"
 //= require "./create"
-//= require "./ready"
 

@@ -2,12 +2,7 @@ var domClassCache = {},
 	boxModel = false,
 	substractBorder = false;
 
-(function support (){
-	
-	if( !doc.body ) {
-		
-		return window.setTimeout(support, 10);
-	}
+PB.ready(function (){
 	
 	body = doc.body;
 	
@@ -28,7 +23,7 @@ var domClassCache = {},
 	// Cleanup DOM
 	body.removeChild( testElement );
 	testElement = null;
-})();
+});
 
 PB.overwrite(PB.dom, {
 	
@@ -177,8 +172,8 @@ PB.overwrite(PB.dom, {
 		
 		if( node.nodeType === 9 || node === window ) {
 			
-			scroll.left = docElement.scrollLeft;	// || body.scrollLeft;
-			scroll.top = docElement.scrollTop;		// || body.scrollTop;
+			scroll.left = Math.max( docElement.scrollLeft, body.scrollLeft );
+			scroll.top = Math.max( docElement.scrollTop, body.scrollTop );
 		} else {
 			
 			scroll.left = node.scrollLeft;
@@ -199,7 +194,8 @@ PB.overwrite(PB.dom, {
 		
 		if( node === window ) {
 			
-			return window.innerWidth;
+			// different behavior of IE7/8 (undefined)
+			return window.innerWidth || docElement.offsetWidth;
 		} else if ( node.nodeType === 9 ) {
 			
 			return Math.max(docElement.clientWidth, body.scrollWidth, docElement.offsetWidth);
@@ -265,7 +261,8 @@ PB.overwrite(PB.dom, {
 		
 		if( node === window ) {
 			
-			return window.innerHeight;
+			// different behavior of IE7/8 (undefined)
+			return window.innerHeight || docElement.offsetHeight;
 		} else if ( node.nodeType === 9 ) {
 			
 			return Math.max(docElement.clientHeight, body.scrollHeight, docElement.offsetHeight);
@@ -327,11 +324,21 @@ PB.each({ left: 'Left', top: 'Top' }, function ( lower, upper ) {
 		
 		if( value !== undefined ) {
 			
-			this.node['scroll'+upper] = value;
+			var node = this.node;
+			
+			if( node === win || node === doc || node === docElement ) {
+				
+				window.scrollTo( lower === 'left' ? value : this.scrollLeft(), lower === 'top' ? value : this.scrollTop() );
+			} else {
+				
+				node['scroll'+upper] = value;
+			}
+			
+			return this;
 		}
 		
 		return this.getScroll()[lower];
-	};
+	}
 	
 	PB.dom[lower] = function ( fromBody ) {
 		

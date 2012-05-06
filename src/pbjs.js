@@ -24,8 +24,7 @@
 
 "use strict";
 
-var cache = {},
-	old = context.PB,
+var old = context.PB,
 	uid = 0,
 	win = window,
 	doc = document,
@@ -38,11 +37,15 @@ var cache = {},
 		return Dom.get(id);
 	};
 
+// Declare cache
+PB.cache = old && old.cache ? old.cache : {};
+
 //= require "./core/core"
 //= require "./es5/es5"
 //= require "./dom/dom"
 //= require "./net/net"
 //= require "./json/json"
+//= require "./string/string"
 
 PB.noConflict = function () {
 

@@ -1,3 +1,5 @@
+var exprIsHtml = /<\w*[^>]*>/;
+
 /**
  * Retrieve element with Dom closure
  */
@@ -17,7 +19,7 @@ Dom.get = function ( element ) {
 	// Handle string argument
 	if( typeof element === 'string' ) {
 		
-		if( element.charAt(0) === '<' ) {
+		if( exprIsHtml.test(element) ) {
 			
 			return Dom.create( element );
 		}
@@ -32,14 +34,14 @@ Dom.get = function ( element ) {
 	}
 
 	// In cache?
-	if( typeof element.__PBJS_ID__ === 'number' && cache.hasOwnProperty(element.__PBJS_ID__) ) {
+	if( typeof element.__PBJS_ID__ === 'number' && PB.cache.hasOwnProperty(element.__PBJS_ID__) ) {
 
-		return cache[element.__PBJS_ID__];
+		return PB.cache[element.__PBJS_ID__];
 	}
 
 	// Set cache id
 	element.__PBJS_ID__ = PB.id();
 
-	return cache[element.__PBJS_ID__] = new Dom( element );
+	return PB.cache[element.__PBJS_ID__] = new Dom( element );
 };
 

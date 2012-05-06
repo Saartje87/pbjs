@@ -1,5 +1,5 @@
 /*!
- * pbjs JavaScript Framework v0.5.6
+ * pbjs JavaScript Framework v0.5.7
  * https://github.com/Saartje87/pbjs
  *
  * This project is powered by Pluxbox
@@ -23,8 +23,7 @@
 
 "use strict";
 
-var cache = {},
-	old = context.PB,
+var old = context.PB,
 	uid = 0,
 	win = window,
 	doc = document,
@@ -36,6 +35,8 @@ var cache = {},
 
 		return Dom.get(id);
 	};
+
+PB.cache = old && old.cache ? old.cache : {};
 
 /**
  * Get unique id inside PB
@@ -180,13 +181,22 @@ PB.browser = function (){
 		isChrome: ua.indexOf('Chrome') > -1,
 		isFirefox: ua.indexOf('Firefox') > -1,
 		isSafari:ua.indexOf('Safari') > -1,
-		isNokiaBrowser: ua.indexOf('NokiaBrowser') > -1,
 		isOpera: !!window.opera
 	};
 
 	info.version = info.isIE
 		? parseFloat(ua.match(/MSIE (\d+\.\d+)/)[1])
 		: parseFloat(ua.match(/(Chrome|Firefox|Version|NokiaBrowser)\/(\d+\.\d+)/)[2]);
+
+	return info;
+}();
+
+/**
+ *
+ */
+PB.support = (function () {
+
+	var flash;
 
 	if( navigator.plugins && navigator.plugins['Shockwave Flash'] ) {
 
@@ -205,10 +215,12 @@ PB.browser = function (){
 		flash = Number(flash[0]+'.'+flash[1]);
 	}
 
-	info.flash = flash || false;
+	return {
 
-	return info;
-}();
+		flash: flash || false,
+		touch: 'ontouchstart' in win
+	};
+})();
 
 PB.Class = function ( _parent, base ) {
 
@@ -308,7 +320,12 @@ PB.Observer = PB.Class({
 		return this;
 	},
 
-	off: function ( type, fn, scope ) {
+	off: function ( type, fn ) {
+
+		if( !fn ) {
+
+			this.listeners[type].length = 0;
+		}
 
 		this.listeners[type].remove(fn);
 	},
@@ -732,21 +749,27 @@ var Dom = PB.Dom = function ( node ) {
 
 PB.dom = PB.Dom.prototype;
 
+/**
+ *
+ */
 PB.dom.toString = function () {
 
-	return '[Object Dom]';
+	return '[Object PBDom]';
 };
 
 /**
- * Clear cache var
+ * Collect detached nodes and remove them from the cache
  *
- * Exclude objects that got documentFragement as parent?
+ * Flagged nodes are skipped
+ *
+ * @todo Exclude objects that got documentFragement as parent?
  */
 function collectGarbage () {
 
 	var docEl = PB(docElement),
 		key,
-		Dom;
+		Dom,
+		cache = PB.cache;
 
 	for( key in cache ) {
 
@@ -757,11 +780,14 @@ function collectGarbage () {
 			Dom.remove();
 		}
 	}
-
-	setTimeout(collectGarbage, 30000);
 };
 
-setTimeout(collectGarbage, 30000);
+if( !old ) {
+
+	setInterval(collectGarbage, 30000);
+}
+
+var exprIsHtml = /<\w*[^>]*>/;
 
 /**
  * Retrieve element with Dom closure
@@ -780,7 +806,7 @@ Dom.get = function ( element ) {
 
 	if( typeof element === 'string' ) {
 
-		if( element.charAt(0) === '<' ) {
+		if( exprIsHtml.test(element) ) {
 
 			return Dom.create( element );
 		}
@@ -793,14 +819,14 @@ Dom.get = function ( element ) {
 		return null;
 	}
 
-	if( typeof element.__PBJS_ID__ === 'number' && cache.hasOwnProperty(element.__PBJS_ID__) ) {
+	if( typeof element.__PBJS_ID__ === 'number' && PB.cache.hasOwnProperty(element.__PBJS_ID__) ) {
 
-		return cache[element.__PBJS_ID__];
+		return PB.cache[element.__PBJS_ID__];
 	}
 
 	element.__PBJS_ID__ = PB.id();
 
-	return cache[element.__PBJS_ID__] = new Dom( element );
+	return PB.cache[element.__PBJS_ID__] = new Dom( element );
 };
 
 var Collection = PB.Collection = function ( collection ) {
@@ -825,7 +851,7 @@ Collection.prototype = {
 
 	toString: function () {
 
-		return '[Object DomCollection]';
+		return '[Object PBDomCollection]';
 	},
 
 	invoke: function () {
@@ -856,999 +882,6 @@ Collection.prototype = {
 	some: Array.prototype.some,
 	indexOf: Array.prototype.indexOf
 };
-
-PB.overwrite(PB.dom, {
-
-	set: function ( key, value ) {
-
-		this.storage[key] = value;
-
-		return this;
-	},
-
-	get: function ( key ) {
-
-		var value = this.storage[key];
-
-		return value !== undefined
-			? value
-			: undefined;
-	},
-
-	unset: function ( key ) {
-
-		return delete this.storage[key];
-	},
-
-	isset: function ( key ) {
-
-		return this.storage[key] !== undefined;
-	}
-});
-
-PB.overwrite(PB.dom, {
-
-	/**
-	 * Set/get/remove attribute
-	 * null values will remove attribute
-	 *
-	 * @return mixed
-	 */
-	attr: function ( key, value ) {
-
-		if( PB.is('Object', key) ) {
-
-			PB.each(key, this.attr, this);
-			return this;
-		}
-
-		var node = this.node;
-
-		if( value === undefined ) {
-
-			return node.getAttribute(key);
-		} else if ( value === null ) {
-
-			node.removeAttribute(key);
-		} else {
-
-			node.setAttribute(key, value);
-		}
-
-		return this;
-	},
-
-	/**
-	 * Set / get value from form element
-	 */
-	val: function ( value ) {
-
-		var node = this.node;
-
-		if( value === undefined ) {
-
-			return node.value;
-		}
-
-		node.value = value;
-
-		return this;
-	}
-});
-
-var unit = /^[\d.]+px$/i,
-	opacity = /alpha\(opacity=(.*)\)/i,
-	computedStyle = doc.defaultView && doc.defaultView.getComputedStyle,
-	skipUnits = 'zIndex zoom fontWeight opacity', //.split(' '),
-	hooks = {
-
-		'border': 'borderLeftWidth borderLeftStyle borderLeftColor',
-		'borderColor': 'borderLeftColor',
-		'borderWidth': 'borderLeftWidth',
-		'borderStyle': 'borderLeftStyle',
-		'padding': 'paddingTop paddingRight paddingBottom paddingLeft',
-		'margin': 'marginTop marginRight marginBottom marginLeft',
-		'borderRadius': 'borderRadiusTopleft'
-	},
-	div = document.createElement('div'),
-	supportsOpacity = div.style.opacity !== undefined,
-	supportsCssFloat = div.style.cssFloat !== undefined;
-
-div = null;
-
-function addUnits ( property, value ) {
-
-	if( skipUnits.indexOf(property) >= 0 ) {
-
-		return value;
-	}
-
-	return typeof value === 'string' ? value : value+'px';
-}
-
-function removeUnits ( value ) {
-
-	return unit.test( value ) ? parseInt( value, 10 ) : value;
-}
-
-PB.overwrite(PB.dom, {
-
-	setStyle: function ( property, value ) {
-
-		if( arguments.length === 1 ) {
-
-			PB.each(arguments[0], this.setStyle, this);
-			return this;
-		}
-
-		if( property === 'opacity' && !supportsOpacity ) {
-
-			value = "alpha(opacity="+(value*100)+")";
-		}
-
-		if( property === 'float' ) {
-
-			property = supportsCssFloat ? 'cssFloat' : 'styleFloat';
-		}
-
-		this.node.style[property] = addUnits( property, value );
-
-		return this;
-	},
-
-	getStyle: function ( property ) {
-
-		if( property === 'float' ) {
-
-			property = supportsCssFloat ? 'cssFloat' : 'styleFloat';
-		}
-
-		var node = this.node,
-			value = node.style[property],
-			o;
-
-		if( !value ) {
-
-			var CSS = computedStyle ? doc.defaultView.getComputedStyle( node, null ) : node.currentStyle;
-
-			if( property in hooks ) {
-
-				value = hooks[property].split(' ').map(function( value ){
-
-					return CSS[value];
-				});
-
-				return value.length === 1
-					? removeUnits(value[0])
-					: value.join(' ');
-			}
-
-			value = CSS[property];
-		}
-
-		if( property === 'opacity' ) {
-
-			if( node.style.filter && (o = node.style.filter.match(opacity)) && o[1] ) {
-
-				return parseFloat(o[1]) / 100;
-			}
-
-			return value ? parseFloat(value) : 1.0;
-		}
-
-		return value === 'auto' ? 0 : removeUnits(value);
-	}
-});
-
-var div = document.createElement('div'),
-	prefixes = 'Khtml O ms Moz Webkit'.split(' '),
-	i = prefixes.length,
-	transitionProperty = 'transitionProperty',
-	transitionDuration = 'transitionDuration',
-	supportsCSSAnimation = 'animationName' in div.style;
-
-while( !supportsCSSAnimation && i-- ) {
-
-	if( prefixes[i]+'AnimationName' in div.style ) {
-
-		transitionProperty = prefixes[i]+'TransitionProperty';
-		transitionDuration = prefixes[i]+'TransitionDuration';
-		supportsCSSAnimation = true;
-		break;
-	}
-}
-
-div = null;
-
-Dom.supportsCSSAnimation = supportsCSSAnimation;
-
-PB.dom.morph = function ( to/* after, duration, effect */ ) {
-
-	var options = {
-
-			to: to,
-			duration: .4	// Default duraton
-		},
-		i = 1,
-		from = {},
-		properties = '',
-		me = this,
-		after;
-
-	for( ; i < arguments.length; i++ ) {
-
-		switch( typeof arguments[i] ) {
-
-			case 'function':
-				options.after = arguments[i];
-				break;
-
-			case 'number':
-				options.duration = arguments[i];
-				break;
-		}
-	}
-
-	if( !supportsCSSAnimation ) {
-
-		this.setStyle(to);
-
-		if( options.after ) {
-
-			options.after( this );
-		}
-
-		return this;
-	}
-
-	PB.each(options.to, function ( key, value ) {
-
-		properties += key.replace(/[A-Z]/g, function (m) { return '-'+m.toLowerCase(); })+',';
-
-		from[key] = me.getStyle( key ) || 0;	// || 0, tmp fix
-	});
-
-	properties = properties.substr( 0, properties.length-1 );
-
-	after = function ( element ) {
-
-		element.setStyle(from);
-		element.setStyle(to);
-
-		!options.after || options.after( element );
-
-		from = to = null;
-	}
-
-	if( options.after ) {
-
-		me.once('webkitTransitionEnd oTransitionEnd transitionend', after.bind( null, this ));
-	}
-
-	from[transitionProperty] = properties;
-	from[transitionDuration] = options.duration+'s';
-
-	this.setStyle( from );
-
-	from[transitionProperty] = '';
-	from[transitionDuration] = '';
-
-	setTimeout(function() {
-
-		me.setStyle(to);
-	}, 16.7);
-
-	return this;
-};
-
-var domClassCache = {},
-	boxModel = false,
-	substractBorder = false;
-
-(function support (){
-
-	if( !doc.body ) {
-
-		return window.setTimeout(support, 10);
-	}
-
-	body = doc.body;
-
-	var testElement = document.createElement('div');
-
-	body.appendChild(testElement);
-
-	testElement.style.width = testElement.style.paddingLeft = '1px';
-
-	boxModel = (testElement.offsetWidth === 2);
-
-	testElement.style.borderLeft = '1px solid #000';
-
-	substractBorder = (testElement.offsetWidth === 3);
-
-	body.removeChild( testElement );
-	testElement = null;
-})();
-
-PB.overwrite(PB.dom, {
-
-	/**
-	 * Check if element has class
-	 */
-	hasClass: function ( className ) {
-
-		var regexp = domClassCache[className];
-
-		if( !regexp ) {
-
-			regexp = domClassCache[className] = new RegExp( "(^|\\s)"+className+"($|\\s)" );
-		}
-
-		return regexp.test(this.node.className);
-	},
-
-	/**
-	 * Add class to element
-	 */
-	addClass: function ( classNames ) {
-
-		classNames = classNames.split(' ')
-
-		for( var i = 0; i < classNames.length; i++ ) {
-
-			if( this.hasClass(classNames[i]) ) {
-
-				return this;
-			}
-
-			this.node.className += (this.node.className ? ' ' : '')+classNames[i];
-		}
-
-		return this;
-	},
-
-	/**
-	 * Remove class from element
-	 */
-	removeClass: function ( classNames ) {
-
-		var node = this.node,
-			classes = node.className,
-			regexp,
-			className;
-
-		classNames = classNames.split(' ')
-
-		for( var i = 0; i < classNames.length; i++ ) {
-
-			className = classNames[i];
-			regexp = domClassCache[className];
-
-			if( !regexp ) {
-
-				regexp = domClassCache[className] = new RegExp( "(^|\\s)"+className+"($|\\s)" );
-			}
-
-			classes = classes.replace( regexp, ' ' );
-			classes = classes.trim();
-
-			if( classes === '' ) {
-
-				node.className = null;
-			} else {
-
-				node.className = classes;
-			}
-		}
-
-		return this;
-	},
-
-	/**
-	 *
-	 */
-	show: function () {
-
-
-		this.node.style.display = this.get('css-display') || 'block';
-
-		return this;
-	},
-
-	hide: function () {
-
-		var display = this.getStyle('display');
-
-		if( display === 'none' ) {
-
-			return this;
-		}
-
-		this.set('css-display', display);
-
-		this.node.style.display = 'none';
-
-		return this;
-	},
-
-	isVisible: function () {
-
-		return this.getStyle('display') !== 'none' && this.getStyle('opacity') > 0;
-	},
-
-	getXY: function ( fromBody ) {
-
-		var node = this.node,
-			x = 0,
-			y = 0;
-
-		while( node ) {
-
-			x += node.offsetLeft;
-			y += node.offsetTop;
-
-			node = node.offsetParent;
-
-			if( !node || (!fromBody && Dom.get(node).getStyle('position') !== 'static') ) {
-
-				break;
-			}
-		}
-
-		return {
-
-			left: x,
-			top: y
-		};
-	},
-
-	getScroll: function () {
-
-		var node = this.node,
-			scroll = {};
-
-		if( node.nodeType === 9 || node === window ) {
-
-			scroll.left = docElement.scrollLeft;	// || body.scrollLeft;
-			scroll.top = docElement.scrollTop;		// || body.scrollTop;
-		} else {
-
-			scroll.left = node.scrollLeft;
-			scroll.top = node.scrollTop;
-		}
-
-		return scroll;
-	},
-
-	width: function ( value ) {
-
-		if( value !== undefined ) {
-
-			return this.setStyle('width', value);
-		}
-
-		var node = this.node;
-
-		if( node === window ) {
-
-			return window.innerWidth;
-		} else if ( node.nodeType === 9 ) {
-
-			return Math.max(docElement.clientWidth, body.scrollWidth, docElement.offsetWidth);
-		}
-
-		value = this.getStyle('width');
-
-		if( value > 0 ) {
-
-			return value;
-		}
-
-		if( !this.isVisible() ) {
-
-			this.show();
-			value = node.offsetWidth;
-			this.hide()
-		} else {
-
-			value = node.offsetWidth;
-		}
-
-		if( boxModel ) {
-
-			value -= (this.getStyle('paddingLeft') || 0) + (this.getStyle('paddingRight') || 0);
-		}
-
-		if( substractBorder ) {
-
-			value -= (this.getStyle('borderLeftWidth') || 0) + (this.getStyle('borderRightWidth') || 0);
-		}
-
-		return value;
-	},
-
-	innerWidth: function () {
-
-		return this.width() + (this.getStyle('paddingLeft') || 0) + (this.getStyle('paddingRight') || 0);
-	},
-
-	outerWidth: function () {
-
-		var rightWidth = this.getStyle('borderRightWidth');
-
-		return this.innerWidth() + (this.node.clientLeft + (typeof rightWidth === 'string' ? 0 : rightWidth));
-	},
-
-	scrollWidth: function () {
-
-		return this.node.scrollWidth;
-	},
-
-	height: function ( value ) {
-
-		if( value !== undefined ) {
-
-			return this.setStyle('height', value);
-		}
-
-		var node = this.node;
-
-		if( node === window ) {
-
-			return window.innerHeight;
-		} else if ( node.nodeType === 9 ) {
-
-			return Math.max(docElement.clientHeight, body.scrollHeight, docElement.offsetHeight);
-		}
-
-		value = this.getStyle('height');
-
-		if( value > 0 ) {
-
-			return value;
-		}
-
-		if( !this.isVisible() ) {
-
-			this.show();
-			value = node.offsetHeight;
-			this.hide()
-		} else {
-
-			value = node.offsetHeight;
-		}
-
-		if( boxModel ) {
-
-			value -= (this.getStyle('paddingTop') || 0) + (this.getStyle('paddingBottom') || 0);
-		}
-
-		if( substractBorder ) {
-
-			value -= (this.getStyle('borderTopWidth') || 0) + (this.getStyle('borderBottomWidth') || 0);
-		}
-
-		return value;
-	},
-
-	innerHeight: function () {
-
-		return this.height() + (this.getStyle('paddingTop') || 0) + (this.getStyle('paddingBottom') || 0);
-	},
-
-	outerHeight: function () {
-
-		var bottomWidth = this.getStyle('borderBottomWidth');
-
-		return this.innerHeight() + (this.node.clientTop + (typeof bottomWidth === 'string' ? 0 : bottomWidth));
-	},
-
-	scrollHeight: function () {
-
-		return this.node.scrollHeight;
-	}
-});
-
-PB.each({ left: 'Left', top: 'Top' }, function ( lower, upper ) {
-
-	PB.dom['scroll'+upper] =  function ( value ) {
-
-		if( value !== undefined ) {
-
-			this.node['scroll'+upper] = value;
-		}
-
-		return this.getScroll()[lower];
-	};
-
-	PB.dom[lower] = function ( fromBody ) {
-
-		if( fromBody && fromBody !== true ) {
-
-			this.setStyle(lower, fromBody);
-
-			return this;
-		}
-
-		return this.getXY(fromBody)[lower];
-	}
-});
-
-PB.overwrite(PB.dom, {
-
-	parent: function () {
-
-		return Dom.get( this.node.parentNode );
-	},
-
-	first: function () {
-
-		var first = this.node.firstChild;
-
-		while( first && first.nodeType !== 1 ) {
-
-			first = first.nextSibling;
-		}
-
-		return first === null
-			? null
-			: Dom.get(first);
-	},
-
-	last: function () {
-
-		var last = this.node.lastChild;
-
-		while( last && last.nodeType !== 1 ) {
-
-			last = last.previousSibling;
-		}
-
-		return last === null
-			? null
-			: Dom.get(last);
-	},
-
-	next: function () {
-
-		var sibling = this.node;
-
-		while( sibling = sibling.nextSibling ) {
-
-			if( sibling.nodeType === 1 ) {
-
-				return Dom.get( sibling );
-			}
-		}
-
-		return null;
-	},
-
-	prev: function () {
-
-		var sibling = this.node;
-
-		while( sibling = sibling.previousSibling ) {
-
-			if( sibling.nodeType === 1 ) {
-
-				return Dom.get( sibling );
-			}
-		}
-
-		return null;
-	},
-
-	childs: function () {
-
-		var childs = new Collection,	// new Collection
-			node = this.first();
-
-		if( node === null ) {
-
-			return childs;
-		}
-
-		do {
-
-			childs.push( node );
-		} while ( node = node.next() );
-
-		return childs;
-	},
-
-	closest: function ( expression, maxDepth ) {
-
-		var node = this;
-
-		maxDepth = maxDepth || 50;
-
-		do {
-
-			if( qwery.is( node.node, expression ) ) {
-
-				return node;
-			}
-
-			if( !--maxDepth ) {
-
-				break;
-			}
-
-		} while ( node = node.parent() );
-
-		return null;
-	},
-
-	descendantOf: function ( element ) {
-
-		element = Dom.get(element);
-
-		return element
-			? element.contains( this )
-			: false;
-	},
-
-	contains: function ( element ) {
-
-		var node = this.node;
-
-		element = Dom.get(element).node;
-
-		return node.contains
-			? node !== element && node.contains( element )
-			: !!(node.compareDocumentPosition( element ) & 16);
-	},
-
-	find: function ( expression ) {
-
-		return new Collection( qwery( expression, this.node ).map(Dom.get) );
-	}
-});
-
-var tableInnerHTMLbuggie = false;
-
-try {
-
-	document.createElement('table').innerHTML = '<tr></tr>';
-} catch (e) {
-
-	tableInnerHTMLbuggie = true;
-}
-
-PB.overwrite(PB.dom, {
-
-	/**
-	 * Append element to self
-	 */
-	append: function ( element ) {
-
-		if( (element = Dom.get(element)) === null ) {
-
-			return null;
-		}
-
-		this.node.appendChild( element.node );
-
-		element._flagged_ = 0;
-
-		return this;
-	},
-
-	/**
-	 * Append self to target element
-	 */
-	appendTo: function ( target ) {
-
-		if( (target = Dom.get(target)) === null ) {
-
-			return null;
-		}
-
-		target.append( this );
-
-		return this;
-	},
-
-	/**
-	 * Insert self before target element
-	 */
-	insertBefore: function ( target ) {
-
-		if( (target = Dom.get(target)) === null ) {
-
-			return null;
-		}
-
-		target.parent().node.insertBefore( this.node, target.node );
-
-		this._flagged_ = 0;
-
-		return this;
-	},
-
-	/**
-	 * Insert self after target element
-	 */
-	insertAfter: function ( target ) {
-
-		if( (target = Dom.get(target)) === null ) {
-
-			return null;
-		}
-
-		var next = target.next();
-
-		if( next === null ) {
-
-			target.parent().node.appendChild( this.node );
-		} else {
-
-			target.parent().node.insertBefore( this.node, next.node );
-		}
-
-		this._flagged_ = 0;
-
-		return this;
-	},
-
-	insertFirst: function ( target ) {
-
-		if( (target = Dom.get(target)) === null ) {
-
-			return null;
-		}
-
-		if( target.first() === null ) {
-
-			target.append( this );
-		} else {
-
-			this.insertBefore( target.first() );
-		}
-
-		return this;
-	},
-
-	replace: function ( target ) {
-
-		if( (target = Dom.get(target)) === null ) {
-
-			return null;
-		}
-
-		this.insertBefore( target );
-
-		target.remove();
-
-		return this;
-	},
-
-	clone: function ( deep ) {
-
-		var clone = this.node.cloneNode( deep ),
-			childs = clone.getElementsByTagName('*'),
-			length = childs,
-			i = 0;
-
-		clone.removeAttribute('id');
-		clone.removeAttribute('__PBJS_ID__');
-
-		for ( ; i < length; i++) {
-
-			childs[i].removeAttribute('id');
-			childs[i].removeAttribute('__PBJS_ID__');
-		}
-
-		this._flagged_ = true;
-
-		return Dom.get(clone);
-	},
-
-	remove: function () {
-
-		var node = this.node,
-			pbid = node.__PBJS_ID__,
-			morph;
-
-		if( morph = this.get('pbjs-morph') ) {
-
-			morph.off();
-		}
-
-		_Event.purge( pbid );
-
-		if( node.parentNode ) {
-
-			node.parentNode.removeChild( node );
-		}
-
-		this._flagged_ = 0;
-
-		this.node = node = null;
-
-		delete cache[pbid];
-	},
-
-	empty: function () {
-
-		this.html('');
-
-		return this;
-	},
-
-	/**
-	 * @todo script tags with src tag set should be appended to document
-	 */
-	html: function ( html, execScripts ) {
-
-		if( html === undefined ) {
-
-			return this.node.innerHTML;
-		}
-
-		if( execScripts ) {
-
-			html = html.replace(/<script[^>]*>([\s\S]*?)<\/script>/ig, function ( match, text ) {
-
-				PB.exec( text );
-
-				return '';
-			});
-		}
-
-		if( tableInnerHTMLbuggie ) {
-
-			if( /^<(tbody|tr)>/i.test( html ) ) {
-
-				var table = Dom.create('<table>'+html+'</table>');
-
-				this.html('');
-
-				(table.first().nodeName === 'TBODY' ? table.first() : table)
-					.childs().invoke('appendTo', this);
-
-				return this;
-			}
-			if ( /^<(td)>/i.test( html ) ) {
-
-				var table = Dom.create('<table><tr>'+html+'</tr></table>');
-
-				this.html('');
-
-				table.find('td').invoke('appendTo', this);
-
-				return this;
-			}
-			if( /(TBODY|TR|TD|TH)/.test(this.nodeName) ) {
-
-				this.childs().invoke('remove');
-
-				return this;
-			}
-		}
-
-		this.node.innerHTML = html;
-
-		return this;
-	},
-
-	text: function ( str ) {
-
-		var node = this.node;
-
-		if( str === undefined ) {
-
-			return node.text || node.textContent || node.innerText || node.innerHTML || node.innerText || '';
-		}
-
-		this.empty();
-
-		node.appendChild( document.createTextNode( str ) );
-
-		return this;
-	}
-});
 
 /**
 
@@ -2244,6 +1277,1179 @@ PB.overwrite(PB.dom, {
 	}
 });
 
+PB.ready = (function () {
+
+	var ready = doc.readyState === 'complete',
+		queue = [];
+
+	function execQueue () {
+
+		var callback;
+
+		while( callback = queue.shift() ) {
+
+			callback();
+		}
+	}
+
+	function domready () {
+
+		try {
+
+			docElement.doScroll('left');
+			execQueue();
+		} catch ( e ) {
+
+			setTimeout(execQueue, 16.7);
+			return;
+		}
+	}
+
+	if( document.addEventListener ) {
+
+		PB(document).once('DOMContentLoaded', function () {
+
+			ready = true;
+
+			execQueue();
+		});
+	} else {
+
+		domready();
+	}
+
+	return function ( callback ) {
+
+		if( !ready ) {
+
+			return queue.push( callback );
+		}
+
+		callback();
+	}
+})();
+
+PB.overwrite(PB.dom, {
+
+	set: function ( key, value ) {
+
+		this.storage[key] = value;
+
+		return this;
+	},
+
+	get: function ( key ) {
+
+		var value = this.storage[key];
+
+		return value !== undefined
+			? value
+			: undefined;
+	},
+
+	unset: function ( key ) {
+
+		return delete this.storage[key];
+	},
+
+	isset: function ( key ) {
+
+		return this.storage[key] !== undefined;
+	}
+});
+
+PB.overwrite(PB.dom, {
+
+	/**
+	 * Set/get/remove attribute
+	 * null values will remove attribute
+	 *
+	 * @return mixed
+	 */
+	attr: function ( key, value ) {
+
+		if( PB.is('Object', key) ) {
+
+			PB.each(key, this.attr, this);
+			return this;
+		}
+
+		if( value === undefined ) {
+
+			return this.node.getAttribute(key);
+		} else if ( value === null ) {
+
+			this.node.removeAttribute(key);
+		} else {
+
+			this.node.setAttribute(key, value);
+		}
+
+		return this;
+	},
+
+	/**
+	 * Set / get value from form element
+	 */
+	val: function ( value ) {
+
+		if( value === undefined ) {
+
+			return this.node.value;
+		}
+
+		this.node.value = value;
+
+		return this;
+	},
+
+	/**
+	 * Set or retrieve 'data-' attribute
+	 */
+	data: function ( key, value ) {
+
+		key = key ? 'data-'+key : key;
+
+		return this.attr( key, value );
+	}
+});
+
+var unit = /^-?[\d.]+px$/i,
+	opacity = /alpha\(opacity=(.*)\)/i,
+	computedStyle = doc.defaultView && doc.defaultView.getComputedStyle,
+	skipUnits = 'zIndex zoom fontWeight opacity',
+	cssPrefixProperties = 'animationName transform transition transitionProperty transitionDuration'.split(' '),
+	cssPropertyMap = {},
+	vendorPrefixes = 'O ms Moz Webkit'.split(' '),
+	vendorDiv = document.createElement('div'),
+	supportsOpacity = vendorDiv.style.opacity !== undefined,
+	supportsCssFloat = vendorDiv.style.cssFloat !== undefined,
+	i = vendorPrefixes.length;
+
+/**
+ * Add prefixes to cssPropertyMap map if needed/supported
+ */
+cssPrefixProperties.forEach(function ( property ) {
+
+	if( property in vendorDiv.style ) {
+
+		return;
+	}
+
+	var j = i,
+		prop = property.charAt(0).toUpperCase()+property.substr(1);
+
+	while( j-- ) {
+
+		if( vendorPrefixes[j]+prop in vendorDiv.style ) {
+
+			return cssPropertyMap[property] = vendorPrefixes[j]+prop;
+		}
+	}
+});
+
+cssPrefixProperties = vendorDiv = null;
+
+/**
+ * Add px numeric values
+ */
+function addUnits ( property, value ) {
+
+	if( skipUnits.indexOf(property) >= 0 ) {
+
+		return value;
+	}
+
+	return typeof value === 'string' ? value : value+'px';
+}
+
+/**
+ * Remove units from px values
+ */
+function removeUnits ( value ) {
+
+	return unit.test( value ) ? parseInt( value, 10 ) : value;
+}
+
+/**
+ * Get the right property name for this browser
+ */
+function getCssProperty ( property ) {
+
+	if( property === 'float' ) {
+
+		property = supportsCssFloat ? 'cssFloat' : 'styleFloat';
+	}
+
+	return cssPropertyMap[property] || property;
+}
+
+PB.overwrite(PB.dom, {
+
+	/**
+	 * Set CSS styles
+	 *
+	 * @param object
+	 * @return PB.Dom
+	 */
+	setStyle: function ( values ) {
+
+		var property;
+
+		if( arguments.length === 2 ) {
+
+			var property = values;
+
+			values = {};
+			values[property] = arguments[1];
+		}
+
+		for( property in values ) {
+
+			if( values.hasOwnProperty(property) ) {
+
+				if( property === 'opacity' && !supportsOpacity ) {
+
+					if( !this.node.currentStyle || !this.node.currentStyle.hasLayout ) {
+
+						this.node.style.zoom = 1;
+					}
+
+					this.node.style.filter = 'alpha(opacity='+(values[property]*100)+')';
+				} else {
+
+					this.node.style[getCssProperty( property )] = addUnits( property, values[property] );
+				}
+			}
+		}
+
+		return this;
+	},
+
+	/**
+	 * Get CSS style
+	 *
+	 * @param string
+	 * @return number/string
+	 */
+	getStyle: function ( property ) {
+
+		property = getCssProperty( property );
+
+		var node = this.node,
+			value = node.style[property],
+			o;
+
+		if( !value || value === 'auto' ) {
+
+			var CSS = computedStyle ? doc.defaultView.getComputedStyle( node, null ) : node.currentStyle;
+
+			value = CSS[property];
+		}
+
+		if( property === 'opacity' ) {
+
+			if( node.style.filter && (o = node.style.filter.match(opacity)) && o[1] ) {
+
+				return parseFloat(o[1]) / 100;
+			}
+
+			return value ? parseFloat(value) : 1.0;
+		}
+
+		return value === 'auto' ? 0 : removeUnits(value);
+	}
+});
+
+PB.browser.supportsCSSAnimation = !!cssPropertyMap['animationName'];
+
+function morphArgs ( args ) {
+
+	var options = {
+
+		duration: .4
+	};
+
+	for( var i = 1 ; i < args.length; i++ ) {
+
+		switch( typeof args[i] ) {
+
+			case 'function':
+				options.callback = args[i];
+				break;
+
+			case 'number':
+				options.duration = args[i];
+				break;
+		}
+	}
+
+	return options;
+}
+
+/**
+ * @todo add 'effect' arguments
+ */
+PB.dom.morph = PB.browser.supportsCSSAnimation ?
+function ( to ) {
+
+	var me = this,
+		from = {},
+		properties = '',
+		options = morphArgs( arguments );
+
+	PB.each(to, function ( key, value ) {
+
+		properties += PB.str.camelCase( key )+',';
+		from[key] = me.getStyle( key );
+	});
+
+	properties = properties.substr( 0, properties.length-1 );
+
+	from.transitionProperty = properties;
+	from.transitionDuration = options.duration+'s';
+
+	me.once('webkitTransitionEnd oTransitionEnd transitionend', function () {
+
+		me.setStyle({
+
+			'transitionProperty': '',
+			'transitionDuration': ''
+		});
+
+		if( options.callback ) {
+
+			options.callback( me );
+		}
+	});
+
+	this.setStyle(from);
+
+	setTimeout(function() {
+
+		if( !me.node ) {
+
+			return;
+		}
+
+		me.setStyle(to);
+	}, 16.7);
+
+} :
+function ( to ) {
+
+	var options = morphArgs( arguments );
+
+	this.setStyle(to);
+
+	if( options.callback ) {
+
+		options.callback( this );
+	}
+};
+
+var domClassCache = {},
+	boxModel = false,
+	substractBorder = false;
+
+PB.ready(function (){
+
+	body = doc.body;
+
+	var testElement = document.createElement('div');
+
+	body.appendChild(testElement);
+
+	testElement.style.width = testElement.style.paddingLeft = '1px';
+
+	boxModel = (testElement.offsetWidth === 2);
+
+	testElement.style.borderLeft = '1px solid #000';
+
+	substractBorder = (testElement.offsetWidth === 3);
+
+	body.removeChild( testElement );
+	testElement = null;
+});
+
+PB.overwrite(PB.dom, {
+
+	/**
+	 * Check if element has class
+	 */
+	hasClass: function ( className ) {
+
+		var regexp = domClassCache[className];
+
+		if( !regexp ) {
+
+			regexp = domClassCache[className] = new RegExp( "(^|\\s)"+className+"($|\\s)" );
+		}
+
+		return regexp.test(this.node.className);
+	},
+
+	/**
+	 * Add class to element
+	 */
+	addClass: function ( classNames ) {
+
+		classNames = classNames.split(' ')
+
+		for( var i = 0; i < classNames.length; i++ ) {
+
+			if( this.hasClass(classNames[i]) ) {
+
+				return this;
+			}
+
+			this.node.className += (this.node.className ? ' ' : '')+classNames[i];
+		}
+
+		return this;
+	},
+
+	/**
+	 * Remove class from element
+	 */
+	removeClass: function ( classNames ) {
+
+		var node = this.node,
+			classes = node.className,
+			regexp,
+			className;
+
+		classNames = classNames.split(' ')
+
+		for( var i = 0; i < classNames.length; i++ ) {
+
+			className = classNames[i];
+			regexp = domClassCache[className];
+
+			if( !regexp ) {
+
+				regexp = domClassCache[className] = new RegExp( "(^|\\s)"+className+"($|\\s)" );
+			}
+
+			classes = classes.replace( regexp, ' ' );
+			classes = classes.trim();
+
+			if( classes === '' ) {
+
+				node.className = null;
+			} else {
+
+				node.className = classes;
+			}
+		}
+
+		return this;
+	},
+
+	/**
+	 *
+	 */
+	show: function () {
+
+
+		this.node.style.display = this.get('css-display') || 'block';
+
+		return this;
+	},
+
+	hide: function () {
+
+		var display = this.getStyle('display');
+
+		if( display === 'none' ) {
+
+			return this;
+		}
+
+		this.set('css-display', display);
+
+		this.node.style.display = 'none';
+
+		return this;
+	},
+
+	isVisible: function () {
+
+		return this.getStyle('display') !== 'none' && this.getStyle('opacity') > 0;
+	},
+
+	getXY: function ( fromBody ) {
+
+		var node = this.node,
+			x = 0,
+			y = 0;
+
+		while( node ) {
+
+			x += node.offsetLeft;
+			y += node.offsetTop;
+
+			node = node.offsetParent;
+
+			if( !node || (!fromBody && Dom.get(node).getStyle('position') !== 'static') ) {
+
+				break;
+			}
+		}
+
+		return {
+
+			left: x,
+			top: y
+		};
+	},
+
+	getScroll: function () {
+
+		var node = this.node,
+			scroll = {};
+
+		if( node.nodeType === 9 || node === window ) {
+
+			scroll.left = Math.max( docElement.scrollLeft, body.scrollLeft );
+			scroll.top = Math.max( docElement.scrollTop, body.scrollTop );
+		} else {
+
+			scroll.left = node.scrollLeft;
+			scroll.top = node.scrollTop;
+		}
+
+		return scroll;
+	},
+
+	width: function ( value ) {
+
+		if( value !== undefined ) {
+
+			return this.setStyle('width', value);
+		}
+
+		var node = this.node;
+
+		if( node === window ) {
+
+			return window.innerWidth || docElement.offsetWidth;
+		} else if ( node.nodeType === 9 ) {
+
+			return Math.max(docElement.clientWidth, body.scrollWidth, docElement.offsetWidth);
+		}
+
+		value = this.getStyle('width');
+
+		if( value > 0 ) {
+
+			return value;
+		}
+
+		if( !this.isVisible() ) {
+
+			this.show();
+			value = node.offsetWidth;
+			this.hide()
+		} else {
+
+			value = node.offsetWidth;
+		}
+
+		if( boxModel ) {
+
+			value -= (this.getStyle('paddingLeft') || 0) + (this.getStyle('paddingRight') || 0);
+		}
+
+		if( substractBorder ) {
+
+			value -= (this.getStyle('borderLeftWidth') || 0) + (this.getStyle('borderRightWidth') || 0);
+		}
+
+		return value;
+	},
+
+	innerWidth: function () {
+
+		return this.width() + (this.getStyle('paddingLeft') || 0) + (this.getStyle('paddingRight') || 0);
+	},
+
+	outerWidth: function () {
+
+		var rightWidth = this.getStyle('borderRightWidth');
+
+		return this.innerWidth() + (this.node.clientLeft + (typeof rightWidth === 'string' ? 0 : rightWidth));
+	},
+
+	scrollWidth: function () {
+
+		return this.node.scrollWidth;
+	},
+
+	height: function ( value ) {
+
+		if( value !== undefined ) {
+
+			return this.setStyle('height', value);
+		}
+
+		var node = this.node;
+
+		if( node === window ) {
+
+			return window.innerHeight || docElement.offsetHeight;
+		} else if ( node.nodeType === 9 ) {
+
+			return Math.max(docElement.clientHeight, body.scrollHeight, docElement.offsetHeight);
+		}
+
+		value = this.getStyle('height');
+
+		if( value > 0 ) {
+
+			return value;
+		}
+
+		if( !this.isVisible() ) {
+
+			this.show();
+			value = node.offsetHeight;
+			this.hide()
+		} else {
+
+			value = node.offsetHeight;
+		}
+
+		if( boxModel ) {
+
+			value -= (this.getStyle('paddingTop') || 0) + (this.getStyle('paddingBottom') || 0);
+		}
+
+		if( substractBorder ) {
+
+			value -= (this.getStyle('borderTopWidth') || 0) + (this.getStyle('borderBottomWidth') || 0);
+		}
+
+		return value;
+	},
+
+	innerHeight: function () {
+
+		return this.height() + (this.getStyle('paddingTop') || 0) + (this.getStyle('paddingBottom') || 0);
+	},
+
+	outerHeight: function () {
+
+		var bottomWidth = this.getStyle('borderBottomWidth');
+
+		return this.innerHeight() + (this.node.clientTop + (typeof bottomWidth === 'string' ? 0 : bottomWidth));
+	},
+
+	scrollHeight: function () {
+
+		return this.node.scrollHeight;
+	}
+});
+
+PB.each({ left: 'Left', top: 'Top' }, function ( lower, upper ) {
+
+	PB.dom['scroll'+upper] =  function ( value ) {
+
+		if( value !== undefined ) {
+
+			var node = this.node;
+
+			if( node === win || node === doc || node === docElement ) {
+
+				window.scrollTo( lower === 'left' ? value : this.scrollLeft(), lower === 'top' ? value : this.scrollTop() );
+			} else {
+
+				node['scroll'+upper] = value;
+			}
+
+			return this;
+		}
+
+		return this.getScroll()[lower];
+	}
+
+	PB.dom[lower] = function ( fromBody ) {
+
+		if( fromBody && fromBody !== true ) {
+
+			this.setStyle(lower, fromBody);
+
+			return this;
+		}
+
+		return this.getXY(fromBody)[lower];
+	}
+});
+
+PB.overwrite(PB.dom, {
+
+	/**
+	 * Retrieve parent node
+	 *
+	 * @return <PBDom>
+	 */
+	parent: function () {
+
+		return Dom.get( this.node.parentNode );
+	},
+
+	/**
+	 * Retrieve the first child that is an ELEMENT_NODE
+	 *
+	 * @return <PBDom>
+	 */
+	first: function () {
+
+		var first = this.node.firstChild;
+
+		while( first && first.nodeType !== 1 ) {
+
+			first = first.nextSibling;
+		}
+
+		return first === null
+			? null
+			: Dom.get(first);
+	},
+
+	/**
+	 * Retrieve the last child that is an ELEMENT_NODE
+	 *
+	 * @return <PBDom>
+	 */
+	last: function () {
+
+		var last = this.node.lastChild;
+
+		while( last && last.nodeType !== 1 ) {
+
+			last = last.previousSibling;
+		}
+
+		return last === null
+			? null
+			: Dom.get(last);
+	},
+
+	/**
+	 * Retrieve the next sibling that is an ELEMENT_NODE
+	 *
+	 * @return <PBDom>
+	 */
+	next: function () {
+
+		var sibling = this.node;
+
+		while( sibling = sibling.nextSibling ) {
+
+			if( sibling.nodeType === 1 ) {
+
+				return Dom.get( sibling );
+			}
+		}
+
+		return null;
+	},
+
+	/**
+	 * Retrieve the previous sibling that is an ELEMENT_NODE
+	 *
+	 * @return <PBDom>
+	 */
+	prev: function () {
+
+		var sibling = this.node;
+
+		while( sibling = sibling.previousSibling ) {
+
+			if( sibling.nodeType === 1 ) {
+
+				return Dom.get( sibling );
+			}
+		}
+
+		return null;
+	},
+
+	/**
+	 * Retrieve childs of the current node
+	 *
+	 * @return <PBDomCollection>
+	 */
+	childs: function () {
+
+		var childs = new Collection,	// new Collection
+			node = this.first();
+
+		if( node === null ) {
+
+			return childs;
+		}
+
+		do {
+
+			childs.push( node );
+		} while ( node = node.next() );
+
+		return childs;
+	},
+
+	/**
+	 * Tries to find a matching parent that matches the given expression
+	 *
+	 * @param string CSS expression
+	 * @param number max parents to crawl up
+	 * @return <PBDom>
+	 */
+	closest: function ( expression, maxDepth ) {
+
+		var node = this;
+
+		maxDepth = maxDepth || 50;
+
+		do {
+
+			if( qwery.is( node.node, expression ) ) {
+
+				return node;
+			}
+
+			if( !--maxDepth ) {
+
+				break;
+			}
+
+		} while ( node = node.parent() );
+
+		return null;
+	},
+
+	/**
+	 * Current node is a descendant of the given element?
+	 *
+	 * @param string/node/PBDom
+	 * @return boolean
+	 */
+	descendantOf: function ( element ) {
+
+		element = Dom.get(element);
+
+		return element
+			? element.contains( this )
+			: false;
+	},
+
+	/**
+	 * Current node contains the given element?
+	 *
+	 * @param string/node/PBDom
+	 * @return boolean
+	 */
+	contains: function ( element ) {
+
+		var node = this.node;
+
+		element = Dom.get(element).node;
+
+		return node.contains
+			? node !== element && node.contains( element )
+			: !!(node.compareDocumentPosition( element ) & 16);
+	},
+
+	/**
+	 * Find elements contained in the current node
+	 *
+	 * @param string
+	 * @return <PBDomCollection>
+	 */
+	find: function ( expression ) {
+
+		return new Collection( qwery( expression, this.node ).map(Dom.get) );
+	}
+
+	/**
+	 * Find first parent with non static position property
+	 */
+	/* Not sure if code is needed :)
+	offsetParent: function () {
+
+		var element = this,
+			position = element.getStyle('position');
+
+		if( position === 'relative' ) {
+
+			return element.parent();
+		}
+
+		while( element = element.parent() ) {
+
+			if( element.nodeName === 'BODY' || element.getStyle('position') !== 'static' ) {
+
+				break;
+			}
+		}
+
+		return element;
+	},
+
+	scrollParent: function () {
+
+		var element = this;
+
+		while( element = element.parent() ) {
+
+			if( element.nodeName === 'BODY' || element.getStyle('overflow') !== 'hidden' ) {
+
+				break;
+			}
+		}
+
+		return element;
+	}
+	*/
+});
+
+var tableInnerHTMLbuggie = false;
+
+try {
+
+	document.createElement('table').innerHTML = '<tr></tr>';
+} catch (e) {
+
+	tableInnerHTMLbuggie = true;
+}
+
+PB.overwrite(PB.dom, {
+
+	/**
+	 * Append element to self
+	 */
+	append: function ( element ) {
+
+		if( (element = Dom.get(element)) === null ) {
+
+			return null;
+		}
+
+		this.node.appendChild( element.node );
+
+		return this;
+	},
+
+	/**
+	 * Append self to target element
+	 */
+	appendTo: function ( target ) {
+
+		if( (target = Dom.get(target)) === null ) {
+
+			return null;
+		}
+
+		target.append( this );
+
+		return this;
+	},
+
+	/**
+	 * Insert self before target element
+	 */
+	insertBefore: function ( target ) {
+
+		if( (target = Dom.get(target)) === null ) {
+
+			return null;
+		}
+
+		target.node.parentNode.insertBefore( this.node, target.node );
+
+		return this;
+	},
+
+	/**
+	 * Insert self after target element
+	 */
+	insertAfter: function ( target ) {
+
+		if( (target = Dom.get(target)) === null ) {
+
+			return null;
+		}
+
+		var next = target.next();
+
+		if( next === null ) {
+
+			target.parent().node.appendChild( this.node );
+		} else {
+
+			target.parent().node.insertBefore( this.node, next.node );
+		}
+
+		return this;
+	},
+
+	insertFirst: function ( target ) {
+
+		if( (target = Dom.get(target)) === null ) {
+
+			return null;
+		}
+
+		if( target.first() === null ) {
+
+			target.append( this );
+		} else {
+
+			this.insertBefore( target.first() );
+		}
+
+		return this;
+	},
+
+	replace: function ( target ) {
+
+		if( (target = Dom.get(target)) === null ) {
+
+			return null;
+		}
+
+		this.insertBefore( target );
+
+		target.remove();
+
+		return this;
+	},
+
+	clone: function ( deep ) {
+
+		var clone = this.node.cloneNode( deep ),
+			childs = clone.getElementsByTagName('*'),
+			length = childs,
+			i = 0;
+
+		clone.removeAttribute('id');
+		clone.removeAttribute('__PBJS_ID__');
+
+		for ( ; i < length; i++) {
+
+			childs[i].removeAttribute('id');
+			childs[i].removeAttribute('__PBJS_ID__');
+		}
+
+		this._flagged_ = true;
+
+		return Dom.get(clone);
+	},
+
+	remove: function () {
+
+		var node = this.node,
+			pbid = node.__PBJS_ID__,
+			morph;
+
+		if( morph = this.get('pbjs-morph') ) {
+
+			morph.off();
+		}
+
+		_Event.purge( pbid );
+
+		if( node.parentNode ) {
+
+			node.parentNode.removeChild( node );
+		}
+
+		this.node = node = null;
+
+		delete PB.cache[pbid];
+	},
+
+	empty: function () {
+
+		this.html('');
+
+		return this;
+	},
+
+	/**
+	 * @todo script tags with src tag set should be appended to document
+	 */
+	html: function ( html, execScripts ) {
+
+		if( html === undefined ) {
+
+			return this.node.innerHTML;
+		}
+
+		if( execScripts ) {
+
+			html = html.replace(/<script[^>]*>([\s\S]*?)<\/script>/ig, function ( match, text ) {
+
+				PB.exec( text );
+
+				return '';
+			});
+		}
+
+		if( tableInnerHTMLbuggie ) {
+
+			if( /^<(tbody|tr)>/i.test( html ) ) {
+
+				var table = Dom.create('<table>'+html+'</table>');
+
+				this.html('');
+
+				(table.first().nodeName === 'TBODY' ? table.first() : table)
+					.childs().invoke('appendTo', this);
+
+				return this;
+			}
+			if ( /^<(td)>/i.test( html ) ) {
+
+				var table = Dom.create('<table><tr>'+html+'</tr></table>');
+
+				this.html('');
+
+				table.find('td').invoke('appendTo', this);
+
+				return this;
+			}
+			if( /(TBODY|TR|TD|TH)/.test(this.nodeName) ) {
+
+				this.childs().invoke('remove');
+
+				return this;
+			}
+		}
+
+		this.node.innerHTML = html;
+
+		return this;
+	},
+
+	text: function ( str ) {
+
+		var node = this.node;
+
+		if( str === undefined ) {
+
+			return node.text || node.textContent || node.innerText || node.innerHTML || node.innerText || '';
+		}
+
+		this.empty();
+
+		node.appendChild( document.createTextNode( str ) );
+
+		return this;
+	}
+});
+
 PB.overwrite(PB.dom, {
 
 	/**
@@ -2296,6 +2502,16 @@ PB.overwrite(PB.dom, {
 	}
 });
 
+function flagDom ( element ) {
+
+	element._flagged_ = 1;
+}
+
+function unflagDom ( element ) {
+
+	element._flagged_ = 0;
+}
+
 Dom.create = function ( chunk ) {
 
 	var div = document.createElement('div'),
@@ -2307,7 +2523,12 @@ Dom.create = function ( chunk ) {
 
 	div = null;
 
-	childs.forEach( Dom.create.flag );
+	childs.forEach( flagDom );
+
+	setTimeout(function() {
+
+		childs.forEach( unflagDom );
+	}, 120000);
 
 	if( childs.length === 1 ) {
 
@@ -2315,65 +2536,7 @@ Dom.create = function ( chunk ) {
 	}
 
 	return childs;
-};
-
-Dom.create.flag = function ( element ) {
-
-	element._flagged_ = true;
 }
-
-PB.ready = (function () {
-
-	var ready = !!doc.body || doc.readyState === 'complete',
-		queue = [],
-		eventMethod = doc.addEventListener ? 'addEventListener' : 'attachEvent',
-		eventMethodRemove = doc.addEventListener ? 'removeEventListener' : 'detachEvent',
-		eventTypePrefix = doc.addEventListener ? '' : 'on';
-
-	function handleState () {
-
-		if( ready || doc.readyState !== 'complete' ) {
-
-			return;
-		}
-
-		var fn;
-
-		ready = true;
-
-		doc[eventMethodRemove](eventTypePrefix+'DOMContentLoaded', handleState, false);
-		doc[eventMethodRemove](eventTypePrefix+'readystatechange', handleState, false);
-		window[eventMethodRemove](eventTypePrefix+'load', handleState, false);
-
-		while( fn = queue.shift() ) {
-
-			fn();
-		}
-
-		queue = null;
-	}
-
-	if( !ready ) {
-
-		doc[eventMethod](eventTypePrefix+'DOMContentLoaded', handleState, false);
-		doc[eventMethod](eventTypePrefix+'readystatechange', handleState, false);
-		window[eventMethod](eventTypePrefix+'load', handleState, false);
-	}
-
-	/**
-	 * Ananomous queue method
-	 */
-	return function ( fn ) {
-
-		if( ready ) {
-
-			fn();
-		} else if ( queue.indexOf(fn) === -1 ) {
-
-			queue.push( fn );
-		}
-	};
-})();
 
 
 PB.Net = {};
@@ -2672,6 +2835,27 @@ PB.extend(context.JSON, {
 		return eval('('+text+')');
 	}
 });
+function camelCase ( str ) {
+
+	return '-'+str.toLowerCase();
+}
+
+PB.str = {
+
+	camelCase: function ( str ) {
+
+		return str.replace(/[A-Z]/g, camelCase);
+	}
+};
+/*
+'asd-asd'.toCamelCase();
+
+PB.Date('2012');
+var name = PB.String.toCamelCase('name-last');
+var name = 'name-last'.toCamelCase();
+PB.Number(19);
+
+var upperCase = PB.str.camelCase( 's-asdasd' );*/
 
 PB.noConflict = function () {
 

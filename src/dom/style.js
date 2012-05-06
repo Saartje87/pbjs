@@ -1,23 +1,49 @@
-var unit = /^[\d.]+px$/i,
+var unit = /^-?[\d.]+px$/i,
 	opacity = /alpha\(opacity=(.*)\)/i,
 	computedStyle = doc.defaultView && doc.defaultView.getComputedStyle,
-	skipUnits = 'zIndex zoom fontWeight opacity', //.split(' '),
-	hooks = {
+	// Do not add px when using there properties
+	skipUnits = 'zIndex zoom fontWeight opacity',
+	// Css properties that proberly need an prefix
+	// Like transition should be MozTransition in firefox
+	cssPrefixProperties = 'animationName transform transition transitionProperty transitionDuration'.split(' '),
+	// Translation object for properties with a prefix
+	// transition => MozTransition, firefox
+	// transition => WebkitTransition, chrome/safari..
+	cssPropertyMap = {},
+	vendorPrefixes = 'O ms Moz Webkit'.split(' '),
+	vendorDiv = document.createElement('div'),
+	supportsOpacity = vendorDiv.style.opacity !== undefined,
+	supportsCssFloat = vendorDiv.style.cssFloat !== undefined,
+	i = vendorPrefixes.length;
+
+/**
+ * Add prefixes to cssPropertyMap map if needed/supported
+ */
+cssPrefixProperties.forEach(function ( property ) {
 	
-		'border': 'borderLeftWidth borderLeftStyle borderLeftColor',
-		'borderColor': 'borderLeftColor',
-		'borderWidth': 'borderLeftWidth',
-		'borderStyle': 'borderLeftStyle',
-		'padding': 'paddingTop paddingRight paddingBottom paddingLeft',
-		'margin': 'marginTop marginRight marginBottom marginLeft',
-		'borderRadius': 'borderRadiusTopleft'
-	},
-	div = document.createElement('div'),
-	supportsOpacity = div.style.opacity !== undefined,
-	supportsCssFloat = div.style.cssFloat !== undefined;
+	if( property in vendorDiv.style ) {
+		
+		return;
+	}
+	
+	var j = i,
+		prop = property.charAt(0).toUpperCase()+property.substr(1);
+	
+	while( j-- ) {
+		
+		if( vendorPrefixes[j]+prop in vendorDiv.style ) {
+			
+			return cssPropertyMap[property] = vendorPrefixes[j]+prop;
+		}
+	}
+});
 
-div = null;
+// Clear vars
+cssPrefixProperties = vendorDiv = null;
 
+/**
+ * Add px numeric values
+ */
 function addUnits ( property, value ) {
 	
 	if( skipUnits.indexOf(property) >= 0 ) {
@@ -28,72 +54,100 @@ function addUnits ( property, value ) {
 	return typeof value === 'string' ? value : value+'px';
 }
 
+/**
+ * Remove units from px values
+ */
 function removeUnits ( value ) {
 	
 	return unit.test( value ) ? parseInt( value, 10 ) : value;
 }
 
+/**
+ * Get the right property name for this browser
+ */
+function getCssProperty ( property ) {
+	
+	// Crossbrowser float
+	if( property === 'float' ) {
+		
+		property = supportsCssFloat ? 'cssFloat' : 'styleFloat';
+	}
+	
+	return cssPropertyMap[property] || property;
+}
+
 PB.overwrite(PB.dom, {
 	
-	setStyle: function ( property, value ) {
+	/**
+	 * Set CSS styles
+	 *
+	 * @param object
+	 * @return PB.Dom
+	 */
+	setStyle: function ( values ) {
 		
-		if( arguments.length === 1 ) {
+		var property;
+		
+		// Create object if 2 args are given `property, value`
+		if( arguments.length === 2 ) {
 			
-			PB.each(arguments[0], this.setStyle, this);
-			return this;
+			var property = values;
+			
+			values = {};
+			values[property] = arguments[1];
 		}
 		
-		if( property === 'opacity' && !supportsOpacity ) {
+		// Loop trough values
+		for( property in values ) {
 			
-			value = "alpha(opacity="+(value*100)+")";
+			if( values.hasOwnProperty(property) ) {
+				
+				// Set IE <= 8 opacity trough filter
+				if( property === 'opacity' && !supportsOpacity ) {
+					
+					// Solves buggie behavior of IE`s opacity
+					if( !this.node.currentStyle || !this.node.currentStyle.hasLayout ) {
+
+						this.node.style.zoom = 1;
+					}
+					
+					this.node.style.filter = 'alpha(opacity='+(values[property]*100)+')';
+				} else {
+					
+					this.node.style[getCssProperty( property )] = addUnits( property, values[property] );
+				}
+			}
 		}
-		
-		// Crossbrowser float
-		if( property === 'float' ) {
-			
-			property = supportsCssFloat ? 'cssFloat' : 'styleFloat';
-		}
-		
-		this.node.style[property] = addUnits( property, value );
 		
 		return this;
 	},
 	
+	/**
+	 * Get CSS style
+	 *
+	 * @param string
+	 * @return number/string
+	 */
 	getStyle: function ( property ) {
 		
-		// Crossbrowser float
-		if( property === 'float' ) {
-			
-			property = supportsCssFloat ? 'cssFloat' : 'styleFloat';
-		}
+		// Translate property if needed, eq transform => MozTransform
+		property = getCssProperty( property );
 		
 		var node = this.node,
 			value = node.style[property],
 			o;
 		
-		if( !value ) {
+		// No inline style, get trough calculated
+		if( !value || value === 'auto' ) {
 			
 			var CSS = computedStyle ? doc.defaultView.getComputedStyle( node, null ) : node.currentStyle;
-
-			// Do hooks
-			if( property in hooks ) {
-
-				// Todo: Add browser prefix when needed
-				value = hooks[property].split(' ').map(function( value ){
-
-					return CSS[value];
-				});
-
-				return value.length === 1
-					? removeUnits(value[0])
-					: value.join(' ');
-			}
 
 			value = CSS[property];
 		}
 		
 		if( property === 'opacity' ) {
 			
+			// Parse IE <= 8 opacity value
 			if( node.style.filter && (o = node.style.filter.match(opacity)) && o[1] ) {
 				
 				return parseFloat(o[1]) / 100;

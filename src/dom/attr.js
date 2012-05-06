@@ -14,17 +14,15 @@ PB.overwrite(PB.dom, {
 			return this;
 		}
 		
-		var node = this.node;
-		
 		if( value === undefined ) {
 			
-			return node.getAttribute(key);
+			return this.node.getAttribute(key);
 		} else if ( value === null ) {
 			
-			node.removeAttribute(key);
+			this.node.removeAttribute(key);
 		} else {
 			
-			node.setAttribute(key, value);
+			this.node.setAttribute(key, value);
 		}
 		
 		return this;
@@ -35,16 +33,24 @@ PB.overwrite(PB.dom, {
 	 */
 	val: function ( value ) {
 		
-		var node = this.node;
-		
 		if( value === undefined ) {
 			
-			return node.value;
+			return this.node.value;
 		}
 		
-		node.value = value;
+		this.node.value = value;
 		
 		return this;
+	},
+	
+	/**
+	 * Set or retrieve 'data-' attribute
+	 */
+	data: function ( key, value ) {
+		
+		key = key ? 'data-'+key : key;
+		
+		return this.attr( key, value );
 	}
 });
 

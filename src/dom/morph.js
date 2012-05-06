@@ -1,112 +1,98 @@
-var div = document.createElement('div'),
-	prefixes = 'Khtml O ms Moz Webkit'.split(' '),
-	i = prefixes.length,
-//	animationName = 'animationName',
-	transitionProperty = 'transitionProperty',
-	transitionDuration = 'transitionDuration',
-	supportsCSSAnimation = 'animationName' in div.style;
-
-while( !supportsCSSAnimation && i-- ) {
-
-	if( prefixes[i]+'AnimationName' in div.style ) {
-
-//		animationName = prefixes[i]+'AnimationName';
-		transitionProperty = prefixes[i]+'TransitionProperty';
-		transitionDuration = prefixes[i]+'TransitionDuration';
-		supportsCSSAnimation = true;
-		break;
-	}
-}
-
-div = null;
-
 // For external modules
-Dom.supportsCSSAnimation = supportsCSSAnimation;
+PB.browser.supportsCSSAnimation = !!cssPropertyMap['animationName'];
 
-PB.dom.morph = function ( to/* after, duration, effect */ ) {
-
+function morphArgs ( args ) {
+	
 	var options = {
+		
+		// default duration
+		duration: .4
+	};
+	
+	for( var i = 1 ; i < args.length; i++ ) {
 
-			to: to,
-			duration: .4	// Default duraton
-		},
-		i = 1,
-		from = {},
-		properties = '',
-		me = this,
-		after;
-
-	for( ; i < arguments.length; i++ ) {
-
-		switch( typeof arguments[i] ) {
+		switch( typeof args[i] ) {
 
 			case 'function':
-				options.after = arguments[i];
+				options.callback = args[i];
 				break;
 
 			case 'number':
-				options.duration = arguments[i];
+				options.duration = args[i];
 				break;
-			//
-			// case 'string':
-			// 	options.effect = arguments[i];
-			// 	break;
 		}
 	}
 	
-	// No animation supported, set the styles..
-	if( !supportsCSSAnimation ) {
+	return options;
+}
 
-		this.setStyle(to);
+/**
+ * @todo add 'effect' arguments
+ */
+PB.dom.morph = PB.browser.supportsCSSAnimation ?
+function ( to ) {
+	
+	var me = this,
+		from = {},
+		properties = '',
+		options = morphArgs( arguments );
+	
+	PB.each(to, function ( key, value ) {
 		
-		if( options.after ) {
-
-			options.after( this );
-		}
-		
-		return this;
-	}
-
-	PB.each(options.to, function ( key, value ) {
-
-		properties += key.replace(/[A-Z]/g, function (m) { return '-'+m.toLowerCase(); })+',';
-
-		from[key] = me.getStyle( key ) || 0;	// || 0, tmp fix
+		properties += PB.str.camelCase( key )+',';
+		from[key] = me.getStyle( key );
 	});
-
+	
+	// Strip trailing comma
 	properties = properties.substr( 0, properties.length-1 );
 	
-	// Basic implementation to cleanup animation styles
-	after = function ( element ) {
-		
-		element.setStyle(from);
-		element.setStyle(to);
-		
-		!options.after || options.after( element );
-		
-		from = to = null;
-	}
-
-	if( options.after ) {
-		
-		me.once('webkitTransitionEnd oTransitionEnd transitionend', after.bind( null, this ));
-	}
+	// Set transition properties
+	from.transitionProperty = properties;
+	from.transitionDuration = options.duration+'s';
 	
-	from[transitionProperty] = properties;
-	from[transitionDuration] = options.duration+'s';
-
-	this.setStyle( from );
+	//
+	me.once('webkitTransitionEnd oTransitionEnd transitionend', function () {
+		
+		// Remove transition from element
+		me.setStyle({
+			
+			'transitionProperty': '',
+			'transitionDuration': ''
+		});
+		
+		// Trigger callback
+		if( options.callback ) {
+			
+			options.callback( me );
+		}
+	});
 	
-	// Clear reference
-	from[transitionProperty] = '';
-	from[transitionDuration] = '';
-
+	// Set from styles inline
+	this.setStyle(from);
+	
 	// Add to styles for next rendering frame
+	// Needed for atleast firefox
 	setTimeout(function() {
-
+		
+		if( !me.node ) {
+			
+			return;
+		}
+		
 		me.setStyle(to);
 	}, 16.7);
-
-	return this;
+	
+} :
+// For non supported browsers, just set the style
+function ( to ) {
+	
+	var options = morphArgs( arguments );
+	
+	this.setStyle(to);
+	
+	if( options.callback ) {
+		
+		options.callback( this );
+	}
 };
 
