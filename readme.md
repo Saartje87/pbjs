@@ -71,9 +71,9 @@ To do a HTTP-Request, a new Request-Object has to be created and configured with
     
         url: '42.nl',
         data:{ 
-                foo: 'bar'
-             },
-        method: POST        
+            foo: 'bar'
+        },
+        method: 'POST'        
     });
     
 Afterwards a callback can be declared, which should be triggered on the result of the sending.
