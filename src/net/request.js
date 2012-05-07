@@ -72,7 +72,7 @@ PB.Request = PB.Class(PB.Observer, {
 			return this.transport = new ActiveXObject('MSXML2.XMLHTTP.3.0');
 		}
 		
-		throw Error('Browser doesn`t support XMLHttpRequest');
+		throw new Error('Browser doesn`t support XMLHttpRequest');
 	},
 	
 	/**

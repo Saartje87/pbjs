@@ -768,16 +768,13 @@ function collectGarbage () {
 
 	var docEl = PB(docElement),
 		key,
-		Dom,
 		cache = PB.cache;
 
 	for( key in cache ) {
 
-		Dom = cache[key];
+		if( cache.hasOwnProperty(key) && !cache[key]._flagged_ && !docEl.contains(cache[key]) ) {
 
-		if( cache.hasOwnProperty(key) && !Dom._flagged_ && !docEl.contains(Dom) ) {
-
-			Dom.remove();
+			cache[key].remove();
 		}
 	}
 };
@@ -2683,7 +2680,7 @@ PB.Request = PB.Class(PB.Observer, {
 			return this.transport = new ActiveXObject('MSXML2.XMLHTTP.3.0');
 		}
 
-		throw Error('Browser doesn`t support XMLHttpRequest');
+		throw new Error('Browser doesn`t support XMLHttpRequest');
 	},
 
 	/**

@@ -37,16 +37,13 @@ function collectGarbage () {
 	
 	var docEl = PB(docElement),
 		key,
-		Dom,
 		cache = PB.cache;
 	
 	for( key in cache ) {
 		
-		Dom = cache[key];
-		
-		if( cache.hasOwnProperty(key) && !Dom._flagged_ && !docEl.contains(Dom) ) {
+		if( cache.hasOwnProperty(key) && !cache[key]._flagged_ && !docEl.contains(cache[key]) ) {
 			
-			Dom.remove();
+			cache[key].remove();
 		}
 	}
 };	
