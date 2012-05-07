@@ -1,9 +1,5 @@
-# [pbjs](http://pluxbox.nl/products/pbjs) - efficient coding
-------------------------------------------------------------
-
-
-
-## About
+[pbjs](http://pluxbox.nl/products/pbjs) - efficient coding
+==========================================================
 
 *pbjs* is small and lightweight object orientated framework (*Production:* [~10kb](http://link)).
 
@@ -11,8 +7,8 @@ Compared to other DOM based alternatives to jQuery like [Zepto](http://zeptojs.c
 
 
 
-Concept
--------
+About
+-----
 
 The usage of *pbjs* is quite easy, especially if you are familiar with other frameworks. Every execution mentioned in the docs is a part of the global 'PB'-object. While some of them needs to be used on a wrapped element, general task will be served solely.
 
@@ -26,13 +22,13 @@ Following this principle - it forces the developer to use best practice in JavaS
 
 A few ways to achieve this:
 
-    - usage of native functions instead of custom regex matches: the general element selector will be an element ID
-    - caring about bottlenecks, especially the DOM: everything will be cached internaly to simplify the re-usage
-    - dont repeat yourself (DRY): using clear function names to avoid multiple declarations for the same purpose
-    - the future right now: instead of custom calls for general tasks, ES5 polyfills are included
-    - supporting OOP approaches: ease the paradigm through the included class construct & inheritance
-    - don't wai for it: the framework is defined in the CommonJS way for asnyc module loading
-    - understand what you do: find a method in the modular structured source (1/3 jQuery)
+- usage of native functions instead of custom regex matches: the general element selector will be an element ID
+- caring about bottlenecks, especially the DOM: everything will be cached internaly to simplify the re-usage
+- dont repeat yourself (DRY): using clear function names to avoid multiple declarations for the same purpose
+- the future right now: instead of custom calls for general tasks, ES5 polyfills are included
+- supporting OOP approaches: ease the paradigm through the included class construct & inheritance
+- don't wai for it: the framework is defined in the CommonJS way for asnyc module loading
+- understand what you do: find a method in the modular structured source (1/3 jQuery)
 
 Of course it works quite well with common [design patterns](http://addyosmani.com/resources/essentialjsdesignpatterns/book/).
 
