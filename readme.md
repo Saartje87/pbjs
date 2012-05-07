@@ -42,6 +42,35 @@ Usage
 
 By default elements used by the pbjs will be cached. A garbage collector will free the memory when they are removed from the DOM trough emptying the html. To compensate the cost of rarely used objects - it's neccessary to create new ones or keep them alive (*see PB.Request*).
 
+### Classes
+	
+	// Create animal class
+	var Animal = PB.Class({
+		
+		// Class constructor
+		construct: function () {
+			
+			console.log( 'Animal::construct' );
+		}
+	});
+	
+	// Create Ape class and extend with Animal class
+	var Ape = PB.Class(Animal, {
+		
+		construct: function () {
+			
+			// Call parent class
+			this.parent();
+			
+			console.log( 'Ape::construct' );
+		}
+	});
+	
+	new Ape;
+	
+> output
+> Animal::construct
+> Ape::construct
 
 ### Wrapper (Selector & Create)
 
@@ -103,7 +132,7 @@ Beside normal Array methods, invokations can be used for mutations as well.
 
 There are two ways in *pbjs* to support CSS:
 
-> Note that css properties must be given in camel case
+> Note that css properties are given in camel case
 
 1. setStyle / getStyle
     
