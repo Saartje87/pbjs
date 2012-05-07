@@ -1,14 +1,13 @@
-[pbjs](http://pluxbox.nl/products/pbjs) - efficient coding
-==========================================================
+# [pbjs](http://pluxbox.nl/products/pbjs) - efficient coding
+------------------------------------------------------------
 
 
 
-About
------
+## About
 
 *pbjs* is small and lightweight object orientated framework (*Production:* [~10kb](http://link)).
 
-It's compatible with desktop and mobile browsers. Compared to other DOM based alternatives to jQuery like [Zepto](http://zeptojs.com/) or [QuoJS](http://quojs.tapquo.com/), it has a focus on cross-browser/device compatibility and performance. Through the modular design - it can also be enhanced with various plugins.
+Compared to other DOM based alternatives to jQuery like [Zepto](http://zeptojs.com/) or [QuoJS](http://quojs.tapquo.com/), it has a focus on cross-browser/device compatibility and performance. Through the modular design - it can also be enhanced with various plugins.
 
 
 
@@ -27,13 +26,13 @@ Following this principle - it forces the developer to use best practice in JavaS
 
 A few ways to achieve this:
 
-- usage of native functions instead of custom regex matches: the general element selector will be an element ID
-- caring about bottlenecks, especially the DOM: everything will be cached internaly to simplify the re-usage
-- dont repeat yourself (DRY): using clear function names to avoid multiple declarations for the same purpose
-- the future right now: instead of custom calls for general tasks, ES5 polyfills are included
-- supporting OOP approaches: ease the paradigm through the included class construct & inheritance
-- don't wai for it: the framework is defined in the CommonJS way for asnyc module loading
-- understand what you do: find a method in the modular structured source (1/3 jQuery)
+    - usage of native functions instead of custom regex matches: the general element selector will be an element ID
+    - caring about bottlenecks, especially the DOM: everything will be cached internaly to simplify the re-usage
+    - dont repeat yourself (DRY): using clear function names to avoid multiple declarations for the same purpose
+    - the future right now: instead of custom calls for general tasks, ES5 polyfills are included
+    - supporting OOP approaches: ease the paradigm through the included class construct & inheritance
+    - don't wai for it: the framework is defined in the CommonJS way for asnyc module loading
+    - understand what you do: find a method in the modular structured source (1/3 jQuery)
 
 Of course it works quite well with common [design patterns](http://addyosmani.com/resources/essentialjsdesignpatterns/book/).
 
@@ -93,12 +92,12 @@ Afterwards a callback can be declared, which should be triggered on the result o
 Collections in *pbjs* are used to select a set of elements. Methods which are supposed to output multiple values returns a collection. 
 
     // Store collection, crawling is heavy :)
-    var collection = PB('element_id').find('div.peanut)
+    var collection = PB('element_id').find('div.peanut);
 
-Beside array methods, invokations can be used for mutations as well.
+Beside normal Array methods, invokations can be used for mutations as well.
 
     // Invoke collection with PB.Dom method
-    collection.invoke('setStyle', { color: 'brown', backgroundColor: 'purple })
+    collection.invoke('setStyle', { color: 'brown', backgroundColor: 'purple });
         
 
 ### Style
@@ -111,20 +110,19 @@ There are two ways in *pbjs* to support CSS:
     var login = PB('login'),
     
         current = login.getStyle('opacity');
-         
 2. morph (Transitions)
-
+    
     // Change the Style over a time period
     login.morph({
     
         duration: 2,        
-        
+    
         opacity: current/2
-        
+    
     }, function(){
-        
+    
         this.remove();
-        
+    
     });
 
 
@@ -144,3 +142,13 @@ The principle of *efficient coding* doesn't exclude DOM crawling with CSS select
 - Opera
 - Chrome
 - Mobile (Tested with *Android, iPhone, Nokia, BlackBerry Tablet OS*)
+
+
+
+License
+-------
+This project is under the MIT License.
+
+*Powered by Pluxbox*
+
+*Copyright 2011-1012, Niek Saarberg*
