@@ -40,7 +40,7 @@ Of course it works quite well with common [design patterns](http://addyosmani.co
 Usage
 -----
 
-By default elements used by the pbjs will be cached. A garbage collector will free the memory as they won't be used after a while. To compensate the cost of rarely used objects - it's neccessary to create new ones or keep them alive (*see PB.Request*).
+By default elements used by the pbjs will be cached. A garbage collector will free the memory when they are removed from the DOM trough emptying the html. To compensate the cost of rarely used objects - it's neccessary to create new ones or keep them alive (*see PB.Request*).
 
 
 ### Wrapper (Selector & Create)
@@ -103,13 +103,19 @@ Beside normal Array methods, invokations can be used for mutations as well.
 
 There are two ways in *pbjs* to support CSS:
 
+> Note that css properties must be given in camel case
+
 1. setStyle / getStyle
     
         // Receive the current style
-        var login = PB('login'),
+        var login = PB('element_id'),
             current = login.getStyle('opacity');
 
-2. morph (Transitions)
+2. setStyle also adds browser prefixes when needed
+
+	PB('element_id').setStyle('transform', 'rotate(30deg)');
+
+3. morph (Transitions)
     
         // Change the style over a time period
         login.morph({                     
