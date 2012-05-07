@@ -4,7 +4,7 @@
 About
 -----
 
-*pbjs* is small and lightweight object orientated framework (*Production:* [~10kb](http://link)).
+*pbjs* is small and lightweight object orientated framework (*Production:* [~10kb](https://github.com/Saartje87/pbjs/tree/master/bin/pbjs.min.js)).
 
 Compared to other DOM based alternatives to jQuery like [Zepto](http://zeptojs.com/) or [QuoJS](http://quojs.tapquo.com/), it has a focus on cross-browser/device compatibility and performance. Through the modular design - it can also be enhanced with various plugins.
 
@@ -103,25 +103,21 @@ Beside normal Array methods, invokations can be used for mutations as well.
 
 There are two ways in *pbjs* to support CSS:
 
-1, setStyle / getStyle
-
-    // Receive the current syle
-    var current = PB('login').getStyle('opacity');
+1. setStyle / getStyle
+    
+        // Receive the current syle
+        var login = PB('login'),
+            current = login.getStyle('opacity');
 
 2. morph (Transitions)
     
-    // Change the Style over a time period
-    PB('login').morph({
-    
-        duration: 2,        
-    
-        opacity: current/2
-    
-    }, function(){
-    
-        this.remove();
-    
-    });
+        // Change the Style over a time period
+        login.morph({    
+           duration: 2,                       
+           opacity: current/2        
+        }, function(){        
+           this.remove();           
+        });
 
 
 ### CSS Selector
