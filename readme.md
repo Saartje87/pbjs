@@ -1,14 +1,17 @@
 [pbjs](http://pluxbox.nl/products/pbjs) - efficient coding
 ==========================================================
 
+About
+-----
+
 *pbjs* is small and lightweight object orientated framework (*Production:* [~10kb](http://link)).
 
 Compared to other DOM based alternatives to jQuery like [Zepto](http://zeptojs.com/) or [QuoJS](http://quojs.tapquo.com/), it has a focus on cross-browser/device compatibility and performance. Through the modular design - it can also be enhanced with various plugins.
 
 
 
-About
------
+Concept
+-------
 
 The usage of *pbjs* is quite easy, especially if you are familiar with other frameworks. Every execution mentioned in the docs is a part of the global 'PB'-object. While some of them needs to be used on a wrapped element, general task will be served solely.
 
@@ -103,13 +106,12 @@ There are two ways in *pbjs* to support CSS:
 1, setStyle / getStyle
 
     // Receive the current syle
-    var login = PB('login'),
-    
-        current = login.getStyle('opacity');
+    var current = PB('login').getStyle('opacity');
+
 2. morph (Transitions)
     
     // Change the Style over a time period
-    login.morph({
+    PB('login').morph({
     
         duration: 2,        
     
