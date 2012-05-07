@@ -68,9 +68,9 @@ By default elements used by the pbjs will be cached. A garbage collector will fr
 	
 	new Ape;
 	
-> output
-> Animal::construct
-> Ape::construct
+> **output**	
+Animal::construct	
+Ape::construct
 
 ### Wrapper (Selector & Create)
 
