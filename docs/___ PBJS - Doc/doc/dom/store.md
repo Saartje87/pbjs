@@ -1,5 +1,0 @@
-# Attribute
-
-###set
-###get
-###unset

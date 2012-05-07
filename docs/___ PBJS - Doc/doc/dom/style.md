@@ -1,4 +1,0 @@
-# Style
-
-###setStyle
-###getStyle

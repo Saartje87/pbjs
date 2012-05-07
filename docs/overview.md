@@ -12,7 +12,6 @@ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 > * observer.js				- creating an observer
 
 
-
 2. dom: DOM manipulation
 
 > * attr.js                 - attributes & values
@@ -32,7 +31,7 @@ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 > * visual.js				-
 
 
-3. es5: polyfills for ECMAScript 6 - Harmony
+3. es5: polyfills for ECMAScript 5
 
 > * array.js
 > * date.js
@@ -40,7 +39,6 @@ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 > * function.js
 > * object.js
 > * strings.js
-
 
 4. net: connection helper
 

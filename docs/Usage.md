@@ -42,7 +42,7 @@ Usage
 By default elements used by the pbjs will be cached. A garbage collector will free the memory as they won't be used after a while. To compensate the cost of rarely used objects - it's neccessary to create new ones or keep them alive (*see PB.Request*).
 
 
-### Wrapper (Selector & Create)
+### Wrapper
 
 The 'PB'-object can use input for different purposes:
 
@@ -51,7 +51,7 @@ The 'PB'-object can use input for different purposes:
         // Retrieve single element    
         PB('element_id')
 
-2. DOM node selector (regular & cached)
+2. node selector (regular & cache)
         
         // Select single element
         PB(document.body)
@@ -60,6 +60,7 @@ The 'PB'-object can use input for different purposes:
 
         // Create an element     
         PB('<h1>Peanut Butter and Jelly Sandwich!</h1>').appendTo( [Object PBDom] )
+
 
 ### Request
 
@@ -85,20 +86,9 @@ Afterwards a result callback can be declared, which should be triggered after th
 
 ### Collections
 
-Collections in *pbjs* are used to select a set of elements. Methods which are supposed to output multiple values returns a collection. 
-
-	// Store collection, crawling is heavy :)
-	var collection = PB('element_id').find('div.peanut)
 
 
-### Style
-
-Changing the style in general is a task of CSS - n
-
-    var login = PB('login'),
-    
-        current = login.getStyle();
-    
+### Styles
 
 setStyle // static
 morph // transitions
@@ -111,7 +101,12 @@ morph // transitions
 	// Will return a collections
 	PB('element_id').find('div.peanut')
 
+## Using collections
 
+Collections are used to change a set of elements. Methods that supposedly return multiple elements will always return a collection. 
+
+	// Store collection, crawling is heavy :)
+	var collection = PB('element_id').find('div.peanut)
 	
 ### Possible mutators
 
@@ -125,17 +120,6 @@ morph // transitions
 	collection.map([Function])
 	collection.some([Function])
 	collection.indexOf([Function])
-    
-
-
-### CSS Selector
-
-The principle of *efficient coding* doesn't exclude DOM crawling with CSS selectors - it just enforces the developer to re-think about his workflow. In cases where you need use classes (prefix 'js-' !), you first select a parent element and then use the method '.find('.className')'. As a result it returns a collection of 'PB(elements)'.
-
-    // Using CSS selector
-    var entries = PB(document).find('.js-entries');
-
-
 
 ## Ecma5 polyfills
 
@@ -156,3 +140,136 @@ For older browsers pbjs adds some polyfills.
 - Opera
 - Chrome
 - Mobile (Tested with *Android, iPhone, Nokia, BlackBery OS*)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Why
+
+ool - so let's do some fancy $('.header').css('color', 'green') ....
+
+
+As a web developer you need a generic libarie for cross browser task, easy pssed things up to focsu on th main problem.
+
+but why shuld we care less about the code we use than the code we create by ourself....
+
+
+
+
+
+// interfaces/ generic creatings etc. // 
+
+
+Priciples: 
+
+code reusage, memory efficient ,, creating opbejcts etc.
+
+
+// how manyu of the functions and patterns are really used ?
+
+# Difference to jQuery, Mootools, DojoToolkit & Co.
+
+
+
+// a liobarie fr interactive web applications & developers
+
+
+
+whats ditched:
+
+- ajax / get/ post /JSONP // shortcuts
+- shortcuts in the shortcuts /_
+
+
+
+No one cann deny that the named libaries got a good approach 
+
+
+// prototype
+
+
+
+---------------------------------
+
+
+
+
+
+Modules:
+
+- MVC																			|| PB.Mvc
+
+- Audio																			|| PB.Audio
+
+- Template: 																	|| PB.Template
+
+- Extended: enhancing existing native prototypes (Date, Number, String) 		|| PB.Extended
+
+- Writer:																		|| PB.Writer
+
+
+// ow an the mvc interactwith the history api
+
+
+
+// a module for modern ccss3 naimation, canvas shortcuts , + checks like reponse got
+
+// possibility to activae cors etc. // xtendin option - not nceceary for regular bsis but
+
+
+
+- event delegation
+
+- inheritance
+
+-
+
+// for different purposes on building web applications
+// -
+
+
+
+- selector
+- ajax, 
+
+
+
+
