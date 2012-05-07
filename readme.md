@@ -105,18 +105,17 @@ There are two ways in *pbjs* to support CSS:
 
 1. setStyle / getStyle
     
-        // Receive the current syle
+        // Receive the current style
         var login = PB('login'),
             current = login.getStyle('opacity');
 
 2. morph (Transitions)
     
-        // Change the Style over a time period
-        login.morph({    
-           duration: 2,                       
+        // Change the style over a time period
+        login.morph({                     
            opacity: current/2        
-        }, function(){        
-           this.remove();           
+        }, 1.2 /* 1.2 seconds */, function( element ){        
+           element.remove();
         });
 
 
