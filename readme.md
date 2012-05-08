@@ -19,7 +19,7 @@ Since a reference to itself will always be returned - fluent programming via met
 
 In contrast to most AJAX libraries, pbjs was created for developing interactive web application.
 
-Therefore it focuses on **efficient coding** to improve the performance.
+Therefore it focuses on `efficient coding` to improve the performance.
 
 Following this principle - it forces the developer to use best practice in JavaScript & an appropriate coding style.
 
@@ -42,35 +42,6 @@ Usage
 
 By default elements used by the pbjs will be cached. A garbage collector will free the memory when they are removed from the DOM trough emptying the html. To compensate the cost of rarely used objects - it's neccessary to create new ones or keep them alive (*see PB.Request*).
 
-### Classes
-	
-	// Create animal class
-	var Animal = PB.Class({
-		
-		// Class constructor
-		construct: function () {
-			
-			console.log( 'Animal::construct' );
-		}
-	});
-	
-	// Create Ape class and extend with Animal class
-	var Ape = PB.Class(Animal, {
-		
-		construct: function () {
-			
-			// Call parent class
-			this.parent();
-			
-			console.log( 'Ape::construct' );
-		}
-	});
-	
-	new Ape;
-	
-> **output**	
-Animal::construct	
-Ape::construct
 
 ### Wrapper (Selector & Create)
 
@@ -110,6 +81,7 @@ Afterwards a callback can be declared, which should be triggered on the result o
     // Attach listener & callback
     req.on('success', function ( res ) {
         
+        // represents the response as an object
         console.log( res.responseJSON );
         
     }).send();
@@ -130,19 +102,17 @@ Beside normal Array methods, invokations can be used for mutations as well.
 
 ### Style
 
-There are two ways in *pbjs* to support CSS:
+There are two ways in *pbjs* to support CSS - static and transitional. Boht work prefix free, allowing to focus on the input rather than cross browser issues.
 
 > Note that css properties are given in camel case
 
 1. setStyle / getStyle
     
         // Receive the current style
-        var login = PB('element_id'),
-            current = login.getStyle('opacity');
-
-2. setStyle also adds browser prefixes when needed
-
-	PB('element_id').setStyle('transform', 'rotate(30deg)');
+        PB('element_id').getStyle('opacity');
+        
+        //  Adding style properties (including CSS3)
+        PB('element_id').setStyle('transform', 'rotate(30deg)');
 
 3. morph (Transitions)
     
@@ -152,6 +122,52 @@ There are two ways in *pbjs* to support CSS:
         }, 1.2 /* 1.2 seconds */, function( element ){        
            element.remove();
         });
+
+
+### Classes
+
+Classes are usefull for creating complex structures and maintaining large applications. Through the abstraction layer of a class - it's very easy to create new objects which inherits from another one.
+    
+    // Create an 'Animal' class
+    var Animal = PB.Class({
+        
+        // Class constructor
+        construct: function () {
+            
+            console.log( 'I'am an animal' );
+        }        
+    });
+    
+    // Create an 'Ape' class, which extends the the former 'Animal'
+    var Ape = PB.Class( Animal, {
+        
+        construct: function () {            
+                   
+            console.log( 'I'am an Ape' );
+        }        
+    });
+        
+    new Ape; 
+        
+    // Result
+    > I'am an Ape
+
+It's not just possible to access the inherited properties of the parent - but also get the result of an executed function directly.
+        
+    var Goat = PB.Class( Animal, {
+        
+        construct: function () {            
+            
+            this.parent();
+            console.log( 'I'am a Goat' );
+        }        
+    });       
+    
+    new Goat;
+    
+    // Result
+    > I'am an Animal
+    > I'am a Goat
 
 
 ### CSS Selector
