@@ -1,4 +1,4 @@
-[pbjs](http://pluxbox.nl/products/pbjs) - efficient coding
+pbjs - efficient coding
 ==========================================================
 
 About
