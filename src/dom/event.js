@@ -95,6 +95,17 @@ var _Event = {
 	 */
 	extend: function ( event, uid ) {
 		
+		// Easier intergration for touch X/Y
+		if( event.type.indexOf('touch') === 0 && event.touches[0] ) {
+			
+			event.touchX = event.touches[0].pageX;
+			event.touchY = event.touches[0].pageY;
+		}
+		
+		// From mootools
+		// 	if (type == 'DOMMouseScroll' || type == 'mousewheel')
+		// this.wheel = (event.wheelDelta) ? event.wheelDelta / 120 : -(event.detail || 0) / 3;
+		
 		// No need for extend
 		if( _Event.manualExtend === false ) {
 			

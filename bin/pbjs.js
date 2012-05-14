@@ -977,6 +977,13 @@ var _Event = {
 	 */
 	extend: function ( event, uid ) {
 
+		if( event.type.indexOf('touch') === 0 && event.touches[0] ) {
+
+			event.touchX = event.touches[0].pageX;
+			event.touchY = event.touches[0].pageY;
+		}
+
+
 		if( _Event.manualExtend === false ) {
 
 			return event;
