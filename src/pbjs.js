@@ -5,7 +5,7 @@
  *
  * This project is powered by Pluxbox
  *
- * copyright 2011-1012, Niek Saarberg
+ * copyright 2011-2012, Niek Saarberg
  * MIT License
  */
 (function ( name, context, definition ) {

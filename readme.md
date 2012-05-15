@@ -1,4 +1,4 @@
-pbjs - efficient coding
+pbjs
 ==========================================================
 
 About
@@ -134,7 +134,7 @@ Classes are usefull for creating complex structures and maintaining large applic
         // Class constructor
         construct: function () {
             
-            console.log( 'I'am an animal' );
+            console.log( 'I am an animal' );
         }        
     });
     
@@ -143,7 +143,7 @@ Classes are usefull for creating complex structures and maintaining large applic
         
         construct: function () {            
                    
-            console.log( 'I'am an Ape' );
+            console.log( 'I am an Ape' );
         }        
     });
         
@@ -159,7 +159,7 @@ It's not just possible to access the inherited properties of the parent - but al
         construct: function () {            
             
             this.parent();
-            console.log( 'I'am a Goat' );
+            console.log( 'I am a Goat' );
         }        
     });       
     
@@ -195,4 +195,4 @@ This project is under the MIT License.
 
 *Powered by Pluxbox*
 
-*Copyright 2011-1012, Niek Saarberg*
+*Copyright 2011-2012, Niek Saarberg*
