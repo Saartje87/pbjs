@@ -102,7 +102,7 @@ Beside normal Array methods, invokations can be used for mutations as well.
 
 ### Style
 
-There are two ways in *pbjs* to support CSS - static and transitional. Boht work prefix free, allowing to focus on the input rather than cross browser issues.
+There are two ways in *pbjs* to support CSS - static and transitional. Both work prefix free, allowing to focus on the input rather than cross browser issues.
 
 > Note that css properties are given in camel case
 
