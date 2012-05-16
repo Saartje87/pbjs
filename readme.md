@@ -4,24 +4,24 @@ pbjs
 About
 -----
 
-*pbjs* is small and lightweight object orientated framework (*Production:* [~10kb](https://github.com/Saartje87/pbjs/tree/master/bin/pbjs.min.js)).
+*pbjs* is small and lightweight object orientated framework (*Production size:* [~10kb](https://github.com/Saartje87/pbjs/tree/master/bin/pbjs.min.js)).
 
-Compared to other DOM based alternatives to jQuery like [Zepto](http://zeptojs.com/) or [QuoJS](http://quojs.tapquo.com/), it has a focus on cross-browser/device compatibility and performance. Through the modular design - it can also be enhanced with various plugins.
+Compared to other DOM based alternatives, like jQuery, [Zepto](http://zeptojs.com/) or [QuoJS](http://quojs.tapquo.com/), it has a focus on cross-browser/device compatibility and performance. Through the modular design it can be extended with various plugins.
 
 
 
 Concept
 -------
 
-The usage of *pbjs* is quite easy, especially if you are familiar with other frameworks. Every execution mentioned in the docs is a part of the global 'PB'-object. While some of them needs to be used on a wrapped element, general task will be served solely.
+The usage of *pbjs* is quite easy, especially if you are familiar with other frameworks. Every method mentioned in the docs is a part of the global 'PB'-object. Some of the methods needs to be used on a wrapped element, but most general tasks could be used solely.
 
 Since a reference to itself will always be returned - fluent programming via method chaining is possible.
 
-In contrast to most AJAX libraries, pbjs was created for developing interactive web application.
+In contrast to most AJAX libraries, pbjs was created for developing interactive web applications instead of effects or widgets.
 
-Therefore it focuses on `efficient coding` to improve the performance.
+*pbjs* focuses on `efficient coding` to improve the performance.
 
-Following this principle - it forces the developer to use best practice in JavaScript & an appropriate coding style.
+Following this principle it forces the developer to use best practice solutions in JavaScript and an appropriate coding style.
 
 A few ways to achieve this:
 
@@ -30,8 +30,8 @@ A few ways to achieve this:
 - dont repeat yourself (DRY): using clear function names to avoid multiple declarations for the same purpose
 - the future right now: instead of custom calls for general tasks, ES5 polyfills are included
 - supporting OOP approaches: ease the paradigm through the included class construct & inheritance
-- don't wai for it: the framework is defined in the CommonJS way for asnyc module loading
-- understand what you do: find a method in the modular structured source (1/3 jQuery)
+- don't wait for it: the framework is defined in the CommonJS way for async module loading
+- understand what you do: find a method in the modular structured source
 
 Of course it works quite well with common [design patterns](http://addyosmani.com/resources/essentialjsdesignpatterns/book/).
 
@@ -40,7 +40,7 @@ Of course it works quite well with common [design patterns](http://addyosmani.co
 Usage
 -----
 
-By default elements used by the pbjs will be cached. A garbage collector will free the memory when they are removed from the DOM trough emptying the html. To compensate the cost of rarely used objects - it's neccessary to create new ones or keep them alive (*see PB.Request*).
+By default elements used by the pbjs will be cached. A garbage collector will free the memory when they are removed from the DOM trough emptying the html. To compensate the cost of rarely used object it is neccessary to create new ones or keep them alive (*see PB.Request*).
 
 
 ### Wrapper (Selector & Create)
