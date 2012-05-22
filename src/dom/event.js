@@ -42,14 +42,14 @@ var _Event = {
 	 *
 	 * @return function
 	 */
-	createResponder: function ( uid, type, handler ) {
+	createResponder: function ( uid, type, handler, context ) {
 		
 		return function ( event ) {
 			
 			var cacheEntry = _Event.cache[uid];
 			
 			event = _Event.extend( event, uid );
-			handler.call( cacheEntry.node, event );
+			handler.call( context || cacheEntry.node, event );
 		};
 	},
 	
@@ -203,7 +203,7 @@ PB.overwrite(PB.dom, {
 	/**
 	 * 
 	 */
-	on: function ( type, handler ) {
+	on: function ( type, handler, context ) {
 		
 		var types = type.split(' ');
 		
@@ -212,7 +212,7 @@ PB.overwrite(PB.dom, {
 			
 			types.forEach(function ( type ) {
 				
-				this.on( type, handler );
+				this.on( type, handler, context );
 			}, this);
 			return this;
 		}
@@ -223,7 +223,7 @@ PB.overwrite(PB.dom, {
 			eventsType,
 			i;
 		
-		// Add mouseenter/mouseleave 'type' support...
+		// Rewrite mouseenter/mouseleave to mouseover/mouseover if not supported
 		if( _Event.supports_mouseenter_mouseleave === false ) {
 			
 			type = (type === 'mouseenter' ? 'mouseover' : (type === 'mouseleave' ? 'mouseout' : type));
@@ -259,7 +259,7 @@ PB.overwrite(PB.dom, {
 		var entry = {
 			
 			handler: handler,
-			responder: _Event.createResponder( uid, type, handler )
+			responder: _Event.createResponder( uid, type, handler, context )
 		};
 		
 		eventsType.push( entry );

@@ -5,7 +5,12 @@ PB.Observer = PB.Class({
 		this.listeners = {};
 	},
 	
-	on: function ( type, fn, scope ) {
+	on: function ( type, fn, context ) {
+		
+		if( !PB.is('Function', fn) ) {
+			
+			throw new Error('PB.Observer error, fn is not a function');
+		}
 		
 		type.split(' ').forEach(function ( type ) {
 			
@@ -14,7 +19,7 @@ PB.Observer = PB.Class({
 				this.listeners[type] = [];
 			}
 
-			this.listeners[type].push(fn);
+			this.listeners[type].push([fn, context]);
 		}, this);
 		
 		return this;
@@ -39,9 +44,9 @@ PB.Observer = PB.Class({
 		
 		var args = slice.call( arguments, 1 );
 		
-		this.listeners[type].forEach(function ( fn ){
+		this.listeners[type].forEach(function ( o ){
 			
-			fn.apply(null, args || []);
+			o[0].apply(o[1], args || []);
 		});
 		
 		return this;
