@@ -24,12 +24,16 @@ cache = {
 
 var _Event = {
 	
-	supports_mouseenter_mouseleave: 'onmouseenter' in doc.documentElement && 'onmouseleave' in doc.documentElement,
+	// Mouseenter/mouseleave supported?
+	supportsMouseenterMouseleave: 'onmouseenter' in doc.documentElement && 'onmouseleave' in doc.documentElement,
 	
+	// Event types that should fired trough node.`type`()
 	HTMLEvents: /^(?:load|unload|abort|error|select|change|submit|reset|focus|blur|resize|scroll)$/,
 	
+	// Mouse events, used for emit detection
 	MouseEvents: /^(?:click|mouse(?:down|up|over|move|out))$/,
-
+	
+	// legacy browsers
 	manualExtend: false,
 	
 	/**
@@ -54,9 +58,12 @@ var _Event = {
 	},
 	
 	/**
-	 * Remove all events from element
+	 * Remove all events from target
 	 *
 	 * Use when removing an element
+	 *
+	 * @param number
+	 * @return void
 	 */
 	purge: function ( uid ) {
 		
@@ -90,8 +97,17 @@ var _Event = {
 	},
 	
 	/**
-	 * Extend event manualy for browsers that dont support
-	 * Event.prototype
+	 * Extend event object with functionality, on event fire
+	 * this function will be called.
+	 *
+	 * For legacy browsers this also extend the event object with
+	 * with de Event specications.
+	 *
+	 * Returns an extended Event object
+	 *
+	 * @param Event
+	 * @param number
+	 * @return Event
 	 */
 	extend: function ( event, uid ) {
 		
@@ -159,6 +175,11 @@ var _Event = {
  */
 _Event.methods = {
 	
+	/**
+	 * Short for preventDefault and stopPropagation
+	 * 
+	 * Tnx prototypejs! :)
+	 */
 	stop: function () {
 		
 		this.preventDefault();
@@ -183,11 +204,17 @@ if( window.attachEvent && !window.addEventListener ) {
 	
 	PB.overwrite(_Event.methods, {
 		
+		/**
+		 * Normalize stopPropagation
+		 */
 		stopPropagation: function () {
 			
 			this.cancelBubble = true;
 		},
 		
+		/**
+		 * Normalize stopPropagation
+		 */
 		preventDefault: function () {
 			
 			this.returnValue = false;
@@ -201,7 +228,15 @@ if( window.attachEvent && !window.addEventListener ) {
 PB.overwrite(PB.dom, {
 	
 	/**
-	 * 
+	 * DOM event binding
+	 *
+	 * Example
+	 *	PB('element').on('click', function ( e ){ alert(e.type) })
+	 *
+	 * @param string
+	 * @param Function
+	 * @param Object
+	 * @return Dom
 	 */
 	on: function ( type, handler, context ) {
 		
@@ -224,7 +259,7 @@ PB.overwrite(PB.dom, {
 			i;
 		
 		// Rewrite mouseenter/mouseleave to mouseover/mouseover if not supported
-		if( _Event.supports_mouseenter_mouseleave === false ) {
+		if( _Event.supportsMouseenterMouseleave === false ) {
 			
 			type = (type === 'mouseenter' ? 'mouseover' : (type === 'mouseleave' ? 'mouseout' : type));
 		}
@@ -279,9 +314,14 @@ PB.overwrite(PB.dom, {
 	},
 	
 	/**
+	 * Bind the event, and removes it after use
 	 *
+	 * @param string
+	 * @param Function
+	 * @param Object
+	 * @return Dom
 	 */
-	once: function ( types, handler ) {
+	once: function ( types, handler, context ) {
 		
 		var me = this;
 		
@@ -292,18 +332,22 @@ PB.overwrite(PB.dom, {
 				
 				me.off( type, _handler );
 				
-				handler.apply( me.node, PB.toArray(arguments) );
+				handler.apply( context || me.node, PB.toArray(arguments) );
 			};
 			
 			// Assign event
-			this.on(type, _handler);
-		}, this);
+			me.on(type, _handler);
+		});
 		
 		return this;
 	},
 	
 	/**
-	 *
+	 * Removes the given: (type + handler) or (type) or (all)
+	 * 
+	 * @param string
+	 * @param Function
+	 * @return Dom
 	 */
 	off: function ( type, handler ) {
 		
@@ -384,7 +428,10 @@ PB.overwrite(PB.dom, {
 	},
 	
 	/**
+	 * Dispatch the event on the element
 	 *
+	 * @param string
+	 * @return Dom
 	 */
 	emit: function ( type ) {
 		
