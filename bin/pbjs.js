@@ -333,6 +333,8 @@ PB.Observer = PB.Class({
 		}
 
 		this.listeners[type].remove(fn);
+
+		return this;
 	},
 
 	emit: function ( type ) {
