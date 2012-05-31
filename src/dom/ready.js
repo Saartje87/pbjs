@@ -22,7 +22,7 @@ PB.ready = (function () {
 			execQueue();
 		} catch ( e ) {
 			
-			setTimeout(execQueue, 16.7);
+			setTimeout(domready, 16.7);
 			return;
 		}
 	}
