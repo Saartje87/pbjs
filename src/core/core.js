@@ -87,7 +87,7 @@ PB.toArray = function ( collection ) {
 		
 		for( ; i < length; i++ ) {
 			
-			result[i] = collection[i];
+			result.push( collection[i] );
 		}
 
 		return result;
