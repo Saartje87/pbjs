@@ -200,12 +200,13 @@ PB.overwrite(PB.dom, {
 			
 			return Math.max(docElement.clientWidth, body.scrollWidth, docElement.offsetWidth);
 		}
+	
+	//	Bug found in Chrome, when element has a scrollbar, calculated width
+	// 	fails, so now only using style.width
 		
-		value = this.getStyle('width');
-		
-		if( value > 0 ) {
+		if( value = node.style.width ) {
 			
-			return value;
+			return removeUnits(value);
 		}
 		
 		// CSS value failed, calculate
@@ -268,11 +269,12 @@ PB.overwrite(PB.dom, {
 			return Math.max(docElement.clientHeight, body.scrollHeight, docElement.offsetHeight);
 		}
 		
-		value = this.getStyle('height');
-		
-		if( value > 0 ) {
-			
-			return value;
+		//	Bug found in Chrome, when element has a scrollbar, calculated width
+		// 	fails, so now only using style.height
+
+		if( value = node.style.height ) {
+
+			return removeUnits(value);
 		}
 		
 		// CSS value failed, calculate

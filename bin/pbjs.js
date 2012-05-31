@@ -1895,11 +1895,10 @@ PB.overwrite(PB.dom, {
 			return Math.max(docElement.clientWidth, body.scrollWidth, docElement.offsetWidth);
 		}
 
-		value = this.getStyle('width');
 
-		if( value > 0 ) {
+		if( value = node.style.width ) {
 
-			return value;
+			return removeUnits(value);
 		}
 
 		if( !this.isVisible() ) {
@@ -1959,11 +1958,10 @@ PB.overwrite(PB.dom, {
 			return Math.max(docElement.clientHeight, body.scrollHeight, docElement.offsetHeight);
 		}
 
-		value = this.getStyle('height');
 
-		if( value > 0 ) {
+		if( value = node.style.height ) {
 
-			return value;
+			return removeUnits(value);
 		}
 
 		if( !this.isVisible() ) {
