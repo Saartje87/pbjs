@@ -438,7 +438,9 @@ PB.overwrite(PB.dom, {
 		var evt;
 		
 		// Handle html events, see _Event.HTMLEvents
-		if( _Event.HTMLEvents.test(type) ) {
+		// Trigger direct trough node method for HTMLEvents and INPUT type
+		// Input check is done for FireFox, failes to trigger input[type=file] with click event
+		if( _Event.HTMLEvents.test(type) || this.nodeName === 'INPUT' ) {
 			
 			this.node[type]();
 		}

@@ -1295,7 +1295,7 @@ PB.overwrite(PB.dom, {
 
 		var evt;
 
-		if( _Event.HTMLEvents.test(type) ) {
+		if( _Event.HTMLEvents.test(type) || this.nodeName === 'INPUT' ) {
 
 			this.node[type]();
 		}
