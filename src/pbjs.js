@@ -40,6 +40,9 @@ var old = context.PB,
 // Declare cache
 PB.cache = old && old.cache ? old.cache : {};
 
+// Version
+PB.VERSION = '<%= PB_VERSION %>';
+
 //= require "./core/core"
 //= require "./es5/es5"
 //= require "./dom/dom"

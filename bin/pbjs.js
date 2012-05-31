@@ -38,6 +38,8 @@ var old = context.PB,
 
 PB.cache = old && old.cache ? old.cache : {};
 
+PB.VERSION = '0.5.7';
+
 /**
  * Get unique id inside PB
  *
@@ -127,7 +129,7 @@ PB.toArray = function ( collection ) {
 
 		for( ; i < length; i++ ) {
 
-			result[i] = collection[i];
+			result.push( collection[i] );
 		}
 
 		return result;
