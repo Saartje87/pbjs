@@ -128,7 +128,7 @@ PB.overwrite(PB.dom, {
 	 * @param string
 	 * @return number/string
 	 */
-	getStyle: function ( property ) {
+	getStyle: function ( property, calculated ) {
 		
 		// Translate property if needed, eq transform => MozTransform
 		property = getCssProperty( property );
@@ -138,11 +138,26 @@ PB.overwrite(PB.dom, {
 			o;
 		
 		// No inline style, get trough calculated
-		if( !value || value === 'auto' ) {
+		if( calculated || !value || value === 'auto' ) {
 			
 			var CSS = computedStyle ? doc.defaultView.getComputedStyle( node, null ) : node.currentStyle;
 
 			value = CSS[property];
+			
+			// Parse IE <= 8 non pixel property
+			// Awesomo trick! from http://blog.stchur.com/2006/09/20/converting-to-pixels-with-javascript/
+			if( typeof value === 'string' && value.indexOf('px') === -1 ) {
+
+				var style = value.lastIndexOf('%') > -1 ? 'height: '+value : 'border: '+value+' solid #000; border-bottom-width: 0',
+					div = PB('<div style="'+style+'; visibility: hidden; position: absolute; top: 0; line-height: 0;"></div>')
+					.appendTo(body);
+					
+				value = div.node.offsetHeight;
+
+				div.remove();
+				
+				return value;
+			}
 		}
 		
 		if( property === 'opacity' ) {
