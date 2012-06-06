@@ -200,13 +200,10 @@ PB.overwrite(PB.dom, {
 			
 			return Math.max(docElement.clientWidth, body.scrollWidth, docElement.offsetWidth);
 		}
-	
-	//	Bug found in Chrome, when element has a scrollbar, calculated width
-	// 	fails, so now only using style.width
 		
-		if( value = node.style.width ) {
+		if( value = this.getStyle('width', true) ) {
 			
-			return removeUnits(value);
+			return value;
 		}
 		
 		// CSS value failed, calculate
@@ -220,30 +217,17 @@ PB.overwrite(PB.dom, {
 			value = node.offsetWidth;
 		}
 		
-		if( boxModel ) {
-			
-			value -= (this.getStyle('paddingLeft') || 0) + (this.getStyle('paddingRight') || 0);
-		}
-		
-		// Some browsers add border to offsetWidth, we remove it:)
-		if( substractBorder ) {
-			
-			value -= (this.getStyle('borderLeftWidth') || 0) + (this.getStyle('borderRightWidth') || 0);
-		}
-		
 		return value;
 	},
 	
 	innerWidth: function () {
 		
-		return this.width() + (this.getStyle('paddingLeft') || 0) + (this.getStyle('paddingRight') || 0);
+		return this.width() + (this.getStyle('paddingLeft', true) || 0) + (this.getStyle('paddingRight', true) || 0);
 	},
 	
 	outerWidth: function () {
-			
-		var rightWidth = this.getStyle('borderRightWidth');
 		
-		return this.innerWidth() + (this.node.clientLeft + (typeof rightWidth === 'string' ? 0 : rightWidth));
+		return this.width() + (this.getStyle('borderLeftWidth', true) || 0) + (this.getStyle('borderRightWidth', true) || 0);
 	},
 
 	scrollWidth: function () {
@@ -268,18 +252,16 @@ PB.overwrite(PB.dom, {
 			
 			return Math.max(docElement.clientHeight, body.scrollHeight, docElement.offsetHeight);
 		}
-		
-		//	Bug found in Chrome, when element has a scrollbar, calculated width
-		// 	fails, so now only using style.height
 
-		if( value = node.style.height ) {
-
-			return removeUnits(value);
+		if( value = this.getStyle('height', true) ) {
+			
+			return value;
 		}
 		
 		// CSS value failed, calculate
 		if( !this.isVisible() ) {
 			
+			// to visibility: hidden?
 			this.show();
 			value = node.offsetHeight;
 			this.hide()
@@ -288,30 +270,17 @@ PB.overwrite(PB.dom, {
 			value = node.offsetHeight;
 		}
 		
-		if( boxModel ) {
-			
-			value -= (this.getStyle('paddingTop') || 0) + (this.getStyle('paddingBottom') || 0);
-		}
-		
-		// Some browsers add border to offsetHeight, we remove it:)
-		if( substractBorder ) {
-			
-			value -= (this.getStyle('borderTopWidth') || 0) + (this.getStyle('borderBottomWidth') || 0);
-		}
-		
 		return value;
 	},
 	
 	innerHeight: function () {
 		
-		return this.height() + (this.getStyle('paddingTop') || 0) + (this.getStyle('paddingBottom') || 0);
+		return this.height() + (this.getStyle('paddingTop', true) || 0) + (this.getStyle('paddingBottom', true) || 0);
 	},
 	
 	outerHeight: function () {
-			
-		var bottomWidth = this.getStyle('borderBottomWidth');
 		
-		return this.innerHeight() + (this.node.clientTop + (typeof bottomWidth === 'string' ? 0 : bottomWidth));
+		return this.height() + (this.getStyle('borderTopWidth', true) || 0) + (this.getStyle('borderBottomWidth', true) || 0);
 	},
 	
 	scrollHeight: function () {

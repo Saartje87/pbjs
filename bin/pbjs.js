@@ -1616,22 +1616,32 @@ PB.overwrite(PB.dom, {
 
 		if( calculated || !value || value === 'auto' ) {
 
+			if( computedStyle ) {
+
+				value = doc.defaultView.getComputedStyle( node, null )[property];
+			} else {
+
+				value = node.currentStyle[property];
+
+				if( /(thin|medium|thick|em|ex|pt|%)$/.test(value) ) {
+
+					var style = value.lastIndexOf('%') > -1 ? 'height: '+value : 'border: '+value+' solid #000; border-bottom-width: 0',
+						div = PB('<div style="'+style+'; visibility: hidden; position: absolute; top: 0; line-height: 0;"></div>')
+						.appendTo(body);
+
+					value = div.node.offsetHeight;
+
+					div.remove();
+
+					return value;
+				}
+			}
+
 			var CSS = computedStyle ? doc.defaultView.getComputedStyle( node, null ) : node.currentStyle;
 
 			value = CSS[property];
 
-			if( typeof value === 'string' && value.indexOf('px') === -1 ) {
 
-				var style = value.lastIndexOf('%') > -1 ? 'height: '+value : 'border: '+value+' solid #000; border-bottom-width: 0',
-					div = PB('<div style="'+style+'; visibility: hidden; position: absolute; top: 0; line-height: 0;"></div>')
-					.appendTo(body);
-
-				value = div.node.offsetHeight;
-
-				div.remove();
-
-				return value;
-			}
 		}
 
 		if( property === 'opacity' ) {
@@ -1926,10 +1936,9 @@ PB.overwrite(PB.dom, {
 			return Math.max(docElement.clientWidth, body.scrollWidth, docElement.offsetWidth);
 		}
 
+		if( value = this.getStyle('width', true) ) {
 
-		if( value = node.style.width ) {
-
-			return removeUnits(value);
+			return value;
 		}
 
 		if( !this.isVisible() ) {
@@ -1942,29 +1951,17 @@ PB.overwrite(PB.dom, {
 			value = node.offsetWidth;
 		}
 
-		if( boxModel ) {
-
-			value -= (this.getStyle('paddingLeft') || 0) + (this.getStyle('paddingRight') || 0);
-		}
-
-		if( substractBorder ) {
-
-			value -= (this.getStyle('borderLeftWidth') || 0) + (this.getStyle('borderRightWidth') || 0);
-		}
-
 		return value;
 	},
 
 	innerWidth: function () {
 
-		return this.width() + (this.getStyle('paddingLeft') || 0) + (this.getStyle('paddingRight') || 0);
+		return this.width() + (this.getStyle('paddingLeft', true) || 0) + (this.getStyle('paddingRight', true) || 0);
 	},
 
 	outerWidth: function () {
 
-		var rightWidth = this.getStyle('borderRightWidth');
-
-		return this.innerWidth() + (this.node.clientLeft + (typeof rightWidth === 'string' ? 0 : rightWidth));
+		return this.width() + (this.getStyle('borderLeftWidth', true) || 0) + (this.getStyle('borderRightWidth', true) || 0);
 	},
 
 	scrollWidth: function () {
@@ -1989,10 +1986,9 @@ PB.overwrite(PB.dom, {
 			return Math.max(docElement.clientHeight, body.scrollHeight, docElement.offsetHeight);
 		}
 
+		if( value = this.getStyle('height', true) ) {
 
-		if( value = node.style.height ) {
-
-			return removeUnits(value);
+			return value;
 		}
 
 		if( !this.isVisible() ) {
@@ -2005,29 +2001,17 @@ PB.overwrite(PB.dom, {
 			value = node.offsetHeight;
 		}
 
-		if( boxModel ) {
-
-			value -= (this.getStyle('paddingTop') || 0) + (this.getStyle('paddingBottom') || 0);
-		}
-
-		if( substractBorder ) {
-
-			value -= (this.getStyle('borderTopWidth') || 0) + (this.getStyle('borderBottomWidth') || 0);
-		}
-
 		return value;
 	},
 
 	innerHeight: function () {
 
-		return this.height() + (this.getStyle('paddingTop') || 0) + (this.getStyle('paddingBottom') || 0);
+		return this.height() + (this.getStyle('paddingTop', true) || 0) + (this.getStyle('paddingBottom', true) || 0);
 	},
 
 	outerHeight: function () {
 
-		var bottomWidth = this.getStyle('borderBottomWidth');
-
-		return this.innerHeight() + (this.node.clientTop + (typeof bottomWidth === 'string' ? 0 : bottomWidth));
+		return this.height() + (this.getStyle('borderTopWidth', true) || 0) + (this.getStyle('borderBottomWidth', true) || 0);
 	},
 
 	scrollHeight: function () {
