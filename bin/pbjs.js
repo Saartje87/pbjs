@@ -48,7 +48,7 @@ PB.VERSION = '0.5.7';
 PB.id = function () {
 
 	return ++uid;
-};
+}
 
 /**
  * Overwrite properties or methods in target object
@@ -66,7 +66,7 @@ PB.overwrite = function ( target, source ) {
 	}
 
 	return target;
-};
+}
 
 /**
  * Extend object
@@ -86,7 +86,7 @@ PB.extend = function ( target, source ) {
 	}
 
 	return target;
-};
+}
 
 /**
  * Loop trough object
@@ -114,7 +114,7 @@ PB.each = function ( collection, fn, scope ) {
 			return;
 		}
 	}
-};
+}
 
 /**
  *
@@ -136,7 +136,7 @@ PB.toArray = function ( collection ) {
 	}
 
 	return slice.call(collection);
-};
+}
 
 /**
  *
@@ -144,7 +144,25 @@ PB.toArray = function ( collection ) {
 PB.is = function ( type, mixed ) {
 
 	return toString.call(mixed) === '[object '+type+']';
-};
+}
+
+/**
+ *
+ */
+PB.type = function ( mixed ) {
+
+	if( mixed instanceof PB.Dom ) {
+
+		return 'PBDom';
+	}
+
+	if( mixed instanceof PB.Collection ) {
+
+		return 'PBDomCollection';
+	}
+
+	return toString.call(mixed).replace('[object ', '').replace(']', '').toLowerCase();
+}
 
 /**
  * Execute script in global scope
@@ -165,7 +183,7 @@ PB.exec = function ( text ) {
 		document.head.appendChild(script);
 		document.head.removeChild(script);
 	}
-};
+}
 
 
 /**
