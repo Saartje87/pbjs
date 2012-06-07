@@ -1,45 +1,11 @@
-var domClassCache = {},
-	boxModel = false,
-	substractBorder = false;
-
-PB.ready(function (){
-	
-	body = doc.body;
-	
-	var testElement = document.createElement('div');
-	
-	body.appendChild(testElement);
-	
-	// Set width and padding to see if browsers acts like W3C box model
-	testElement.style.width = testElement.style.paddingLeft = '1px';
-
-	boxModel = (testElement.offsetWidth === 2);
-	
-	// When culculating width/height remove border if calculated with offsetWidth/offsetHeight
-	testElement.style.borderLeft = '1px solid #000';
-
-	substractBorder = (testElement.offsetWidth === 3);
-
-	// Cleanup DOM
-	body.removeChild( testElement );
-	testElement = null;
-});
-
 PB.overwrite(PB.dom, {
 	
 	/**
 	 * Check if element has class
 	 */
 	hasClass: function ( className ) {
-			
-		var regexp = domClassCache[className];
 
-		if( !regexp ) {
-
-			regexp = domClassCache[className] = new RegExp( "(^|\\s)"+className+"($|\\s)" );
-		}
-
-		return regexp.test(this.node.className);
+		return (new RegExp( "(^|\\s)"+className+"($|\\s)" )).test(this.node.className);
 	},
 	
 	/**
@@ -70,7 +36,6 @@ PB.overwrite(PB.dom, {
 		
 		var node = this.node,
 			classes = node.className,
-			regexp,
 			className;
 	
 		classNames = classNames.split(' ')
@@ -78,24 +43,18 @@ PB.overwrite(PB.dom, {
 		for( var i = 0; i < classNames.length; i++ ) {
 			
 			className = classNames[i];
-			regexp = domClassCache[className];
-			
-			if( !regexp ) {
 
-				regexp = domClassCache[className] = new RegExp( "(^|\\s)"+className+"($|\\s)" );
-			}
-
-			classes = classes.replace( regexp, ' ' );
+			classes = classes.replace( new RegExp( "(^|\\s)"+className+"($|\\s)" ), ' ' );
 			classes = classes.trim();
+		}	
 
-			// Remove attr
-			if( classes === '' ) {
+		// Remove attr
+		if( classes === '' ) {
 
-				node.className = null;
-			} else {
+			node.className = null;
+		} else {
 
-				node.className = classes;
-			}
+			node.className = classes;
 		}
 		
 		return this;
@@ -105,12 +64,6 @@ PB.overwrite(PB.dom, {
 	 * 
 	 */
 	show: function () {
-		
-		// Not needed I guess
-		// if( this.getStyle('display') !== 'none' ) {
-		// 	
-		// 	return this;
-		// }
 		
 		this.node.style.display = this.get('css-display') || 'block';
 		
