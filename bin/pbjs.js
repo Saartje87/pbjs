@@ -1490,6 +1490,7 @@ PB.overwrite(PB.dom, {
 
 var unit = /^-?[\d.]+px$/i,
 	opacity = /alpha\(opacity=(.*)\)/i,
+	noPixel = /(thin|medium|thick|em|ex|pt|%)$/,
 	computedStyle = doc.defaultView && doc.defaultView.getComputedStyle,
 	skipUnits = 'zIndex zoom fontWeight opacity',
 	cssPrefixProperties = 'animationName transform transition transitionProperty transitionDuration'.split(' '),
@@ -1623,7 +1624,7 @@ PB.overwrite(PB.dom, {
 
 				value = node.currentStyle[property];
 
-				if( /(thin|medium|thick|em|ex|pt|%)$/.test(value) ) {
+				if( noPixel.test(value) ) {
 
 					var style = value.lastIndexOf('%') > -1 ? 'height: '+value : 'border: '+value+' solid #000; border-bottom-width: 0',
 						div = PB('<div style="'+style+'; visibility: hidden; position: absolute; top: 0; line-height: 0;"></div>')
@@ -1636,12 +1637,6 @@ PB.overwrite(PB.dom, {
 					return value;
 				}
 			}
-
-			var CSS = computedStyle ? doc.defaultView.getComputedStyle( node, null ) : node.currentStyle;
-
-			value = CSS[property];
-
-
 		}
 
 		if( property === 'opacity' ) {

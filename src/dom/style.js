@@ -1,5 +1,6 @@
 var unit = /^-?[\d.]+px$/i,
 	opacity = /alpha\(opacity=(.*)\)/i,
+	noPixel = /(thin|medium|thick|em|ex|pt|%)$/,
 	computedStyle = doc.defaultView && doc.defaultView.getComputedStyle,
 	// Do not add px when using there properties
 	skipUnits = 'zIndex zoom fontWeight opacity',
@@ -149,7 +150,7 @@ PB.overwrite(PB.dom, {
 				
 				// Parse IE <= 8 non pixel property
 				// Awesomo trick! from http://blog.stchur.com/2006/09/20/converting-to-pixels-with-javascript/
-				if( /(thin|medium|thick|em|ex|pt|%)$/.test(value) ) {
+				if( noPixel.test(value) ) {
 
 					var style = value.lastIndexOf('%') > -1 ? 'height: '+value : 'border: '+value+' solid #000; border-bottom-width: 0',
 						div = PB('<div style="'+style+'; visibility: hidden; position: absolute; top: 0; line-height: 0;"></div>')
@@ -162,12 +163,6 @@ PB.overwrite(PB.dom, {
 					return value;
 				}
 			}
-			
-			var CSS = computedStyle ? doc.defaultView.getComputedStyle( node, null ) : node.currentStyle;
-
-			value = CSS[property];
-			
-			
 		}
 		
 		if( property === 'opacity' ) {
