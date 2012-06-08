@@ -25,7 +25,7 @@
 "use strict";
 
 var old = context.PB,
-	uid = 0,
+	uid = old ? old.id() : 0,
 	win = window,
 	doc = document,
 	docElement = doc.documentElement,
