@@ -1,3 +1,9 @@
+/**
+ * Our PBDom constructor
+ *
+ * @param DOM
+ * @return void
+ */
 var Dom = PB.Dom = function ( node ) {
 	
 	this.node = node;
@@ -13,9 +19,9 @@ var Dom = PB.Dom = function ( node ) {
 	// window, document, documentElement and body shouldn't be removed
 	// So flag the instance
 	this._flagged_ = (node === win || node === doc || node === docElement || node === body);
-};
+}
 
-// Use PB.dom for extenstions
+// Use PB.dom for extenstion
 PB.dom = PB.Dom.prototype;
 
 /**
@@ -24,7 +30,7 @@ PB.dom = PB.Dom.prototype;
 PB.dom.toString = function () {
 	
 	return '[Object PBDom]';
-};
+}
 
 /**
  * Collect detached nodes and remove them from the cache
@@ -46,8 +52,9 @@ function collectGarbage () {
 			cache[key].remove();
 		}
 	}
-};	
+}
 
+// Do not trigger interval when pbjs already exists
 if( !old ) {
 	
 	setInterval(collectGarbage, 30000);

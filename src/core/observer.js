@@ -48,6 +48,8 @@ PB.Observer = PB.Class({
 		
 		this.listeners[type].forEach(function ( o ){
 			
+			// 0 -> function
+			// 1 -> scope
 			o[0].apply(o[1], args || []);
 		});
 		
