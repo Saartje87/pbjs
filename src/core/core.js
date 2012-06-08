@@ -37,7 +37,7 @@ PB.extend = function ( target, source ) {
 
 	for( key in source ) {
 
-		if( source.hasOwnProperty(key) && typeof target[key] === 'undefined' ) {
+		if( source.hasOwnProperty(key) && target[key] === undefined ) {
 
 			target[key] = source[key];
 		}
