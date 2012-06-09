@@ -2,7 +2,6 @@
 
 TODO:
 - mouseenter and mouseleave
-- Custo events: like element.on('myCustomEvent', function(){});
 
 How its cached:
 cache = {
@@ -33,7 +32,7 @@ var _Event = {
 	// Mouse events, used for emit detection
 	MouseEvents: /^(?:click|mouse(?:down|up|over|move|out))$/,
 	
-	// legacy browsers
+	// Browser need manual extend? IE <= 8
 	manualExtend: false,
 	
 	/**
@@ -42,7 +41,8 @@ var _Event = {
 	cache: {},
 	
 	/**
-	 * Create the event wrapper
+	 * Create a wrapper that extend the event and triggers the callback
+	 * called with the given context or node (W3C).
 	 *
 	 * @return function
 	 */
@@ -50,17 +50,14 @@ var _Event = {
 		
 		return function ( event ) {
 			
-			var cacheEntry = _Event.cache[uid];
-			
 			event = _Event.extend( event, uid );
-			handler.call( context || cacheEntry.node, event );
+			
+			handler.call( context || _Event.cache[uid].node, event );
 		};
 	},
 	
 	/**
-	 * Remove all events from target
-	 *
-	 * Use when removing an element
+	 * Purge events from given element
 	 *
 	 * @param number
 	 * @return void
@@ -122,25 +119,21 @@ var _Event = {
 		// 	if (type == 'DOMMouseScroll' || type == 'mousewheel')
 		// this.wheel = (event.wheelDelta) ? event.wheelDelta / 120 : -(event.detail || 0) / 3;
 		
-		// No need for extend
+		// Legacy browsers will fail here and keep extending the event object
 		if( _Event.manualExtend === false ) {
 			
 			return event;
 		}
 		
-		var docEl = doc.documentElement,
-			body = doc.body;
-		
 		PB.overwrite( event, _Event.methods );
 		
-		// Add related target
+		// Add target
 		event.target = event.srcElement || _Event.cache[uid].node;
 		
-		// Add
+		// Add currentTarget
 		event.currentTarget = _Event.cache[uid].node;
 		
-		// Add relatedTarget if needed
-		// Mhh should not be currentTarget right?
+		// Add relatedTarget
 		switch ( event.type ) {
 
 			case 'mouseover':
@@ -154,16 +147,19 @@ var _Event = {
 				break;
 		}
 		
-		if( !event.pageX || !event.pageY ) {
+		if( event.pageX === undefined ) {
 			
-			event.pageX = event.clientX + (docEl.scrollLeft || body.scrollLeft) - (docEl.clientLeft || 0);
-			event.pageY = event.clientY + (docEl.scrollTop || body.scrollTop) - (docEl.clientTop || 0);
+			event.pageX = event.clientX + (docElement.scrollLeft || body.scrollLeft) - (docElement.clientLeft || 0);
+			event.pageY = event.clientY + (docElement.scrollTop || body.scrollTop) - (docElement.clientTop || 0);
 		}
 		
-		// Which, keyCode
-		event.which = event.keyCode === undefined ? event.charCode : event.keyCode;
+		// Add correct value for which
+		event.which = (event.keyCode === undefined) ? event.charCode : event.keyCode;
 		
-		// Corrent button codes 0 => 1, 4 => 2, 2 => 3
+		// Fix W3C mouse button codes.. 
+		// Left 0
+		// Middle 1
+		// Right 2
 		event.which = (event.which === 0 ? 1 : (event.which === 4 ? 2: (event.which === 2 ? 3 : event.which)));
 		
 		return event;
@@ -171,7 +167,7 @@ var _Event = {
 };
 
 /**
- *
+ * 
  */
 _Event.methods = {
 	
@@ -470,8 +466,8 @@ PB.overwrite(PB.dom, {
 		// IE <= 8
 		else {
 			
-			var _event = document.createEventObject();
-			this.node.fireEvent('on'+type, _event);
+			evt = document.createEventObject();
+			this.node.fireEvent('on'+type, evt);
 		}
 		
 		return this;
