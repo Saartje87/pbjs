@@ -1,3 +1,6 @@
+/**
+ *
+ */
 var Collection = PB.Collection = function ( collection ) {
 	
 	var i = 0;
@@ -18,11 +21,17 @@ var Collection = PB.Collection = function ( collection ) {
 
 Collection.prototype = {
 	
+	/**
+	 *
+	 */
 	toString: function () {
 		
 		return '[Object PBDomCollection]';
 	},
 	
+	/**
+	 *
+	 */
 	invoke: function () {
 		
 		var args = PB.toArray(arguments),
@@ -37,6 +46,9 @@ Collection.prototype = {
 		return this;
 	},
 	
+	/**
+	 *
+	 */
 	push: function ( item ) {
 		
 		this[this.length++] = item;
@@ -44,6 +56,7 @@ Collection.prototype = {
 		return this;
 	},
 	
+	// ec5 shims invoked on Collection
 	forEach: Array.prototype.forEach,
 	filter: Array.prototype.filter,
 	every: Array.prototype.every,

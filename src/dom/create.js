@@ -8,6 +8,11 @@ function unflagDom ( element ) {
 	element._flagged_ = 0;
 }
 
+/**
+ * Create html element(s) form string
+ * 
+ * Table elements are not supported :(
+ */
 Dom.create = function ( chunk ) {
 	
 	var div = document.createElement('div'),
@@ -34,5 +39,40 @@ Dom.create = function ( chunk ) {
 	}
 	
 	return childs;
+}
+
+/**
+ * Create html element(s) form string
+ *
+ * ** TEST **
+ */
+Dom.create2 = function ( chunk ) {
+	
+	var dummy;
+	
+	// Clean html string from special chars
+	chunk = chunk.replace(/(?:\t|\r|\n|^\s|\s$)+/, '');
+	
+	// Add dummy element
+	dummy = document.createElement('div');
+	
+	/*
+	console.log( chunk )
+	
+	// Is table element
+	if( /^<(?:td|tr|th)/.test(chunk) ) {
+		
+		
+	} else {
+		
+		
+	}
+	*/
+	
+//	console.log( chunk );
+	
+	
+	
+	fragment.appendChild(dummy);
 }
 
