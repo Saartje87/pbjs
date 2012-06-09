@@ -15,7 +15,7 @@ function unflagDom ( element ) {
  */
 Dom.create = function ( chunk ) {
 	
-	var div = document.createElement('div'),
+	var div = doc.createElement('div'),
 		childs;
 	
 	div.innerHTML = chunk;

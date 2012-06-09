@@ -24,7 +24,7 @@ cache = {
 var _Event = {
 	
 	// Mouseenter/mouseleave supported?
-	supportsMouseenterMouseleave: 'onmouseenter' in doc.documentElement && 'onmouseleave' in doc.documentElement,
+	supportsMouseenterMouseleave: 'onmouseenter' in docElement && 'onmouseleave' in docElement,
 	
 	// Event types that should fired trough node.`type`()
 	HTMLEvents: /^(?:load|unload|abort|error|select|change|submit|reset|focus|blur|resize|scroll)$/,
@@ -441,11 +441,11 @@ PB.overwrite(PB.dom, {
 			this.node[type]();
 		}
 		// Handle W3C mouse event type
-		else if( document.createEvent ) {
+		else if( doc.createEvent ) {
 			
 			if ( _Event.MouseEvents.test(type) ) {
 				
-				evt = document.createEvent('MouseEvents');
+				evt = doc.createEvent('MouseEvents');
 
 				evt.initMouseEvent(
 					type, true, true, window,		// type, canBubble, cancelable, view, 
@@ -456,7 +456,7 @@ PB.overwrite(PB.dom, {
 				this.node.dispatchEvent(evt);
 			} else {
 				
-				evt = document.createEvent('Events');
+				evt = doc.createEvent('Events');
 				
 				evt.initEvent( type, true, true );
 
@@ -466,7 +466,7 @@ PB.overwrite(PB.dom, {
 		// IE <= 8
 		else {
 			
-			evt = document.createEventObject();
+			evt = doc.createEventObject();
 			this.node.fireEvent('on'+type, evt);
 		}
 		

@@ -27,9 +27,9 @@ PB.ready = (function () {
 		}
 	}
 	
-	if( document.addEventListener ) {
+	if( doc.addEventListener ) {
 		
-		PB(document).once('DOMContentLoaded', function () {
+		PB(doc).once('DOMContentLoaded', function () {
 			
 			ready = true;
 			

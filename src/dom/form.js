@@ -19,7 +19,7 @@ PB.overwrite(PB.dom, {
 
 		if( this.nodeName !== 'FORM' ) {
 
-			throw new Error('No form found for serialize');
+			throw new Error('Specify a form element to serialize');
 		}
 
 		elements.forEach(function ( element ){

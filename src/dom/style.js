@@ -12,7 +12,7 @@ var unit = /^-?[\d.]+px$/i,
 	// transition => WebkitTransition, chrome/safari..
 	cssPropertyMap = {},
 	vendorPrefixes = 'O ms Moz Webkit'.split(' '),
-	vendorDiv = document.createElement('div'),
+	vendorDiv = doc.createElement('div'),
 	supportsOpacity = vendorDiv.style.opacity !== undefined,
 	supportsCssFloat = vendorDiv.style.cssFloat !== undefined,
 	i = vendorPrefixes.length;

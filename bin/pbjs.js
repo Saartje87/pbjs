@@ -177,11 +177,11 @@ PB.exec = function ( text ) {
 		window.execScript( text );
 	} else {
 
-		var script = document.createElement('script');
+		var script = doc.createElement('script');
 		script.setAttribute('type', 'text/javascript');
 		script.text = text;
-		document.head.appendChild(script);
-		document.head.removeChild(script);
+		doc.head.appendChild(script);
+		doc.head.removeChild(script);
 	}
 }
 
@@ -950,7 +950,7 @@ cache = {
 
 var _Event = {
 
-	supportsMouseenterMouseleave: 'onmouseenter' in doc.documentElement && 'onmouseleave' in doc.documentElement,
+	supportsMouseenterMouseleave: 'onmouseenter' in docElement && 'onmouseleave' in docElement,
 
 	HTMLEvents: /^(?:load|unload|abort|error|select|change|submit|reset|focus|blur|resize|scroll)$/,
 
@@ -1331,11 +1331,11 @@ PB.overwrite(PB.dom, {
 
 			this.node[type]();
 		}
-		else if( document.createEvent ) {
+		else if( doc.createEvent ) {
 
 			if ( _Event.MouseEvents.test(type) ) {
 
-				evt = document.createEvent('MouseEvents');
+				evt = doc.createEvent('MouseEvents');
 
 				evt.initMouseEvent(
 					type, true, true, window,		// type, canBubble, cancelable, view,
@@ -1346,7 +1346,7 @@ PB.overwrite(PB.dom, {
 				this.node.dispatchEvent(evt);
 			} else {
 
-				evt = document.createEvent('Events');
+				evt = doc.createEvent('Events');
 
 				evt.initEvent( type, true, true );
 
@@ -1355,7 +1355,7 @@ PB.overwrite(PB.dom, {
 		}
 		else {
 
-			evt = document.createEventObject();
+			evt = doc.createEventObject();
 			this.node.fireEvent('on'+type, evt);
 		}
 
@@ -1391,9 +1391,9 @@ PB.ready = (function () {
 		}
 	}
 
-	if( document.addEventListener ) {
+	if( doc.addEventListener ) {
 
-		PB(document).once('DOMContentLoaded', function () {
+		PB(doc).once('DOMContentLoaded', function () {
 
 			ready = true;
 
@@ -1508,7 +1508,7 @@ var unit = /^-?[\d.]+px$/i,
 	cssPrefixProperties = 'animationName transform transition transitionProperty transitionDuration'.split(' '),
 	cssPropertyMap = {},
 	vendorPrefixes = 'O ms Moz Webkit'.split(' '),
-	vendorDiv = document.createElement('div'),
+	vendorDiv = doc.createElement('div'),
 	supportsOpacity = vendorDiv.style.opacity !== undefined,
 	supportsCssFloat = vendorDiv.style.cssFloat !== undefined,
 	i = vendorPrefixes.length;
@@ -2255,7 +2255,7 @@ var tableInnerHTMLbuggie = false;
 
 try {
 
-	document.createElement('table').innerHTML = '<tr></tr>';
+	doc.createElement('table').innerHTML = '<tr></tr>';
 } catch (e) {
 
 	tableInnerHTMLbuggie = true;
@@ -2481,7 +2481,7 @@ PB.overwrite(PB.dom, {
 
 		this.empty();
 
-		node.appendChild( document.createTextNode( str ) );
+		node.appendChild( doc.createTextNode( str ) );
 
 		return this;
 	}
@@ -2508,7 +2508,7 @@ PB.overwrite(PB.dom, {
 
 		if( this.nodeName !== 'FORM' ) {
 
-			throw new Error('No form found for serialize');
+			throw new Error('Specify a form element to serialize');
 		}
 
 		elements.forEach(function ( element ){
@@ -2556,7 +2556,7 @@ function unflagDom ( element ) {
  */
 Dom.create = function ( chunk ) {
 
-	var div = document.createElement('div'),
+	var div = doc.createElement('div'),
 		childs;
 
 	div.innerHTML = chunk;

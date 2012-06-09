@@ -135,11 +135,11 @@ PB.exec = function ( text ) {
 		window.execScript( text );
 	} else {
 		
-		var script = document.createElement('script');
+		var script = doc.createElement('script');
 		script.setAttribute('type', 'text/javascript');
 		script.text = text;
-		document.head.appendChild(script);
-		document.head.removeChild(script);
+		doc.head.appendChild(script);
+		doc.head.removeChild(script);
 	}
 }
 

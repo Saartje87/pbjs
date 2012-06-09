@@ -2,7 +2,7 @@ var tableInnerHTMLbuggie = false;
 
 try {
 	
-	document.createElement('table').innerHTML = '<tr></tr>';
+	doc.createElement('table').innerHTML = '<tr></tr>';
 } catch (e) {
 	
 	tableInnerHTMLbuggie = true;
@@ -227,12 +227,13 @@ PB.overwrite(PB.dom, {
 		
 		if( str === undefined ) {
 			
+			// clean this up
 			return node.text || node.textContent || node.innerText || node.innerHTML || node.innerText || '';
 		}
 		
 		this.empty();
 		
-		node.appendChild( document.createTextNode( str ) );
+		node.appendChild( doc.createTextNode( str ) );
 		
 		return this;
 	}
