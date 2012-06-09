@@ -24,7 +24,7 @@
 "use strict";
 
 var old = context.PB,
-	uid = 0,
+	uid = old ? old.id() : 0,
 	win = window,
 	doc = document,
 	docElement = doc.documentElement,
@@ -79,7 +79,7 @@ PB.extend = function ( target, source ) {
 
 	for( key in source ) {
 
-		if( source.hasOwnProperty(key) && typeof target[key] === 'undefined' ) {
+		if( source.hasOwnProperty(key) && target[key] === undefined ) {
 
 			target[key] = source[key];
 		}
@@ -760,6 +760,12 @@ PB.extend(Date, {
 });
 
 
+/**
+ * Our PBDom constructor
+ *
+ * @param DOM
+ * @return void
+ */
 var Dom = PB.Dom = function ( node ) {
 
 	this.node = node;
@@ -772,7 +778,7 @@ var Dom = PB.Dom = function ( node ) {
 	this.storage = {};
 
 	this._flagged_ = (node === win || node === doc || node === docElement || node === body);
-};
+}
 
 PB.dom = PB.Dom.prototype;
 
@@ -782,7 +788,7 @@ PB.dom = PB.Dom.prototype;
 PB.dom.toString = function () {
 
 	return '[Object PBDom]';
-};
+}
 
 /**
  * Collect detached nodes and remove them from the cache
@@ -804,7 +810,7 @@ function collectGarbage () {
 			cache[key].remove();
 		}
 	}
-};
+}
 
 if( !old ) {
 
@@ -853,6 +859,9 @@ Dom.get = function ( element ) {
 	return PB.cache[element.__PBJS_ID__] = new Dom( element );
 };
 
+/**
+ *
+ */
 var Collection = PB.Collection = function ( collection ) {
 
 	var i = 0;
@@ -873,11 +882,17 @@ var Collection = PB.Collection = function ( collection ) {
 
 Collection.prototype = {
 
+	/**
+	 *
+	 */
 	toString: function () {
 
 		return '[Object PBDomCollection]';
 	},
 
+	/**
+	 *
+	 */
 	invoke: function () {
 
 		var args = PB.toArray(arguments),
@@ -892,6 +907,9 @@ Collection.prototype = {
 		return this;
 	},
 
+	/**
+	 *
+	 */
 	push: function ( item ) {
 
 		this[this.length++] = item;
@@ -911,7 +929,6 @@ Collection.prototype = {
 
 TODO:
 - mouseenter and mouseleave
-- Custo events: like element.on('myCustomEvent', function(){});
 
 How its cached:
 cache = {
@@ -947,7 +964,8 @@ var _Event = {
 	cache: {},
 
 	/**
-	 * Create the event wrapper
+	 * Create a wrapper that extend the event and triggers the callback
+	 * called with the given context or node (W3C).
 	 *
 	 * @return function
 	 */
@@ -955,17 +973,14 @@ var _Event = {
 
 		return function ( event ) {
 
-			var cacheEntry = _Event.cache[uid];
-
 			event = _Event.extend( event, uid );
-			handler.call( context || cacheEntry.node, event );
+
+			handler.call( context || _Event.cache[uid].node, event );
 		};
 	},
 
 	/**
-	 * Remove all events from target
-	 *
-	 * Use when removing an element
+	 * Purge events from given element
 	 *
 	 * @param number
 	 * @return void
@@ -1028,9 +1043,6 @@ var _Event = {
 			return event;
 		}
 
-		var docEl = doc.documentElement,
-			body = doc.body;
-
 		PB.overwrite( event, _Event.methods );
 
 		event.target = event.srcElement || _Event.cache[uid].node;
@@ -1050,13 +1062,13 @@ var _Event = {
 				break;
 		}
 
-		if( !event.pageX || !event.pageY ) {
+		if( event.pageX === undefined ) {
 
-			event.pageX = event.clientX + (docEl.scrollLeft || body.scrollLeft) - (docEl.clientLeft || 0);
-			event.pageY = event.clientY + (docEl.scrollTop || body.scrollTop) - (docEl.clientTop || 0);
+			event.pageX = event.clientX + (docElement.scrollLeft || body.scrollLeft) - (docElement.clientLeft || 0);
+			event.pageY = event.clientY + (docElement.scrollTop || body.scrollTop) - (docElement.clientTop || 0);
 		}
 
-		event.which = event.keyCode === undefined ? event.charCode : event.keyCode;
+		event.which = (event.keyCode === undefined) ? event.charCode : event.keyCode;
 
 		event.which = (event.which === 0 ? 1 : (event.which === 4 ? 2: (event.which === 2 ? 3 : event.which)));
 
@@ -1343,8 +1355,8 @@ PB.overwrite(PB.dom, {
 		}
 		else {
 
-			var _event = document.createEventObject();
-			this.node.fireEvent('on'+type, _event);
+			evt = document.createEventObject();
+			this.node.fireEvent('on'+type, evt);
 		}
 
 		return this;
@@ -2537,6 +2549,11 @@ function unflagDom ( element ) {
 	element._flagged_ = 0;
 }
 
+/**
+ * Create html element(s) form string
+ *
+ * Table elements are not supported :(
+ */
 Dom.create = function ( chunk ) {
 
 	var div = document.createElement('div'),
@@ -2561,6 +2578,37 @@ Dom.create = function ( chunk ) {
 	}
 
 	return childs;
+}
+
+/**
+ * Create html element(s) form string
+ *
+ * ** TEST **
+ */
+Dom.create2 = function ( chunk ) {
+
+	var dummy;
+
+	chunk = chunk.replace(/(?:\t|\r|\n|^\s|\s$)+/, '');
+
+	dummy = document.createElement('div');
+
+	/*
+	console.log( chunk )
+
+	if( /^<(?:td|tr|th)/.test(chunk) ) {
+
+
+	} else {
+
+
+	}
+	*/
+
+
+
+
+	fragment.appendChild(dummy);
 }
 
 
