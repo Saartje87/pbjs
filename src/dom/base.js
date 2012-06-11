@@ -16,8 +16,8 @@ var Dom = PB.Dom = function ( node ) {
 	// 
 	this.storage = {};
 	
-	// window, document, documentElement and body shouldn't be removed
-	// So flag the instance
+	// Flag the instance if node is window, document, documentElement or body. These intries will
+	// we skipped in the collectGarbage method.
 	this._flagged_ = (node === win || node === doc || node === docElement || node === body);
 }
 
