@@ -1,138 +1,138 @@
 var tableInnerHTMLbuggie = false;
 
 try {
-	
+
 	doc.createElement('table').innerHTML = '<tr></tr>';
 } catch (e) {
-	
+
 	tableInnerHTMLbuggie = true;
 }
 
 PB.overwrite(PB.dom, {
-	
+
 	/**
 	 * Append element to self
 	 */
 	append: function ( element ) {
-		
+
 		if( (element = Dom.get(element)) === null ) {
-			
+
 			return null;
 		}
-		
+
 		this.node.appendChild( element.node );
-		
+
 		return this;
 	},
-	
+
 	/**
 	 * Append self to target element
 	 */
 	appendTo: function ( target ) {
-		
+
 		if( (target = Dom.get(target)) === null ) {
-			
+
 			return null;
 		}
-		
+
 		target.append( this );
-		
+
 		return this;
 	},
-	
+
 	/**
 	 * Insert self before target element
 	 */
 	insertBefore: function ( target ) {
-		
+
 		if( (target = Dom.get(target)) === null ) {
-			
+
 			return null;
 		}
-		
+
 		target.node.parentNode.insertBefore( this.node, target.node );
-		
+
 		return this;
 	},
-	
+
 	/**
 	 * Insert self after target element
 	 */
 	insertAfter: function ( target ) {
-		
+
 		if( (target = Dom.get(target)) === null ) {
-			
+
 			return null;
 		}
 
 		var next = target.next();
-		
+
 		if( next === null ) {
-			
+
 			target.parent().node.appendChild( this.node );
 		} else {
-			
+
 			target.parent().node.insertBefore( this.node, next.node );
 		}
-		
+
 		return this;
 	},
-	
+
 	insertFirst: function ( target ) {
-		
+
 		if( (target = Dom.get(target)) === null ) {
-			
+
 			return null;
 		}
-		
+
 		if( target.first() === null ) {
-			
+
 			target.append( this );
 		} else {
-			
+
 			this.insertBefore( target.first() );
 		}
-		
+
 		return this;
 	},
-	
+
 	replace: function ( target ) {
-		
+
 		if( (target = Dom.get(target)) === null ) {
-			
+
 			return null;
 		}
-		
+
 		this.insertBefore( target );
-		
+
 		target.remove();
-		
+
 		return this;
 	},
-	
+
 	clone: function ( deep ) {
-		
+
 		var clone = this.node.cloneNode( deep ),
 			childs = clone.getElementsByTagName('*'),
 			length = childs,
 			i = 0;
-		
+
 		clone.removeAttribute('id');
 		clone.removeAttribute('__PBJS_ID__');
-		
+
 		for ( ; i < length; i++) {
-			
+
 			childs[i].removeAttribute('id');
 			childs[i].removeAttribute('__PBJS_ID__');
 		}
-		
+
 		this._flagged_ = true;
-		
+
 		return Dom.get(clone);
 	},
-	
+
 	remove: function () {
-		
+
 		var node = this.node,
 			pbid = node.__PBJS_ID__,
 			morph;
@@ -150,42 +150,42 @@ PB.overwrite(PB.dom, {
 		}
 
 		this.node = node = null;
-		
+
 		delete PB.cache[pbid];
 	},
-	
+
 	empty: function () {
-		
+
 		this.html('');
-		
+
 		return this;
 	},
-	
+
 	/**
 	 * @todo script tags with src tag set should be appended to document
 	 */
 	html: function ( html, execScripts ) {
-		
+
 		if( html === undefined ) {
-			
+
 			return this.node.innerHTML;
 		}
-		
+
 		if( execScripts ) {
-			
+
 			// Replace script tags in html string and executes the contents of the
 			// script tag
 			html = html.replace(/<script[^>]*>([\s\S]*?)<\/script>/ig, function ( match, text ) {
-				
+
 				PB.exec( text );
-				
+
 				return '';
 			});
 		}
-		
+
 		// IE <= 9 table innerHTML issue
 		if( tableInnerHTMLbuggie ) {
-			
+
 			if( /^<(tbody|tr)>/i.test( html ) ) {
 
 				var table = Dom.create('<table>'+html+'</table>');
@@ -214,27 +214,27 @@ PB.overwrite(PB.dom, {
 				return this;
 			}
 		}
-		
+
 		this.node.innerHTML = html;
-		
+
 		return this;
 	},
-	
+
 	// Should this replace content of this.node? or just add..
 	text: function ( str ) {
-		
+
 		var node = this.node;
-		
+
 		if( str === undefined ) {
-			
+
 			// clean this up
-			return node.text || node.textContent || node.innerText || node.innerHTML || node.innerText || '';
+			return node.text || node.textContent || node.innerText || node.innerHTML || '';
 		}
-		
+
 		this.empty();
-		
+
 		node.appendChild( doc.createTextNode( str ) );
-		
+
 		return this;
 	}
 });

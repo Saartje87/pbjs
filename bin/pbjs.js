@@ -2458,7 +2458,7 @@ PB.overwrite(PB.dom, {
 
 		if( str === undefined ) {
 
-			return node.text || node.textContent || node.innerText || node.innerHTML || node.innerText || '';
+			return node.text || node.textContent || node.innerText || node.innerHTML || '';
 		}
 
 		this.empty();
