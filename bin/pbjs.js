@@ -878,7 +878,7 @@ var Collection = PB.Collection = function ( collection ) {
 
 		this[i] = collection[i];
 	}
-};
+}
 
 Collection.prototype = {
 
@@ -926,27 +926,11 @@ Collection.prototype = {
 };
 
 /**
-
-TODO:
-- mouseenter and mouseleave
-
-How its cached:
-cache = {
-
-	element.__PBJS_ID__: {
-
-		node: node,	// Could be fetched from local.ElementCache
-		"click": [],
-		"mouseup": [
-			{
-				handler: fn
-				responder: fn
-			}
-		]
-	}
-}
-
+ * Crossbrowser event handling and normalisation of event properties / methods.
+ *
+ * @todo mouseenter and mouseleave
  */
+
 
 var _Event = {
 
@@ -988,30 +972,24 @@ var _Event = {
 	purge: function ( uid ) {
 
 		var cache = _Event.cache[uid],
-			node,
-			keys;
+			key;
 
 		if( !cache ) {
 
 			return;
 		}
 
-		node = cache.node;
-		keys = Object.keys(cache);
+		for( key in cache ) {
 
-		keys.forEach(function ( type ){
+			if( cache.hasOwnProperty(key) && key !== 'node' ) {
 
-			if( type === 'node' ) {
-
-				return;
+				Dom.get(cache.node).off( key );
 			}
-
-			Dom.get(node).off( type );
-		});
+		}
 
 		delete _Event.cache[uid];
 
-		node = null;
+		cache.node = null;
 
 		return;
 	},
@@ -1037,6 +1015,10 @@ var _Event = {
 			event.touchY = event.touches[0].pageY;
 		}
 
+		if( event.type === 'DOMMouseScroll' || event.type === 'mousewheel' ) {
+
+			event.wheel = event.wheelDelta ? event.wheelDelta / 120 : -(event.detail || 0) / 3;
+		}
 
 		if( _Event.manualExtend === false ) {
 

@@ -17,7 +17,7 @@ var Collection = PB.Collection = function ( collection ) {
 		
 		this[i] = collection[i];
 	}
-};
+}
 
 Collection.prototype = {
 	

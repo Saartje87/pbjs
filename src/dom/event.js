@@ -1,25 +1,9 @@
 /**
-
-TODO:
-- mouseenter and mouseleave
-
-How its cached:
-cache = {
-
-	element.__PBJS_ID__: {
-	
-		node: node,	// Could be fetched from local.ElementCache
-		"click": [],
-		"mouseup": [
-			{
-				handler: fn
-				responder: fn
-			}
-		]
-	}
-}
-
+ * Crossbrowser event handling and normalisation of event properties / methods.
+ *
+ * @todo mouseenter and mouseleave
  */
+
 
 var _Event = {
 	
@@ -65,30 +49,27 @@ var _Event = {
 	purge: function ( uid ) {
 		
 		var cache = _Event.cache[uid],
-			node,
-			keys;
+			key;
 		
+		// No event set
 		if( !cache ) {
 			
 			return;
 		}
 		
-		node = cache.node;
-		keys = Object.keys(cache);
-		
-		keys.forEach(function ( type ){
+		// Loop trough event names (click, mouseenter, etc..) and detach events
+		for( key in cache ) {
 			
-			if( type === 'node' ) {
+			if( cache.hasOwnProperty(key) && key !== 'node' ) {
 				
-				return;
+				Dom.get(cache.node).off( key );
 			}
-			
-			Dom.get(node).off( type );
-		});
+		}
 		
+		// Delete cache entry
 		delete _Event.cache[uid];
 		
-		node = null;
+		cache.node = null;
 		
 		return;
 	},
@@ -115,9 +96,11 @@ var _Event = {
 			event.touchY = event.touches[0].pageY;
 		}
 		
-		// From mootools
-		// 	if (type == 'DOMMouseScroll' || type == 'mousewheel')
-		// this.wheel = (event.wheelDelta) ? event.wheelDelta / 120 : -(event.detail || 0) / 3;
+		// Normalize mousescroll, inspiration from mootools :)
+		if( event.type === 'DOMMouseScroll' || event.type === 'mousewheel' ) {
+			
+			event.wheel = event.wheelDelta ? event.wheelDelta / 120 : -(event.detail || 0) / 3;
+		}
 		
 		// Legacy browsers will fail here and keep extending the event object
 		if( _Event.manualExtend === false ) {
@@ -360,7 +343,7 @@ PB.overwrite(PB.dom, {
 			return this;
 		}
 		
-		// 
+		// Remove all events if no type given
 		if( !type ) {
 			
 			// Purge all events
