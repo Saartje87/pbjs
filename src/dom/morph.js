@@ -50,8 +50,30 @@ function ( to ) {
 	from.transitionProperty = properties;
 	from.transitionDuration = options.duration+'s';
 	
-	//
-	me.once('webkitTransitionEnd oTransitionEnd transitionend', function () {
+	// Set from styles inline
+	this.setStyle(from);
+	
+	// Firefox seems to fail when setting the to styles
+	// imidiately, so add a timer for the next 'css render frame'
+	setTimeout(function() {
+		
+		// Element could be removed, check
+		if( !me.node ) {
+			
+			return;
+		}
+		
+		me.setStyle(to);
+	}, 16.7);
+	
+	// Timer to trigger callback and reset transition properties
+	setTimeout(function() {
+		
+		// Element could be removed, check
+		if( !me.node ) {
+			
+			return;
+		}
 		
 		// Remove transition from element
 		me.setStyle({
@@ -65,22 +87,7 @@ function ( to ) {
 			
 			options.callback( me );
 		}
-	});
-	
-	// Set from styles inline
-	this.setStyle(from);
-	
-	// Add to styles for next rendering frame
-	// Needed for atleast firefox
-	setTimeout(function() {
-		
-		if( !me.node ) {
-			
-			return;
-		}
-		
-		me.setStyle(to);
-	}, 16.7);
+	}, (options.duration*1000)+20);
 	
 } :
 // For non supported browsers, just set the style

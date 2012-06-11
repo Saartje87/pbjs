@@ -1695,20 +1695,6 @@ function ( to ) {
 	from.transitionProperty = properties;
 	from.transitionDuration = options.duration+'s';
 
-	me.once('webkitTransitionEnd oTransitionEnd transitionend', function () {
-
-		me.setStyle({
-
-			'transitionProperty': '',
-			'transitionDuration': ''
-		});
-
-		if( options.callback ) {
-
-			options.callback( me );
-		}
-	});
-
 	this.setStyle(from);
 
 	setTimeout(function() {
@@ -1720,6 +1706,25 @@ function ( to ) {
 
 		me.setStyle(to);
 	}, 16.7);
+
+	setTimeout(function() {
+
+		if( !me.node ) {
+
+			return;
+		}
+
+		me.setStyle({
+
+			'transitionProperty': '',
+			'transitionDuration': ''
+		});
+
+		if( options.callback ) {
+
+			options.callback( me );
+		}
+	}, (options.duration*1000)+20);
 
 } :
 function ( to ) {
