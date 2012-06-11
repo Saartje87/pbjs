@@ -1,5 +1,5 @@
 /*!
- * pbjs JavaScript Framework v0.5.8
+ * pbjs JavaScript Framework v0.5.9
  * https://github.com/Saartje87/pbjs
  *
  * This project is powered by Pluxbox
@@ -38,7 +38,7 @@ var old = context.PB,
 
 PB.cache = old && old.cache ? old.cache : {};
 
-PB.VERSION = '0.5.8';
+PB.VERSION = '0.5.9';
 
 /**
  * Get unique id inside PB
