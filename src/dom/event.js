@@ -353,6 +353,7 @@ PB.overwrite(PB.dom, {
 		
 		eventsType = events[type];
 		
+		// No event stored
 		if( !eventsType ) {
 			
 			return this;
