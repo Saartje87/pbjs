@@ -84,7 +84,6 @@ PB.overwrite(PB.dom, {
 
 		        window.getSelection().removeAllRanges();
 			    node.setSelectionRange( start, start+length );
-			    window.getSelection().addRange( node );
 		    }
 	    }
 
