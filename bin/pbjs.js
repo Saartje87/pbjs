@@ -1480,6 +1480,44 @@ PB.overwrite(PB.dom, {
 
 		return this.attr( key, value );
 	}
+
+	/**
+	 * Select the content in the provided range
+	 */
+	select: function( start, length ) {
+
+		var node = this.node;
+
+	    if ( PB(node).val() ) {
+
+		    if ( !length ){ // default: select all
+
+		        length = ( start ) ? start : PB(node).val().length;
+		        start = 0;
+		    }
+
+		    if ( node.createTextRange ) {
+
+		        document.selection.empty();
+
+		        var range = node.createTextRange();
+
+		        range.collapse( true );
+
+		        range.moveStart( 'character', start );
+		        range.moveEnd( 'character', start + length );
+		        range.select();
+
+		    } else {
+
+		        window.getSelection().removeAllRanges();
+			    node.setSelectionRange( start, start+length );
+			    window.getSelection().addRange( node );
+		    }
+	    }
+
+	}
+
 });
 
 var unit = /^-?[\d.]+px$/i,
