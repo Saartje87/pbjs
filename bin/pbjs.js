@@ -1479,7 +1479,7 @@ PB.overwrite(PB.dom, {
 		key = key ? 'data-'+key : key;
 
 		return this.attr( key, value );
-	}
+	},
 
 	/**
 	 * Select the content in the provided range
