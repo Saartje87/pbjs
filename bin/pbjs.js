@@ -1015,7 +1015,7 @@ var _Event = {
 			event.touchY = event.touches[0].pageY;
 		}
 
-		if( event.type === 'DOMMouseScroll' || event.type === 'mousewheel' ) {
+		if( event.type === 'DOMMouseScroll' || event.type === 'mousewheel' || event.type === 'wheel' ) {
 
 			event.wheel = event.wheelDelta ? event.wheelDelta / 120 : -(event.detail || 0) / 3;
 		}
@@ -2463,7 +2463,7 @@ PB.overwrite(PB.dom, {
 
 		if( str === undefined ) {
 
-			return node.text || node.textContent || node.innerText || node.innerHTML || node.innerText || '';
+			return node.text || node.textContent || node.innerText || node.innerHTML || '';
 		}
 
 		this.empty();
