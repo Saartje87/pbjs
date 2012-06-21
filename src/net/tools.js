@@ -48,6 +48,26 @@ PB.overwrite(PB.Net, {
 		}
 		
 		return prefix ? query : query.replace(/&$/, '');
-	}
+	},
+	
+	/**
+	 * Retrieve GET arguments from string aka url
+	 */
+	parseArguments: function( str ) {
+		
+		var parts = {},
+			part;
+		
+		str = str.indexOf('?') !== -1 ? str.substr( str.indexOf('?') + 1 ) : str;
+		
+		str.split('&').forEach(function ( entry ) {
+			
+			part = entry.split('=');
+			
+			parts[decodeURIComponent(part[0])] = decodeURIComponent(part[1]);
+		});
+		
+		return parts;
+    }
 });
 
