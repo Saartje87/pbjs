@@ -51,9 +51,11 @@ PB.overwrite(PB.Net, {
 	},
 	
 	/**
-	 * Retrieve GET arguments from string aka url
+	 * Make object from query part of url
+	 *
+	 * @return object
 	 */
-	parseArguments: function( str ) {
+	parseQueryString: function( str ) {
 		
 		var parts = {},
 			part;
