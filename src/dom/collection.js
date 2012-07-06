@@ -17,7 +17,7 @@ var Collection = PB.Collection = function ( collection ) {
 		
 		this[i] = collection[i];
 	}
-}
+};
 
 Collection.prototype = {
 	
@@ -33,17 +33,31 @@ Collection.prototype = {
 	 *
 	 */
 	invoke: function () {
-		
+
 		var args = PB.toArray(arguments),
 			method = args.shift(),
+			col = new Collection(),
 			i = 0;
-		
+
+		var pushToCol = function( current ) { col.push( current[method].apply( current, args ) ); };
+
 		for ( ; i < this.length; i++ ){
-		
-			this[i][method].apply( this[i], args );
+
+			if ( PB.type(this[i]) === 'PBDomCollection' ) {
+								
+				PB.toArray( this[i] ).forEach( pushToCol );
+
+			} else if ( PB.type(this[i]) === 'PBDom' ) {
+
+				col.push( this[i][method].apply( this[i], args ) );
+			
+			} else {
+
+				this[i][method].apply( this[i], args );
+			}
 		}
-		
-		return this;
+
+		return (col.length) ? col : this;
 	},
 	
 	/**
