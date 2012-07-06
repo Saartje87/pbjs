@@ -2,7 +2,9 @@ PB.Observer = PB.Class({
 	
 	construct: function () {
 		
-		this.listeners = {};
+		// Privates
+		this._listeners = {};
+		this._context = {};
 	},
 	
 	on: function ( type, fn, context ) {
@@ -14,12 +16,16 @@ PB.Observer = PB.Class({
 		
 		type.split(' ').forEach(function ( type ) {
 			
-			if( !this.listeners[type] ) {
+			// Create new array
+			if( !this._listeners[type] ) {
 
-				this.listeners[type] = [];
+				this._listeners[type] = [];
+				this._context[type] = [];
 			}
-
-			this.listeners[type].push([fn, context]);
+			
+			// 
+			this._listeners[type].push( fn );
+			this._context[type].push( context );
 		}, this);
 		
 		return this;
@@ -27,31 +33,44 @@ PB.Observer = PB.Class({
 	
 	off: function ( type, fn ) {
 		
-		if( !fn ) {
+		var index;
+		
+		// Nothing set to object
+		if( !this._listeners[type] ) {
 			
-			this.listeners[type].length = 0;
+			return;
 		}
 		
-		this.listeners[type].remove(fn);
+		// Purge all from specific type
+		if( !fn ) {
+			
+			this._listeners[type].length = 0;
+		}
+		
+		index = this._listeners[type].indexOf(fn);
+		
+		if( index !== -1 ) {
+			
+			this._listeners[type].splice( index, 1 );
+			this._context[type].splice( index, 1 );
+		}
 		
 		return this;
 	},
 	
 	emit: function ( type ) {
 		
-		if( !this.listeners[type] ) {
+		if( !this._listeners[type] ) {
 			
 			return this;
 		}
 		
 		var args = slice.call( arguments, 1 );
 		
-		this.listeners[type].forEach(function ( o ){
+		this._listeners[type].forEach(function ( fn, index ){
 			
-			// 0 -> function
-			// 1 -> scope
-			o[0].apply(o[1], args || []);
-		});
+			fn.apply( this._context[type][index], args || [] );
+		}, this);
 		
 		return this;
 	}
