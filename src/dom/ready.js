@@ -6,6 +6,9 @@ PB.ready = (function () {
 	function execQueue () {
 		
 		var callback;
+
+		// replace the cached version
+		body = document.body;
 		
 		while( callback = queue.shift() ) {
 			
@@ -48,6 +51,6 @@ PB.ready = (function () {
 		}
 		
 		callback();
-	}
+	};
 })();
 

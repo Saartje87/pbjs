@@ -1383,6 +1383,8 @@ PB.ready = (function () {
 
 		var callback;
 
+		body = document.body;
+
 		while( callback = queue.shift() ) {
 
 			callback();
