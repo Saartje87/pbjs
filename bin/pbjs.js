@@ -1383,6 +1383,7 @@ PB.ready = (function () {
 
 		var callback;
 
+		ready = true;
 		body = document.body;
 
 		while( callback = queue.shift() ) {
@@ -1406,12 +1407,7 @@ PB.ready = (function () {
 
 	if( doc.addEventListener ) {
 
-		PB(doc).once('DOMContentLoaded', function () {
-
-			ready = true;
-
-			execQueue();
-		});
+		PB(doc).once('DOMContentLoaded', execQueue);
 	} else {
 
 		domready();
