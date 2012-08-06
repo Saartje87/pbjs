@@ -920,13 +920,13 @@ Collection.prototype = {
 		for ( ; i < this.length; i++ ){
 
 			if ( PB.type(this[i]) === 'PBDomCollection' ) {
-								
+
 				PB.toArray( this[i] ).forEach( pushToCol );
 
 			} else if ( PB.type(this[i]) === 'PBDom' ) {
 
 				col.push( this[i][method].apply( this[i], args ) );
-			
+
 			} else {
 
 				this[i][method].apply( this[i], args );
@@ -1421,7 +1421,7 @@ PB.ready = (function () {
 		}
 
 		callback();
-	}
+	};
 })();
 
 PB.overwrite(PB.dom, {

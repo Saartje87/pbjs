@@ -45,5 +45,5 @@ PB.ready = (function () {
 		}
 
 		callback();
-	}
+	};
 })();
