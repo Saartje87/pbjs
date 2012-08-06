@@ -2764,7 +2764,7 @@ PB.Net.defaults = {
  */
 PB.Request = PB.Class(PB.Observer, {
 
-	isReusable: PB.browser.isIE && PB.browser.version <= 7,
+	isReusable: !(PB.browser.isIE && PB.browser.version <= 7),
 
 	readyStateEvents: 'unsent opened headers loading end'.split(' '),
 
