@@ -893,7 +893,7 @@ var Collection = PB.Collection = function ( collection ) {
 
 		this[i] = collection[i];
 	}
-}
+};
 
 Collection.prototype = {
 
@@ -2453,7 +2453,7 @@ PB.overwrite(PB.dom, {
 			node.parentNode.removeChild( node );
 		}
 
-		this.node = node = null;
+		this.node = this.storage = node = null;
 
 		delete PB.cache[pbid];
 	},

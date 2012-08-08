@@ -148,8 +148,9 @@ PB.overwrite(PB.dom, {
 
 			node.parentNode.removeChild( node );
 		}
-
-		this.node = node = null;
+		
+		// Clear storage
+		this.node = this.storage = node = null;
 
 		delete PB.cache[pbid];
 	},

@@ -187,7 +187,7 @@ if( window.attachEvent && !window.addEventListener ) {
 		 * Normalize stopPropagation
 		 */
 		stopPropagation: function () {
-
+			
 			this.cancelBubble = true;
 		},
 
