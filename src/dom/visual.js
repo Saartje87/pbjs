@@ -266,7 +266,7 @@ PB.each({ left: 'Left', top: 'Top' }, function ( lower, upper ) {
 	
 	PB.dom[lower] = function ( fromBody ) {
 		
-		if( fromBody && fromBody !== true ) {
+		if( fromBody !== undefined && fromBody !== true ) {
 
 			this.setStyle(lower, fromBody);
 

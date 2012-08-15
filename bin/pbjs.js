@@ -14,7 +14,7 @@
 		module.exports = definition(context);
 	} else if ( typeof define === 'function' && typeof define.amd === 'object' ) {
 
-		define( function () { return definition(context) } ) ;
+		define( function () { return definition(context); } ) ;
 	} else {
 
 		this[name] = definition(context);
@@ -1423,7 +1423,6 @@ PB.ready = (function () {
 		callback();
 	};
 })();
-
 PB.overwrite(PB.dom, {
 
 	set: function ( key, value ) {
@@ -2063,7 +2062,7 @@ PB.each({ left: 'Left', top: 'Top' }, function ( lower, upper ) {
 
 	PB.dom[lower] = function ( fromBody ) {
 
-		if( fromBody && fromBody !== true ) {
+		if( fromBody !== undefined && fromBody !== true ) {
 
 			this.setStyle(lower, fromBody);
 
