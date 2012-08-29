@@ -48,9 +48,7 @@ PB.overwrite(PB.dom, {
 	 */
 	data: function ( key, value ) {
 
-		key = key ? 'data-'+key : key;
-
-		return this.attr( key, value );
+		return this.attr( 'data-'+key, value );
 	},
 
 	/**
