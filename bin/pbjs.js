@@ -738,7 +738,7 @@ PB.overwrite(String.prototype, {
 	 */
 	trim: function ( chr ) {
 
-		chr = PB.string.escapeRegex(chr) || "\\s";
+		chr = chr || "\\s"; //PB.string.escapeRegex(chr) || "\\s";
 
 		return this.replace( new RegExp("(^["+chr+"]+|["+chr+"]+$)", "g"), "" );
 	},
@@ -751,7 +751,8 @@ PB.overwrite(String.prototype, {
 	 */
 	trimLeft: function ( chr ) {
 
-		return this.replace( new RegExp("(^"+( PB.string.escapeRegex(chr) || "\\s")+"+)", "g"), "" );
+		// return this.replace( new RegExp("(^"+( PB.string.escapeRegex(chr) || "\\s")+"+)", "g"), "" );
+		return this.replace( new RegExp("(^"+( chr || "\\s")+"+)", "g"), "" );
 	},
 
 	/**
@@ -762,7 +763,8 @@ PB.overwrite(String.prototype, {
 	 */
 	trimRight: function ( chr ) {
 
-		return this.replace( new RegExp("("+( PB.string.escapeRegex(chr) || "\\s")+"+$)", "g"), "" );
+		// return this.replace( new RegExp("("+( PB.string.escapeRegex(chr) || "\\s")+"+$)", "g"), "" );
+		return this.replace( new RegExp("("+( chr || "\\s")+"+$)", "g"), "" );
 	}
 });
 
@@ -1761,10 +1763,10 @@ function ( to ) {
 	this.setStyle(from);
 
 
-	if ( this.isset('morphTimer') ) {
+	// if ( this.isset('morphTimer') ) {
 
-		clearTimeout( this.get('morphTimer') );
-	}
+	// 	clearTimeout( this.get('morphTimer') );
+	// }
 
 	setTimeout(function() {
 
@@ -1777,7 +1779,8 @@ function ( to ) {
 
 	}, 16.7);
 
-	var morphTimer = setTimeout(function() {
+	// var morphTimer =
+	setTimeout(function() {
 
 		if( !me.node ) {
 
@@ -1797,7 +1800,7 @@ function ( to ) {
 	}, (options.duration*1000)+20);
 
 
-	this.set('morphTimer', morphTimer);
+	// this.set('morphTimer', morphTimer);
 
 } :
 function ( to ) {
@@ -3000,12 +3003,12 @@ PB.string = {
 	camelCase: function ( str ) {
 
 		return str.replace(/[A-Z]/g, camelCase);
-	},
-
-	escapeRegex: function( str ) {
-
-		return str.replace(/(\.|\*|\?|\\|\^|\$)/g, '\\$1');
 	}
+
+	// ,escapeRegex: function( str ) {
+
+	// 	return str.replace(/(\.|\*|\?|\\|\^|\$)/g, '\\$1');
+	// }
 };
 /*
 'asd-asd'.toCamelCase();
