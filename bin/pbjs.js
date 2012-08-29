@@ -1760,6 +1760,12 @@ function ( to ) {
 
 	this.setStyle(from);
 
+
+	if  ( me.latestMorph ) {
+
+		clearTimeout( me.latestMorph );
+	}
+
 	setTimeout(function() {
 
 		if( !me.node ) {
@@ -1768,9 +1774,10 @@ function ( to ) {
 		}
 
 		me.setStyle(to);
+
 	}, 16.7);
 
-	setTimeout(function() {
+	me.latestMorph = setTimeout(function() {
 
 		if( !me.node ) {
 
@@ -1784,9 +1791,9 @@ function ( to ) {
 		});
 
 		if( options.callback ) {
-
 			options.callback( me );
 		}
+
 	}, (options.duration*1000)+20);
 
 } :

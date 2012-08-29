@@ -53,6 +53,12 @@ function ( to ) {
 	// Set from styles inline
 	this.setStyle(from);
 	
+	// prevent previous callbacks
+	if  ( me.latestMorph ) {
+
+		clearTimeout( me.latestMorph );
+	}
+
 	// Firefox seems to fail when setting the to styles
 	// imidiately, so add a timer for the next 'css render frame'
 	setTimeout(function() {
@@ -64,10 +70,11 @@ function ( to ) {
 		}
 		
 		me.setStyle(to);
+		
 	}, 16.7);
 	
 	// Timer to trigger callback and reset transition properties
-	setTimeout(function() {
+	me.latestMorph = setTimeout(function() {
 		
 		// Element could be removed, check
 		if( !me.node ) {
@@ -87,6 +94,7 @@ function ( to ) {
 			
 			options.callback( me );
 		}
+
 	}, (options.duration*1000)+20);
 	
 } :
