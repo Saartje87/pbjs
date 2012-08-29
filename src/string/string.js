@@ -8,7 +8,12 @@ PB.str = {
 	camelCase: function ( str ) {
 		
 		return str.replace(/[A-Z]/g, camelCase);
-	}
+	},
+
+    escapeRegex: function( str ) {
+        
+        return str.replace(/(\.|\*|\?|\\|\^|\$)/g, '\\$1');
+    }
 };
 /*
 'asd-asd'.toCamelCase();

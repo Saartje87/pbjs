@@ -738,7 +738,7 @@ PB.overwrite(String.prototype, {
 	 */
 	trim: function ( chr ) {
 
-		chr = chr || "\\s";
+		chr = PB.string.escapeRegex(chr) || "\\s";
 
 		return this.replace( new RegExp("(^["+chr+"]+|["+chr+"]+$)", "g"), "" );
 	},
@@ -751,7 +751,7 @@ PB.overwrite(String.prototype, {
 	 */
 	trimLeft: function ( chr ) {
 
-		return this.replace( new RegExp("(^"+(chr || "\\s")+"+)", "g"), "" );
+		return this.replace( new RegExp("(^"+( PB.string.escapeRegex(chr) || "\\s")+"+)", "g"), "" );
 	},
 
 	/**
@@ -762,7 +762,7 @@ PB.overwrite(String.prototype, {
 	 */
 	trimRight: function ( chr ) {
 
-		return this.replace( new RegExp("("+(chr || "\\s")+"+$)", "g"), "" );
+		return this.replace( new RegExp("("+( PB.string.escapeRegex(chr) || "\\s")+"+$)", "g"), "" );
 	}
 });
 
@@ -1749,7 +1749,7 @@ function ( to ) {
 
 	PB.each(to, function ( key, value ) {
 
-		properties += PB.str.camelCase( key )+',';
+		properties += PB.string.camelCase( key )+',';
 		from[key] = me.getStyle( key );
 	});
 
@@ -2985,22 +2985,27 @@ function camelCase ( str ) {
 	return '-'+str.toLowerCase();
 }
 
-PB.str = {
+PB.string = {
 
 	camelCase: function ( str ) {
 
 		return str.replace(/[A-Z]/g, camelCase);
+	},
+
+	escapeRegex: function( str ) {
+
+		return str.replace(/(\.|\*|\?|\\|\^|\$)/g, '\\$1');
 	}
 };
 /*
 'asd-asd'.toCamelCase();
 
 PB.Date('2012');
-var name = PB.String.toCamelCase('name-last');
+var name = PB.stringing.toCamelCase('name-last');
 var name = 'name-last'.toCamelCase();
 PB.Number(19);
 
-var upperCase = PB.str.camelCase( 's-asdasd' );*/
+var upperCase = PB.string.camelCase( 's-asdasd' );*/
 
 PB.noConflict = function () {
 
