@@ -1761,9 +1761,9 @@ function ( to ) {
 	this.setStyle(from);
 
 
-	if  ( me.latestMorph ) {
+	if ( this.isset('morphTimer') ) {
 
-		clearTimeout( me.latestMorph );
+		clearTimeout( this.get('morphTimer') );
 	}
 
 	setTimeout(function() {
@@ -1777,7 +1777,7 @@ function ( to ) {
 
 	}, 16.7);
 
-	me.latestMorph = setTimeout(function() {
+	var morphTimer = setTimeout(function() {
 
 		if( !me.node ) {
 
@@ -1795,6 +1795,9 @@ function ( to ) {
 		}
 
 	}, (options.duration*1000)+20);
+
+
+	this.set('morphTimer', morphTimer);
 
 } :
 function ( to ) {

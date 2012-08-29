@@ -54,9 +54,9 @@ function ( to ) {
 	this.setStyle(from);
 	
 	// prevent previous callbacks
-	if  ( me.latestMorph ) {
+	if ( this.isset('morphTimer') ) {
 
-		clearTimeout( me.latestMorph );
+		clearTimeout( this.get('morphTimer') );
 	}
 
 	// Firefox seems to fail when setting the to styles
@@ -74,7 +74,7 @@ function ( to ) {
 	}, 16.7);
 	
 	// Timer to trigger callback and reset transition properties
-	me.latestMorph = setTimeout(function() {
+	var morphTimer = setTimeout(function() {
 		
 		// Element could be removed, check
 		if( !me.node ) {
@@ -96,6 +96,8 @@ function ( to ) {
 		}
 
 	}, (options.duration*1000)+20);
+
+	this.set('morphTimer', morphTimer);
 	
 } :
 // For non supported browsers, just set the style
