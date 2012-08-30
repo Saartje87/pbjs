@@ -14,7 +14,7 @@ PB.overwrite(String.prototype, {
 		
 		chr = chr ? PB.string.escapeRegex(chr) : "\\s";
 
-		return this.replace( new RegExp("(^["+chr+"]+|["+chr+"]+$)", "g"), "" );
+		return this.replace( new RegExp("(^"+chr+"+|"+chr+"+$)", "g"), "" );
 	},
 	
 	/**

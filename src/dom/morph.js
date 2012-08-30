@@ -39,7 +39,7 @@ function ( to ) {
 	
 	PB.each(to, function ( key, value ) {
 		
-		properties += PB.str.camelCase( key )+',';
+		properties += PB.string.camelCase( key )+',';
 		from[key] = me.getStyle( key );
 	});
 	

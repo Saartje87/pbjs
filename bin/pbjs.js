@@ -740,7 +740,7 @@ PB.overwrite(String.prototype, {
 
 		chr = chr ? PB.string.escapeRegex(chr) : "\\s";
 
-		return this.replace( new RegExp("(^["+chr+"]+|["+chr+"]+$)", "g"), "" );
+		return this.replace( new RegExp("(^"+chr+"+|"+chr+"+$)", "g"), "" );
 	},
 
 	/**
@@ -1502,9 +1502,7 @@ PB.overwrite(PB.dom, {
 	 */
 	data: function ( key, value ) {
 
-		key = key ? 'data-'+key : key;
-
-		return this.attr( key, value );
+		return this.attr( 'data-'+key, value );
 	},
 
 	/**
@@ -1764,7 +1762,6 @@ function ( to ) {
 
 	this.setStyle(from);
 
-
 	if ( this.isset('morphTimer') ) {
 
 		clearTimeout( this.get('morphTimer') );
@@ -1795,11 +1792,11 @@ function ( to ) {
 		});
 
 		if( options.callback ) {
+
 			options.callback( me );
 		}
 
 	}, (options.duration*1000)+20);
-
 
 	this.set('morphTimer', morphTimer);
 
@@ -3017,20 +3014,23 @@ PB.string = {
 		return str.replace(/[A-Z]/g, camelCase);
 	},
 
-	escapeRegex: function( str ) {
+	/**
+	 * http://simonwillison.net/2006/Jan/20/escape/
+	 */
+    escapeRegex: function( str ) {
 
-		return str.replace(/(\.|\*|\?|\\|\^|\$)/g, '\\$1');
-	}
+		return str.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
+    }
 };
 /*
 'asd-asd'.toCamelCase();
 
 PB.Date('2012');
-var name = PB.stringing.toCamelCase('name-last');
+var name = PB.String.toCamelCase('name-last');
 var name = 'name-last'.toCamelCase();
 PB.Number(19);
 
-var upperCase = PB.string.camelCase( 's-asdasd' );*/
+var upperCase = PB.str.camelCase( 's-asdasd' );*/
 
 PB.noConflict = function () {
 

@@ -3,16 +3,19 @@ function camelCase ( str ) {
 	return '-'+str.toLowerCase();
 }
 
-PB.str = {
+PB.string = {
 	
 	camelCase: function ( str ) {
 		
 		return str.replace(/[A-Z]/g, camelCase);
 	},
-
+	
+	/**
+	 * http://simonwillison.net/2006/Jan/20/escape/
+	 */
     escapeRegex: function( str ) {
         
-        return str.replace(/(\.|\*|\?|\\|\^|\$)/g, '\\$1');
+		return str.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
     }
 };
 /*
