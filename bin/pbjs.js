@@ -1550,7 +1550,7 @@ var unit = /^-?[\d.]+px$/i,
 	noPixel = /(thin|medium|thick|em|ex|pt|%)$/,
 	computedStyle = doc.defaultView && doc.defaultView.getComputedStyle,
 	skipUnits = 'zIndex zoom fontWeight opacity',
-	cssPrefixProperties = 'animationName transform transition transitionProperty transitionDuration'.split(' '),
+	cssPrefixProperties = 'animationName transform transition transitionProperty transitionDuration boxSizing'.split(' '),
 	cssPropertyMap = {},
 	vendorPrefixes = 'O ms Moz Webkit'.split(' '),
 	vendorDiv = doc.createElement('div'),
@@ -1658,6 +1658,7 @@ PB.overwrite(PB.dom, {
 		return this;
 	},
 
+
 	/**
 	 * Get CSS style
 	 *
@@ -1677,6 +1678,9 @@ PB.overwrite(PB.dom, {
 			if( computedStyle ) {
 
 				value = doc.defaultView.getComputedStyle( node, null )[property];
+
+				// console.log(value);
+
 			} else {
 
 				value = node.currentStyle[property];
@@ -1954,32 +1958,43 @@ PB.overwrite(PB.dom, {
 			return this.setStyle('width', value);
 		}
 
-		var node = this.node;
+		var node = this.node,
+
+			boxOffset = PB(node).getStyle('boxSizing') === 'border-box' ? PB(node).getStyle('borderLeftWidth') : 0;
+
+			/* ToDo:	firefox does't match borderWidth , calculations for left + right needs to be done
+
+						e.g. parseInt( PB(node).getStyle('borderRightWidth').match(/\d/) )
+			 */
+			// console.log(PB(node).getStyle('borderLeftWidth'));
+
 
 		if( node === window ) {
 
-			return window.innerWidth || docElement.offsetWidth;
+			return (window.innerWidth || docElement.offsetWidth) + boxOffset;
+
 		} else if ( node.nodeType === 9 ) {
 
-			return Math.max(docElement.clientWidth, body.scrollWidth, docElement.offsetWidth);
+			return Math.max(docElement.clientWidth, body.scrollWidth, docElement.offsetWidth) + boxOffset;
 		}
 
 		if( value = this.getStyle('width', true) ) {
 
-			return value;
+			return value + boxOffset;
 		}
 
 		if( !this.isVisible() ) {
 
 			this.show();
 			value = node.offsetWidth;
-			this.hide()
+			this.hide();
+
 		} else {
 
 			value = node.offsetWidth;
 		}
 
-		return value;
+		return value + boxOffset;
 	},
 
 	innerWidth: function () {
