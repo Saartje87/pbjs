@@ -738,7 +738,7 @@ PB.overwrite(String.prototype, {
 	 */
 	trim: function ( chr ) {
 
-		chr = chr ? PB.string.escapeRegex(chr) : "\\s";
+		chr = chr ? PB.String.escapeRegex(chr) : "\\s";
 
 		return this.replace( new RegExp("(^"+chr+"+|"+chr+"+$)", "g"), "" );
 	},
@@ -751,7 +751,7 @@ PB.overwrite(String.prototype, {
 	 */
 	trimLeft: function ( chr ) {
 
-		return this.replace( new RegExp("(^"+( chr ? PB.string.escapeRegex(chr) : "\\s")+"+)", "g"), "" );
+		return this.replace( new RegExp("(^"+( chr ? PB.String.escapeRegex(chr) : "\\s")+"+)", "g"), "" );
 	},
 
 	/**
@@ -762,7 +762,7 @@ PB.overwrite(String.prototype, {
 	 */
 	trimRight: function ( chr ) {
 
-		return this.replace( new RegExp("("+( chr ? PB.string.escapeRegex(chr) : "\\s")+"+$)", "g"), "" );
+		return this.replace( new RegExp("("+( chr ? PB.String.escapeRegex(chr) : "\\s")+"+$)", "g"), "" );
 	}
 });
 
@@ -1743,11 +1743,17 @@ function ( to ) {
 	var me = this,
 		from = {},
 		properties = '',
-		options = morphArgs( arguments );
+		options = morphArgs( arguments ),
+		morph = this.get('__morph') || {};
+
+	this.stopMorph();
+
+	morph.to = to;
+	morph.running = true;
 
 	PB.each(to, function ( key, value ) {
 
-		properties += PB.string.camelCase( key )+',';
+		properties += PB.String.decamelize( key )+',';
 		from[key] = me.getStyle( key );
 	});
 
@@ -1758,12 +1764,7 @@ function ( to ) {
 
 	this.setStyle(from);
 
-	if ( this.isset('morphTimer') ) {
-
-		clearTimeout( this.get('morphTimer') );
-	}
-
-	setTimeout(function() {
+	morph.initTimer = setTimeout(function() {
 
 		if( !me.node ) {
 
@@ -1774,7 +1775,7 @@ function ( to ) {
 
 	}, 16.7);
 
-	var morphTimer = setTimeout(function() {
+	morph.endTimer = setTimeout(function() {
 
 		if( !me.node ) {
 
@@ -1794,8 +1795,7 @@ function ( to ) {
 
 	}, (options.duration*1000)+20);
 
-	this.set('morphTimer', morphTimer);
-
+	this.set('__morph', morph);
 } :
 function ( to ) {
 
@@ -1808,6 +1808,53 @@ function ( to ) {
 		options.callback( this );
 	}
 };
+
+/**
+ * Stop morphing
+ *
+ * @param {boolean}
+ */
+PB.dom.stopMorph = function ( skipToEnd ) {
+
+	var me = this,
+		morph = this.get('__morph') || {};
+
+	if( !morph.running ) {
+
+		return this;
+	}
+
+	clearTimeout( morph.initTimer );
+	clearTimeout( morph.endTimer );
+
+	if( !skipToEnd ) {
+
+		PB.each(morph.to, function ( property ) {
+
+			morph.to[property] = me.getStyle(property, true);
+		});
+	} else {
+
+		PB.each(morph.to, function ( property ) {
+
+			me.setStyle(property, '');
+		});
+	}
+
+	morph.to.transitionProperty = '';
+	morph.to.transitionDuration = '';
+
+	setTimeout(function() {
+
+		me.setStyle(morph.to);
+		morph.to = void 0;
+	}, 16.7);
+
+
+	morph.running = false;
+
+	return this;
+}
 
 PB.overwrite(PB.dom, {
 
@@ -2987,16 +3034,40 @@ PB.extend(context.JSON, {
 		return eval('('+text+')');
 	}
 });
-function camelCase ( str ) {
+/**
+ * pbjs string methods
+ */
 
-	return '-'+str.toLowerCase();
+function camelize ( match, chr ) {
+
+	return chr ? chr.toUpperCase() : '';
 }
 
-PB.string = {
+function decamelize ( chr ) {
 
-	camelCase: function ( str ) {
+	return '-'+chr.toLowerCase();
+}
 
-		return str.replace(/[A-Z]/g, camelCase);
+PB.String = {
+
+	/**
+	 * Parse string to camelcase string
+	 *
+	 * border-color -> borderColor
+	 */
+	camelize: function ( str ) {
+
+		return str.replace(/-+(.)?/g, camelize);
+	},
+
+	/**
+	 *
+	 *
+	 * borderColor -> border-color
+	 */
+	decamelize: function ( str ) {
+
+		return str.replace(/[A-Z]/g, decamelize);
 	},
 
 	/**

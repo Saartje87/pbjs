@@ -35,11 +35,19 @@ function ( to ) {
 	var me = this,
 		from = {},
 		properties = '',
-		options = morphArgs( arguments );
+		options = morphArgs( arguments ),
+		morph = this.get('__morph') || {};
+	
+	// Always stop a previous morph
+	this.stopMorph();
+	
+	// Store end styles
+	morph.to = to;
+	morph.running = true;
 	
 	PB.each(to, function ( key, value ) {
 		
-		properties += PB.string.camelCase( key )+',';
+		properties += PB.String.decamelize( key )+',';
 		from[key] = me.getStyle( key );
 	});
 	
@@ -52,16 +60,10 @@ function ( to ) {
 	
 	// Set from styles inline
 	this.setStyle(from);
-	
-	// prevent previous callbacks
-	if ( this.isset('morphTimer') ) {
-
-		clearTimeout( this.get('morphTimer') );
-	}
 
 	// Firefox seems to fail when setting the to styles
-	// imidiately, so add a timer for the next 'css render frame'
-	setTimeout(function() {
+	// immediately, so add a timer for the next 'css render frame'
+	morph.initTimer = setTimeout(function() {
 		
 		// Element could be removed, check
 		if( !me.node ) {
@@ -74,7 +76,7 @@ function ( to ) {
 	}, 16.7);
 	
 	// Timer to trigger callback and reset transition properties
-	var morphTimer = setTimeout(function() {
+	morph.endTimer = setTimeout(function() {
 		
 		// Element could be removed, check
 		if( !me.node ) {
@@ -97,8 +99,7 @@ function ( to ) {
 
 	}, (options.duration*1000)+20);
 
-	this.set('morphTimer', morphTimer);
-	
+	this.set('__morph', morph);	
 } :
 // For non supported browsers, just set the style
 function ( to ) {
@@ -112,4 +113,59 @@ function ( to ) {
 		options.callback( this );
 	}
 };
+
+/**
+ * Stop morphing
+ *
+ * @param {boolean} 
+ */
+PB.dom.stopMorph = function ( skipToEnd ) {
+	
+	var me = this,
+		morph = this.get('__morph') || {};
+	
+	if( !morph.running ) {
+		
+		return this;
+	}
+	
+	clearTimeout( morph.initTimer );
+	clearTimeout( morph.endTimer );
+	
+	// Set ending styles
+	if( !skipToEnd ) {
+	
+		// Get current styles and
+		PB.each(morph.to, function ( property ) {
+
+			morph.to[property] = me.getStyle(property, true);
+		});
+	} else {
+		
+		// Firefox workaround
+		PB.each(morph.to, function ( property ) {
+			
+			me.setStyle(property, '');
+		});
+	}
+	
+	morph.to.transitionProperty = '';
+	morph.to.transitionDuration = '';
+	
+	// And again, we need the next renderframe for firefox :( Firefox still animates the
+	// the styles after removing transitionProperty and transitionDuration. So therefore we're also
+	// resetting the style and after the next renderframe we set the end styles..
+	// This could give such very strange results..
+	setTimeout(function() {
+		
+		me.setStyle(morph.to);
+		morph.to = void 0;
+	}, 16.7);
+	
+	
+//	morph.to = void 0;
+	morph.running = false;
+	
+	return this;
+}
 
