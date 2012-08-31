@@ -12,7 +12,7 @@ PB.overwrite(String.prototype, {
 	 */
 	trim: function ( chr ) {
 		
-		chr = chr ? PB.string.escapeRegex(chr) : "\\s";
+		chr = chr ? PB.String.escapeRegex(chr) : "\\s";
 
 		return this.replace( new RegExp("(^"+chr+"+|"+chr+"+$)", "g"), "" );
 	},
@@ -25,7 +25,7 @@ PB.overwrite(String.prototype, {
 	 */
 	trimLeft: function ( chr ) {
 		
-		return this.replace( new RegExp("(^"+( chr ? PB.string.escapeRegex(chr) : "\\s")+"+)", "g"), "" );
+		return this.replace( new RegExp("(^"+( chr ? PB.String.escapeRegex(chr) : "\\s")+"+)", "g"), "" );
 	},
 	
 	/**
@@ -36,7 +36,7 @@ PB.overwrite(String.prototype, {
 	 */
 	trimRight: function ( chr ) {
 		
-		return this.replace( new RegExp("("+( chr ? PB.string.escapeRegex(chr) : "\\s")+"+$)", "g"), "" );
+		return this.replace( new RegExp("("+( chr ? PB.String.escapeRegex(chr) : "\\s")+"+$)", "g"), "" );
 	}
 });
 

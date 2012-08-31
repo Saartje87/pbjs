@@ -1,13 +1,37 @@
-function camelCase ( str ) {
+/**
+ * pbjs string methods
+ */
+
+function camelize ( match, chr ) {
 	
-	return '-'+str.toLowerCase();
+	return chr ? chr.toUpperCase() : '';
 }
 
-PB.string = {
+function decamelize ( chr ) {
 	
-	camelCase: function ( str ) {
+	return '-'+chr.toLowerCase();
+}
+
+PB.String = {
+	
+	/**
+	 * Parse string to camelcase string
+	 * 
+	 * border-color -> borderColor
+	 */
+	camelize: function ( str ) {
 		
-		return str.replace(/[A-Z]/g, camelCase);
+		return str.replace(/-+(.)?/g, camelize);
+	},
+	
+	/**
+	 * 
+	 * 
+	 * borderColor -> border-color
+	 */
+	decamelize: function ( str ) {
+		
+		return str.replace(/[A-Z]/g, decamelize);
 	},
 	
 	/**
