@@ -20,7 +20,10 @@ PB.ready = (function () {
 
 		try {
 
-			docElement.doScroll('left');
+			// docElement.doScroll('left');
+			// Body existing? Experimental.. Solves iframe issue were body
+			// is not existing
+			document.body.scrollLeft;
 			execQueue();
 		} catch ( e ) {
 
