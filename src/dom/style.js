@@ -6,7 +6,7 @@ var unit = /^-?[\d.]+px$/i,
 	skipUnits = 'zIndex zoom fontWeight opacity',
 	// Css properties that proberly need an prefix
 	// Like transition should be MozTransition in firefox
-	cssPrefixProperties = 'animationName transform transition transitionProperty transitionDuration boxSizing'.split(' '),
+	cssPrefixProperties = 'animationName transform transition transitionProperty transitionDuration transitionTimingFunction boxSizing'.split(' '),
 	// Translation object for properties with a prefix
 	// transition => MozTransition, firefox
 	// transition => WebkitTransition, chrome/safari..
