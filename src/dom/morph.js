@@ -58,6 +58,10 @@ function ( to ) {
 	from.transitionProperty = properties;
 	from.transitionDuration = options.duration+'s';
 	
+	// In development
+	// ease, linear, ease-in, ease-out, ease-in-out
+	from.transitionTimingFunction = 'ease';
+	
 	// Set from styles inline
 	this.setStyle(from);
 
@@ -159,10 +163,9 @@ PB.dom.stopMorph = function ( skipToEnd ) {
 	setTimeout(function() {
 		
 		me.setStyle(morph.to);
-		morph.to = void 0;
 	}, 16.7);
 	
-	
+	// morph.to should be cleared if firefox has being fixed :)
 //	morph.to = void 0;
 	morph.running = false;
 	

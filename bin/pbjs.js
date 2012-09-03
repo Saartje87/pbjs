@@ -1885,9 +1885,7 @@ PB.dom.stopMorph = function ( skipToEnd ) {
 	setTimeout(function() {
 
 		me.setStyle(morph.to);
-		morph.to = void 0;
 	}, 16.7);
-
 
 	morph.running = false;
 
