@@ -1,5 +1,5 @@
 /*!
- * pbjs JavaScript Framework v0.5.9
+ * pbjs JavaScript Framework v0.5.10
  * https://github.com/Saartje87/pbjs
  *
  * This project is powered by Pluxbox
@@ -38,7 +38,7 @@ var old = context.PB,
 
 PB.cache = old && old.cache ? old.cache : {};
 
-PB.VERSION = '0.5.9';
+PB.VERSION = '0.5.10';
 
 /**
  * Get unique id inside PB
@@ -139,7 +139,7 @@ PB.toArray = function ( collection ) {
 }
 
 /**
- *
+ * Deprecated since 0.5.10
  */
 PB.is = function ( type, mixed ) {
 
@@ -147,7 +147,14 @@ PB.is = function ( type, mixed ) {
 }
 
 /**
+ * Returns te primitive type of the given variable
  *
+ * PB.type([]) -> array
+ * PB.type('') -> string
+ * PB.type({}) -> object
+ *
+ * @param {mixed}
+ * @return {String}
  */
 PB.type = function ( mixed ) {
 
@@ -165,10 +172,10 @@ PB.type = function ( mixed ) {
 }
 
 /**
- * Execute script in global scope
+ * Executes script in global scope
  *
- * @param string
- * @return void
+ * @param {String}
+ * @return {Void}
  */
 PB.exec = function ( text ) {
 
@@ -317,17 +324,33 @@ PB.Class.extend = function ( key, method ) {
 	this[key] = method;
 };
 
+/**
+ * Observer pattern
+ *
+ * Commonly used pattern in javascript, so we added it to pbjs
+ */
 PB.Observer = PB.Class({
 
+	/**
+	 * Initialize observer
+	 */
 	construct: function () {
 
 		this._listeners = {};
 		this._context = {};
 	},
 
+	/**
+	 * Attach listener to instance
+	 *
+	 * @param {String}
+	 * @param {Function}
+	 * @param {Object} (optional)
+	 * @return this
+	 */
 	on: function ( type, fn, context ) {
 
-		if( !PB.is('Function', fn) ) {
+		if( PB.type(fn) !== 'function' ) {
 
 			throw new Error('PB.Observer error, fn is not a function');
 		}
@@ -347,6 +370,13 @@ PB.Observer = PB.Class({
 		return this;
 	},
 
+	/**
+	 * Detach listener to instance
+	 *
+	 * @param {String}
+	 * @param {Function} (optional)
+	 * @return this
+	 */
 	off: function ( type, fn ) {
 
 		var index;
@@ -372,6 +402,12 @@ PB.Observer = PB.Class({
 		return this;
 	},
 
+	/**
+	 * Trigger listeners
+	 *
+	 * @param {String}
+	 * @return this
+	 */
 	emit: function ( type ) {
 
 		if( !this._listeners[type] ) {
@@ -1396,7 +1432,7 @@ PB.ready = (function () {
 
 		try {
 
-			docElement.doScroll('left');
+			document.body.scrollLeft;
 			execQueue();
 		} catch ( e ) {
 
@@ -1462,7 +1498,7 @@ PB.overwrite(PB.dom, {
 	 */
 	attr: function ( key, value ) {
 
-		if( PB.is('Object', key) ) {
+		if( PB.type(key) === 'object' ) {
 
 			PB.each(key, this.attr, this);
 			return this;
@@ -1548,7 +1584,7 @@ var unit = /^-?[\d.]+px$/i,
 	noPixel = /(thin|medium|thick|em|ex|pt|%)$/,
 	computedStyle = doc.defaultView && doc.defaultView.getComputedStyle,
 	skipUnits = 'zIndex zoom fontWeight opacity',
-	cssPrefixProperties = 'animationName transform transition transitionProperty transitionDuration boxSizing'.split(' '),
+	cssPrefixProperties = 'animationName transform transition transitionProperty transitionDuration transitionTimingFunction boxSizing'.split(' '),
 	cssPropertyMap = {},
 	vendorPrefixes = 'O ms Moz Webkit'.split(' '),
 	vendorDiv = doc.createElement('div'),
@@ -1656,7 +1692,6 @@ PB.overwrite(PB.dom, {
 		return this;
 	},
 
-
 	/**
 	 * Get CSS style
 	 *
@@ -1676,9 +1711,6 @@ PB.overwrite(PB.dom, {
 			if( computedStyle ) {
 
 				value = doc.defaultView.getComputedStyle( node, null )[property];
-
-				// console.log(value);
-
 			} else {
 
 				value = node.currentStyle[property];
@@ -1765,6 +1797,8 @@ function ( to ) {
 
 	from.transitionProperty = properties;
 	from.transitionDuration = options.duration+'s';
+
+	from.transitionTimingFunction = 'ease';
 
 	this.setStyle(from);
 
@@ -2002,43 +2036,33 @@ PB.overwrite(PB.dom, {
 			return this.setStyle('width', value);
 		}
 
-		var node = this.node,
-
-			boxOffset = PB(node).getStyle('boxSizing') === 'border-box' ? PB(node).getStyle('borderLeftWidth') : 0;
-
-			/* ToDo:	firefox does't match borderWidth , calculations for left + right needs to be done
-
-						e.g. parseInt( PB(node).getStyle('borderRightWidth').match(/\d/) )
-			 */
-			// console.log(PB(node).getStyle('borderLeftWidth'));
+		var node = this.node;
 
 
 		if( node === window ) {
 
-			return (window.innerWidth || docElement.offsetWidth) + boxOffset;
-
+			return window.innerWidth || docElement.offsetWidth;
 		} else if ( node.nodeType === 9 ) {
 
-			return Math.max(docElement.clientWidth, body.scrollWidth, docElement.offsetWidth) + boxOffset;
+			return Math.max(docElement.clientWidth, body.scrollWidth, docElement.offsetWidth);
 		}
 
 		if( value = this.getStyle('width', true) ) {
 
-			return value + boxOffset;
+			return value;
 		}
 
 		if( !this.isVisible() ) {
 
 			this.show();
 			value = node.offsetWidth;
-			this.hide();
-
+			this.hide()
 		} else {
 
 			value = node.offsetWidth;
 		}
 
-		return value + boxOffset;
+		return value;
 	},
 
 	innerWidth: function () {
