@@ -8,7 +8,7 @@ PB.overwrite(PB.dom, {
 	 */
 	attr: function ( key, value ) {
 
-		if( PB.is('Object', key) ) {
+		if( PB.type(key) === 'object' ) {
 
 			PB.each(key, this.attr, this);
 			return this;

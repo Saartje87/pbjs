@@ -1,5 +1,13 @@
+/**
+ * Observer pattern
+ *
+ * Commonly used pattern in javascript, so we added it to pbjs
+ */
 PB.Observer = PB.Class({
 	
+	/**
+	 * Initialize observer
+	 */
 	construct: function () {
 		
 		// Privates
@@ -7,9 +15,17 @@ PB.Observer = PB.Class({
 		this._context = {};
 	},
 	
+	/**
+	 * Attach listener to instance
+	 *
+	 * @param {String}
+	 * @param {Function}
+	 * @param {Object} (optional)
+	 * @return this
+	 */
 	on: function ( type, fn, context ) {
 		
-		if( !PB.is('Function', fn) ) {
+		if( PB.type(fn) !== 'function' ) {
 			
 			throw new Error('PB.Observer error, fn is not a function');
 		}
@@ -31,6 +47,13 @@ PB.Observer = PB.Class({
 		return this;
 	},
 	
+	/**
+	 * Detach listener to instance
+	 *
+	 * @param {String}
+	 * @param {Function} (optional)
+	 * @return this
+	 */
 	off: function ( type, fn ) {
 		
 		var index;
@@ -58,6 +81,12 @@ PB.Observer = PB.Class({
 		return this;
 	},
 	
+	/**
+	 * Trigger listeners
+	 *
+	 * @param {String}
+	 * @return this
+	 */
 	emit: function ( type ) {
 		
 		if( !this._listeners[type] ) {
