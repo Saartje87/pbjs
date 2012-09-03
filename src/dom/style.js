@@ -24,7 +24,7 @@ cssPrefixProperties.forEach(function ( property ) {
 	
 	if( property in vendorDiv.style ) {
 		
-		return;
+		return cssPropertyMap[property] = property;
 	}
 	
 	var j = i,
@@ -41,6 +41,10 @@ cssPrefixProperties.forEach(function ( property ) {
 
 // Clear vars
 cssPrefixProperties = vendorDiv = null;
+
+// Add to PB namespace
+PB.support.CSSTransition = !!cssPropertyMap.transition;
+PB.support.CSSAnimation = !!cssPropertyMap.animationName;
 
 /**
  * Add px numeric values

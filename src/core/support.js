@@ -27,7 +27,11 @@ PB.support = (function () {
 		
 		// Browser support flash? If yes, returns a number <version>
 		flash: flash || false,
-		touch: 'ontouchstart' in win
+		touch: 'ontouchstart' in win,
+		
+		// Set when detecting css properties
+		CSSTransition: false,
+		CSSAnimation: false
 	};
 })();
 

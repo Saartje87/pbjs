@@ -1,4 +1,4 @@
-// For external modules
+// Deprecated since 0.5.10, use PB.support.CSSTransition
 PB.browser.supportsCSSAnimation = !!cssPropertyMap['animationName'];
 
 function morphArgs ( args ) {
@@ -29,7 +29,7 @@ function morphArgs ( args ) {
 /**
  * @todo add 'effect' arguments
  */
-PB.dom.morph = PB.browser.supportsCSSAnimation ?
+PB.dom.morph = PB.support.CSSTransition ?
 function ( to ) {
 	
 	var me = this,

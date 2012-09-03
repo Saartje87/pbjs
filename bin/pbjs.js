@@ -244,7 +244,10 @@ PB.support = (function () {
 	return {
 
 		flash: flash || false,
-		touch: 'ontouchstart' in win
+		touch: 'ontouchstart' in win,
+
+		CSSTransition: false,
+		CSSAnimation: false
 	};
 })();
 
@@ -1599,7 +1602,7 @@ cssPrefixProperties.forEach(function ( property ) {
 
 	if( property in vendorDiv.style ) {
 
-		return;
+		return cssPropertyMap[property] = property;
 	}
 
 	var j = i,
@@ -1615,6 +1618,9 @@ cssPrefixProperties.forEach(function ( property ) {
 });
 
 cssPrefixProperties = vendorDiv = null;
+
+PB.support.CSSTransition = !!cssPropertyMap.transition;
+PB.support.CSSAnimation = !!cssPropertyMap.animationName;
 
 /**
  * Add px numeric values
@@ -1773,7 +1779,7 @@ function morphArgs ( args ) {
 /**
  * @todo add 'effect' arguments
  */
-PB.dom.morph = PB.browser.supportsCSSAnimation ?
+PB.dom.morph = PB.support.CSSTransition ?
 function ( to ) {
 
 	var me = this,
