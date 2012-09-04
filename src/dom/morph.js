@@ -50,7 +50,7 @@ function ( to ) {
 	PB.each(to, function ( key, value ) {
 		
 		properties += PB.String.decamelize( key )+',';
-		from[key] = me.getStyle( key, true );
+		from[key] = me.getStyle( key );
 	});
 	
 	// Strip trailing comma
@@ -70,7 +70,7 @@ function ( to ) {
 	// Force computation.. Removes the need for timers
 	PB.each(to, function ( key ) {
 		
-		me.getStyle( key );
+		me.getStyle( key, true );
 	});
 	
 	// 

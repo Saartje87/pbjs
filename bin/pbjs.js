@@ -1798,7 +1798,7 @@ function ( to ) {
 	PB.each(to, function ( key, value ) {
 
 		properties += PB.String.decamelize( key )+',';
-		from[key] = me.getStyle( key, true );
+		from[key] = me.getStyle( key );
 	});
 
 	properties = properties.substr( 0, properties.length-1 );
@@ -1812,7 +1812,7 @@ function ( to ) {
 
 	PB.each(to, function ( key ) {
 
-		me.getStyle( key );
+		me.getStyle( key, true );
 	});
 
 	me.setStyle(to);
