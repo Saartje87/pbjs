@@ -50,7 +50,7 @@ function ( to ) {
 	PB.each(to, function ( key, value ) {
 		
 		properties += PB.String.decamelize( key )+',';
-		from[key] = me.getStyle( key );
+		from[key] = me.getStyle( key, true );
 	});
 	
 	// Strip trailing comma
@@ -78,17 +78,17 @@ function ( to ) {
 
 	// Firefox seems to fail when setting the to styles
 	// immediately, so add a timer for the next 'css render frame'
-/*	morph.initTimer = setTimeout(function() {
-		
-		// Element could be removed, check
-		if( !me.node ) {
-			
-			return;
-		}
-		
-		me.setStyle(to);
-		
-	}, 16.7);*/
+	// morph.initTimer = setTimeout(function() {
+	// 	
+	// 	// Element could be removed, check
+	// 	if( !me.node ) {
+	// 		
+	// 		return;
+	// 	}
+	// 	
+	// 	me.setStyle(to);
+	// 	
+	// }, 16.7);
 	
 	// Timer to trigger callback and reset transition properties
 	morph.endTimer = setTimeout(function() {
