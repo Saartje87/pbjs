@@ -28,6 +28,8 @@ function morphArgs ( args ) {
 
 /**
  * @todo add 'effect' arguments
+ *
+ * Firefox bug, https://bugzilla.mozilla.org/show_bug.cgi?id=604074
  */
 PB.dom.morph = PB.support.CSSTransition ?
 function ( to ) {
@@ -48,7 +50,7 @@ function ( to ) {
 	PB.each(to, function ( key, value ) {
 		
 		properties += PB.String.decamelize( key )+',';
-		from[key] = me.getStyle( key, true );
+		from[key] = me.getStyle( key );
 	});
 	
 	// Strip trailing comma
@@ -64,6 +66,12 @@ function ( to ) {
 	
 	// Set from styles inline
 	this.setStyle(from);
+	
+	// Force computation.. Removes the need for timers
+	PB.each(to, function ( key ) {
+		
+		me.getStyle( key );
+	});
 	
 	// 
 	me.setStyle(to);
@@ -90,6 +98,8 @@ function ( to ) {
 			
 			return;
 		}
+		
+		morph.running = false;
 		
 		// Remove transition from element
 		me.setStyle({
