@@ -1796,7 +1796,7 @@ function ( to ) {
 	PB.each(to, function ( key, value ) {
 
 		properties += PB.String.decamelize( key )+',';
-		from[key] = me.getStyle( key );
+		from[key] = me.getStyle( key, true );
 	});
 
 	properties = properties.substr( 0, properties.length-1 );
@@ -1808,7 +1808,9 @@ function ( to ) {
 
 	this.setStyle(from);
 
-	morph.initTimer = setTimeout(function() {
+	me.setStyle(to);
+
+/*	morph.initTimer = setTimeout(function() {
 
 		if( !me.node ) {
 
@@ -1817,7 +1819,7 @@ function ( to ) {
 
 		me.setStyle(to);
 
-	}, 16.7);
+	}, 16.7);*/
 
 	morph.endTimer = setTimeout(function() {
 
@@ -1837,7 +1839,7 @@ function ( to ) {
 			options.callback( me );
 		}
 
-	}, (options.duration*1000)+20);
+	}, (options.duration*1000));
 
 	this.set('__morph', morph);
 } :
@@ -1881,6 +1883,8 @@ PB.dom.stopMorph = function ( skipToEnd ) {
 
 		PB.each(morph.to, function ( property ) {
 
+			me.getStyle(property, true);
+
 			me.setStyle(property, '');
 		});
 	}
@@ -1888,11 +1892,17 @@ PB.dom.stopMorph = function ( skipToEnd ) {
 	morph.to.transitionProperty = '';
 	morph.to.transitionDuration = '';
 
-	setTimeout(function() {
+	me.getStyle('transitionProperty', true);
+	me.getStyle('transitionDuration', true);
+
+	me.setStyle(morph.to);
+
+/*	setTimeout(function() {
 
 		me.setStyle(morph.to);
-	}, 16.7);
+	}, 16.7);*/
 
+	morph.to = void 0;
 	morph.running = false;
 
 	return this;

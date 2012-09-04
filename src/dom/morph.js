@@ -48,7 +48,7 @@ function ( to ) {
 	PB.each(to, function ( key, value ) {
 		
 		properties += PB.String.decamelize( key )+',';
-		from[key] = me.getStyle( key );
+		from[key] = me.getStyle( key, true );
 	});
 	
 	// Strip trailing comma
@@ -64,10 +64,13 @@ function ( to ) {
 	
 	// Set from styles inline
 	this.setStyle(from);
+	
+	// 
+	me.setStyle(to);
 
 	// Firefox seems to fail when setting the to styles
 	// immediately, so add a timer for the next 'css render frame'
-	morph.initTimer = setTimeout(function() {
+/*	morph.initTimer = setTimeout(function() {
 		
 		// Element could be removed, check
 		if( !me.node ) {
@@ -77,7 +80,7 @@ function ( to ) {
 		
 		me.setStyle(to);
 		
-	}, 16.7);
+	}, 16.7);*/
 	
 	// Timer to trigger callback and reset transition properties
 	morph.endTimer = setTimeout(function() {
@@ -101,7 +104,7 @@ function ( to ) {
 			options.callback( me );
 		}
 
-	}, (options.duration*1000)+20);
+	}, (options.duration*1000));
 
 	this.set('__morph', morph);	
 } :
@@ -149,6 +152,10 @@ PB.dom.stopMorph = function ( skipToEnd ) {
 		// Firefox workaround
 		PB.each(morph.to, function ( property ) {
 			
+			// Force computation.. Removes the need for timers
+			me.getStyle(property, true);
+			
+			// Reset style
 			me.setStyle(property, '');
 		});
 	}
@@ -156,17 +163,24 @@ PB.dom.stopMorph = function ( skipToEnd ) {
 	morph.to.transitionProperty = '';
 	morph.to.transitionDuration = '';
 	
+	// Force computation.. Removes the need for timers
+	me.getStyle('transitionProperty', true);
+	me.getStyle('transitionDuration', true);
+	
+	// Set styles
+	me.setStyle(morph.to);
+	
 	// And again, we need the next renderframe for firefox :( Firefox still animates the
 	// the styles after removing transitionProperty and transitionDuration. So therefore we're also
 	// resetting the style and after the next renderframe we set the end styles..
 	// This could give such very strange results..
-	setTimeout(function() {
+/*	setTimeout(function() {
 		
 		me.setStyle(morph.to);
-	}, 16.7);
+	}, 16.7);*/
 	
 	// morph.to should be cleared if firefox has being fixed :)
-//	morph.to = void 0;
+	morph.to = void 0;
 	morph.running = false;
 	
 	return this;
