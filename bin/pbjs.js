@@ -1756,7 +1756,8 @@ function morphArgs ( args ) {
 
 	var options = {
 
-		duration: .4
+		duration: .4,
+		effect: 'ease'
 	};
 
 	for( var i = 1 ; i < args.length; i++ ) {
@@ -1769,6 +1770,10 @@ function morphArgs ( args ) {
 
 			case 'number':
 				options.duration = args[i];
+				break;
+
+			case 'string':
+				options.effect = PB.String.decamelize(args[i]);
 				break;
 		}
 	}
@@ -1785,38 +1790,43 @@ PB.dom.morph = PB.support.CSSTransition ?
 function ( to ) {
 
 	var me = this,
-		from = {},
-		properties = '',
 		options = morphArgs( arguments ),
-		morph = this.get('__morph') || {};
+		morph = this.get('__morph') || {},
+		from = {};
 
-	this.stopMorph();
+	if( morph.running ) {
+
+		this.stop(false, true);
+	}
 
 	morph.to = to;
+	morph.callback = options.callback;
 	morph.running = true;
 
-	PB.each(to, function ( key, value ) {
+	from.transition = 'all '+options.duration+'s '+options.effect;
 
-		properties += PB.String.decamelize( key )+',';
-		from[key] = me.getStyle( key, true );
+	PB.each(to, function ( property ) {
+
+		from[property] = me.getStyle( property, true );
 	});
-
-	properties = properties.substr( 0, properties.length-1 );
-
-	from.transitionProperty = properties;
-	from.transitionDuration = options.duration+'s';
-
-	from.transitionTimingFunction = 'ease';
 
 	this.setStyle(from);
 
-	PB.each(to, function ( key ) {
+	PB.each(to, function ( property ) {
 
-		me.getStyle( key, true );
+		me.getStyle( property, true );
 	});
 
-	me.setStyle(to);
+	/* Example code to force `GPU`
+	if( to.left && to.top && !to.transform ) {
 
+		to.transform = 'translate('+addUnits('left', to.left)+', '+addUnits('top', to.top)+')';
+		delete to.left;
+		delete to.top;
+	}
+	*/
+
+	me.setStyle(to);
 
 	morph.endTimer = setTimeout(function() {
 
@@ -1829,8 +1839,7 @@ function ( to ) {
 
 		me.setStyle({
 
-			'transitionProperty': '',
-			'transitionDuration': ''
+			transition: ''
 		});
 
 		if( options.callback ) {
@@ -1841,6 +1850,8 @@ function ( to ) {
 	}, (options.duration*1000));
 
 	this.set('__morph', morph);
+
+	return this;
 } :
 function ( to ) {
 
@@ -1857,52 +1868,51 @@ function ( to ) {
 /**
  * Stop morphing
  *
- * @param {boolean}
+ * @param {boolean} (optional)
+ * @param {boolean} (optional)
+ * @return this
  */
-PB.dom.stopMorph = function ( skipToEnd ) {
+PB.dom.stop = function ( skipToEnd, triggerCallback ) {
 
 	var me = this,
-		morph = this.get('__morph') || {};
+		morph = this.get('__morph');
 
-	if( !morph.running ) {
+	if( !morph || !morph.running ) {
 
 		return this;
 	}
 
-	clearTimeout( morph.initTimer );
+	triggerCallback = (triggerCallback === undefined) ? true : !!triggerCallback;
+
+	morph.running = false;
+
 	clearTimeout( morph.endTimer );
 
-	if( !skipToEnd ) {
+	if( skipToEnd ) {
+
+		PB.each(morph.to, function ( property ) {
+
+			me.setStyle(property, '');
+			me.getStyle(property, true);
+		});
+	}
+	else {
 
 		PB.each(morph.to, function ( property ) {
 
 			morph.to[property] = me.getStyle(property, true);
 		});
-	} else {
-
-		PB.each(morph.to, function ( property ) {
-
-			me.getStyle(property, true);
-
-			me.setStyle(property, '');
-		});
 	}
 
-	morph.to.transitionProperty = '';
-	morph.to.transitionDuration = '';
+	morph.to.transition = '';
 
-	me.getStyle('transitionProperty', true);
-	me.getStyle('transitionDuration', true);
 
-	me.setStyle(morph.to);
+	this.setStyle(morph.to);
 
-/*	setTimeout(function() {
+	if( triggerCallback && morph.callback ) {
 
-		me.setStyle(morph.to);
-	}, 16.7);*/
-
-	morph.to = void 0;
-	morph.running = false;
+		morph.callback( this );
+	}
 
 	return this;
 }
