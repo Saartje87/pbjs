@@ -1042,13 +1042,15 @@ var _Event = {
 	purge: function ( uid ) {
 
 		var cache = _Event.cache[uid],
-			element = PB(cache.node),
+			element,
 			key;
 
 		if( !cache ) {
 
 			return;
 		}
+
+		element = PB(cache.node);
 
 		for( key in cache ) {
 

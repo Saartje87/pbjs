@@ -49,7 +49,7 @@ var _Event = {
 	purge: function ( uid ) {
 
 		var cache = _Event.cache[uid],
-			element = PB(cache.node),
+			element,
 			key;
 
 		// No event set
@@ -57,6 +57,8 @@ var _Event = {
 
 			return;
 		}
+		
+		element = PB(cache.node);
 
 		// Loop trough event names (click, mouseenter, etc..) and detach events
 		for( key in cache ) {
