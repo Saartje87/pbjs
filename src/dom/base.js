@@ -21,7 +21,8 @@ var Dom = PB.Dom = function ( node ) {
 	this._flagged_ = (node === win || node === doc || node === docElement || node === body);
 }
 
-// Use PB.dom for extenstion
+// Use PB.dom to add extenstion
+// PB.dom.myMethod = function () {...}
 PB.dom = PB.Dom.prototype;
 
 /**

@@ -47,7 +47,9 @@ PB.extend = function ( target, source ) {
 }
 
 /**
- * Loop trough object
+ * Walk trough object
+ *
+ * When returning true in the callback method, the crawling stops
  * 
  * fn arguments: key, value
  * 
