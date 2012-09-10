@@ -9,11 +9,7 @@ PB.overwrite(PB.dom, {
 		
 	get: function ( key ) {
 
-		var value = this.storage[key];
-
-		return value !== undefined
-			? value
-			: undefined;
+		return this.storage[key];
 	},
 	
 	unset: function ( key ) {
