@@ -49,6 +49,7 @@ var _Event = {
 	purge: function ( uid ) {
 
 		var cache = _Event.cache[uid],
+			element = PB(cache.node),
 			key;
 
 		// No event set
@@ -62,7 +63,7 @@ var _Event = {
 
 			if( cache.hasOwnProperty(key) && key !== 'node' ) {
 
-				Dom.get(cache.node).off( key );
+				element.off( key );
 			}
 		}
 
@@ -220,6 +221,11 @@ PB.overwrite(PB.dom, {
 	on: function ( type, handler, context ) {
 
 		var types = type.split(' ');
+		
+		if ( typeof handler !== 'function' ) {
+			
+			throw new TypeError('element.on(\''+type+'\'), handler is not a function');
+		}
 
 		// Handle multible events
 		if( types.length > 1 ) {
