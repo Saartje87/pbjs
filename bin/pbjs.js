@@ -89,7 +89,9 @@ PB.extend = function ( target, source ) {
 }
 
 /**
- * Loop trough object
+ * Walk trough object
+ *
+ * When returning true in the callback method, the crawling stops
  *
  * fn arguments: key, value
  *
@@ -809,7 +811,7 @@ PB.extend(Date, {
 
 	now: function () {
 
-		return (new Date()).getTime();
+		return +new Date;
 	}
 });
 
@@ -916,7 +918,7 @@ Dom.get = function ( element ) {
 /**
  *
  */
-var Collection = PB.Collection = function ( collection ) {
+PB.Collection = function ( collection ) {
 
 	var i = 0;
 
@@ -934,7 +936,7 @@ var Collection = PB.Collection = function ( collection ) {
 	}
 };
 
-Collection.prototype = {
+PB.Collection.prototype = {
 
 	/**
 	 *
@@ -951,7 +953,7 @@ Collection.prototype = {
 
 		var args = PB.toArray(arguments),
 			method = args.shift(),
-			col = new Collection(),
+			col = new PB.Collection(),
 			i = 0;
 
 		var pushToCol = function( current ) { col.push( current[method].apply( current, args ) ); };
@@ -1040,6 +1042,7 @@ var _Event = {
 	purge: function ( uid ) {
 
 		var cache = _Event.cache[uid],
+			element = PB(cache.node),
 			key;
 
 		if( !cache ) {
@@ -1051,7 +1054,7 @@ var _Event = {
 
 			if( cache.hasOwnProperty(key) && key !== 'node' ) {
 
-				Dom.get(cache.node).off( key );
+				element.off( key );
 			}
 		}
 
@@ -1197,6 +1200,11 @@ PB.overwrite(PB.dom, {
 	on: function ( type, handler, context ) {
 
 		var types = type.split(' ');
+
+		if ( typeof handler !== 'function' ) {
+
+			throw new TypeError('element.on(\''+type+'\'), handler is not a function');
+		}
 
 		if( types.length > 1 ) {
 
@@ -1413,6 +1421,9 @@ PB.overwrite(PB.dom, {
 	}
 });
 
+/**
+ *
+ */
 PB.ready = (function () {
 
 	var ready = doc.readyState === 'complete',
@@ -1423,7 +1434,7 @@ PB.ready = (function () {
 		var callback;
 
 		ready = true;
-		body = document.body;
+		body = doc.body;
 
 		while( callback = queue.shift() ) {
 
@@ -1435,7 +1446,7 @@ PB.ready = (function () {
 
 		try {
 
-			document.body.scrollLeft;
+			doc.body.scrollLeft;
 			execQueue();
 		} catch ( e ) {
 
@@ -1462,6 +1473,7 @@ PB.ready = (function () {
 		callback();
 	};
 })();
+
 PB.overwrite(PB.dom, {
 
 	set: function ( key, value ) {
@@ -1473,11 +1485,7 @@ PB.overwrite(PB.dom, {
 
 	get: function ( key ) {
 
-		var value = this.storage[key];
-
-		return value !== undefined
-			? value
-			: undefined;
+		return this.storage[key];
 	},
 
 	unset: function ( key ) {
@@ -1549,13 +1557,15 @@ PB.overwrite(PB.dom, {
 	 */
 	select: function( start, length ) {
 
-		var node = this.node;
+		var node = this.node,
+			value = this.val(),
+			range;
 
-	    if ( PB(node).val() ) {
+	    if ( value ) {
 
 		    if ( !length ){ // default: select all
 
-		        length = ( start ) ? start : PB(node).val().length;
+		        length = ( start ) ? start : value.length;
 		        start = 0;
 		    }
 
@@ -1563,7 +1573,7 @@ PB.overwrite(PB.dom, {
 
 		        document.selection.empty();
 
-		        var range = node.createTextRange();
+		        range = node.createTextRange();
 
 		        range.collapse( true );
 
@@ -1577,7 +1587,6 @@ PB.overwrite(PB.dom, {
 			    node.setSelectionRange( start, start+length );
 		    }
 	    }
-
 	}
 
 });
@@ -1586,13 +1595,13 @@ var unit = /^-?[\d.]+px$/i,
 	opacity = /alpha\(opacity=(.*)\)/i,
 	noPixel = /(thin|medium|thick|em|ex|pt|%)$/,
 	computedStyle = doc.defaultView && doc.defaultView.getComputedStyle,
+	vendorDiv = doc.createElement('div'),
+	supportsOpacity = vendorDiv.style.opacity !== undefined,
+	supportsCssFloat = vendorDiv.style.cssFloat !== undefined,
 	skipUnits = 'zIndex zoom fontWeight opacity',
 	cssPrefixProperties = 'animationName transform transition transitionProperty transitionDuration transitionTimingFunction boxSizing'.split(' '),
 	cssPropertyMap = {},
 	vendorPrefixes = 'O ms Moz Webkit'.split(' '),
-	vendorDiv = doc.createElement('div'),
-	supportsOpacity = vendorDiv.style.opacity !== undefined,
-	supportsCssFloat = vendorDiv.style.cssFloat !== undefined,
 	i = vendorPrefixes.length;
 
 /**
@@ -1785,6 +1794,7 @@ function morphArgs ( args ) {
  * @todo add 'effect' arguments
  *
  * Firefox bug, https://bugzilla.mozilla.org/show_bug.cgi?id=604074
+ * https://developer.mozilla.org/en-US/docs/CSS/transition-timing-function
  */
 PB.dom.morph = PB.support.CSSTransition ?
 function ( to ) {
@@ -1803,7 +1813,7 @@ function ( to ) {
 	morph.callback = options.callback;
 	morph.running = true;
 
-	from.transition = 'all '+options.duration+'s '+options.effect;
+	from.transition = 'all '+options.duration+'s '+options.effect+' 0s';
 
 	PB.each(to, function ( property ) {
 
@@ -1817,8 +1827,9 @@ function ( to ) {
 		me.getStyle( property, true );
 	});
 
-	/* Example code to force `GPU`
-	if( to.left && to.top && !to.transform ) {
+	/* Example code to force `GPU` */
+	/*
+	if( (to.left !== undefined && to.top !== undefined) && !to.transform ) {
 
 		to.transform = 'translate('+addUnits('left', to.left)+', '+addUnits('top', to.top)+')';
 		delete to.left;
@@ -2009,6 +2020,7 @@ PB.overwrite(PB.dom, {
 	},
 
 	getXY: function ( fromBody ) {
+
 
 		var node = this.node,
 			x = 0,
@@ -2286,7 +2298,7 @@ PB.overwrite(PB.dom, {
 	 */
 	childs: function () {
 
-		var childs = new Collection,	// new Collection
+		var childs = new PB.Collection,	// new Collection
 			node = this.first();
 
 		if( node === null ) {
@@ -2365,56 +2377,16 @@ PB.overwrite(PB.dom, {
 	},
 
 	/**
-	 * Find elements contained in the current node
+	 * Find elements trough CSS expression, searching from within
+	 * the current element.
 	 *
 	 * @param string
 	 * @return <PBDomCollection>
 	 */
 	find: function ( expression ) {
 
-		return new Collection( qwery( expression, this.node ).map(Dom.get) );
+		return new PB.Collection( qwery( expression, this.node ).map(Dom.get) );
 	}
-
-	/**
-	 * Find first parent with non static position property
-	 */
-	/* Not sure if code is needed :)
-	offsetParent: function () {
-
-		var element = this,
-			position = element.getStyle('position');
-
-		if( position === 'relative' ) {
-
-			return element.parent();
-		}
-
-		while( element = element.parent() ) {
-
-			if( element.nodeName === 'BODY' || element.getStyle('position') !== 'static' ) {
-
-				break;
-			}
-		}
-
-		return element;
-	},
-
-	scrollParent: function () {
-
-		var element = this;
-
-		while( element = element.parent() ) {
-
-			if( element.nodeName === 'BODY' || element.getStyle('overflow') !== 'hidden' ) {
-
-				break;
-			}
-		}
-
-		return element;
-	}
-	*/
 });
 
 var tableInnerHTMLbuggie = false;
@@ -2983,7 +2955,7 @@ PB.Request = PB.Class(PB.Observer, {
 
 		request.send( params );
 
-		if( async === false ) {
+		if( !async ) {
 
 			this.onreadystatechange();
 		}
