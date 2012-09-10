@@ -95,7 +95,7 @@ PB.overwrite(PB.dom, {
 	 */
 	childs: function () {
 		
-		var childs = new Collection,	// new Collection
+		var childs = new PB.Collection,	// new Collection
 			node = this.first();
 		
 		if( node === null ) {
@@ -175,57 +175,15 @@ PB.overwrite(PB.dom, {
 	},
 	
 	/**
-	 * Find elements contained in the current node
+	 * Find elements trough CSS expression, searching from within
+	 * the current element.
 	 *
 	 * @param string
 	 * @return <PBDomCollection>
 	 */
 	find: function ( expression ) {
 		
-		return new Collection( qwery( expression, this.node ).map(Dom.get) );
+		return new PB.Collection( qwery( expression, this.node ).map(Dom.get) );
 	}
-	
-	/**
-	 * Find first parent with non static position property
-	 */
-	/* Not sure if code is needed :)
-	offsetParent: function () {
-		
-		var element = this,
-			position = element.getStyle('position');
-		
-		if( position === 'relative' ) {
-			
-			return element.parent();
-		}
-		
-		while( element = element.parent() ) {
-			
-			// Use body
-			if( element.nodeName === 'BODY' || element.getStyle('position') !== 'static' ) {
-				
-				break;
-			}
-		}
-		
-		return element;
-	},
-	
-	scrollParent: function () {
-		
-		var element = this;
-		
-		while( element = element.parent() ) {
-			
-			// Use body
-			if( element.nodeName === 'BODY' || element.getStyle('overflow') !== 'hidden' ) {
-				
-				break;
-			}
-		}
-		
-		return element;
-	}
-	*/
 });
 
