@@ -134,16 +134,18 @@ PB.overwrite(PB.dom, {
 	remove: function () {
 
 		var node = this.node,
-			pbid = node.__PBJS_ID__,
-			morph;
-
-		if( morph = this.get('pbjs-morph') ) {
-
-			morph.off();
+			pbid = node.__PBJS_ID__;
+		
+		// Stop morph if needed, do not trigger callback etc
+		if( this.get('__morph') ) {
+			
+			this.stop(false, false);
 		}
-
+		
+		// Purge all attached events
 		_Event.purge( pbid );
-
+		
+		// Only do removeChild when element has a parentNode
 		if( node.parentNode ) {
 
 			node.parentNode.removeChild( node );
@@ -151,7 +153,8 @@ PB.overwrite(PB.dom, {
 		
 		// Clear storage
 		this.node = this.storage = node = null;
-
+		
+		// Clear cache
 		delete PB.cache[pbid];
 	},
 

@@ -2527,12 +2527,11 @@ PB.overwrite(PB.dom, {
 	remove: function () {
 
 		var node = this.node,
-			pbid = node.__PBJS_ID__,
-			morph;
+			pbid = node.__PBJS_ID__;
 
-		if( morph = this.get('pbjs-morph') ) {
+		if( this.get('__morph') ) {
 
-			morph.off();
+			this.stop(false, false);
 		}
 
 		_Event.purge( pbid );
@@ -3135,16 +3134,16 @@ return PB;
 });
 
 /*!
-  * Qwery - A Blazing Fast query selector engine
+  * @preserve Qwery - A Blazing Fast query selector engine
   * https://github.com/ded/qwery
-  * copyright Dustin Diaz & Jacob Thornton 2011
+  * copyright Dustin Diaz & Jacob Thornton 2012
   * MIT License
   */
 
-(function (name, definition) {
-  if (typeof module != 'undefined') module.exports = definition()
-  else if (typeof define == 'function' && typeof define.amd == 'object') define(definition)
-  else this[name] = definition()
+(function (name, definition, context) {
+  if (typeof module != 'undefined' && module.exports) module.exports = definition()
+  else if (typeof context['define'] == 'function' && context['define']['amd']) define(name, definition)
+  else context[name] = definition()
 })('qwery', function () {
   var doc = document
     , html = doc.documentElement
@@ -3475,5 +3474,5 @@ return PB;
   qwery.pseudos = {}
 
   return qwery
-});
+}, this);
 
