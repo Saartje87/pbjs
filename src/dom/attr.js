@@ -56,13 +56,15 @@ PB.overwrite(PB.dom, {
 	 */
 	select: function( start, length ) {
 
-		var node = this.node;
+		var node = this.node,
+			value = this.val(),
+			range;
 
-	    if ( PB(node).val() ) {
+	    if ( value ) {
 
 		    if ( !length ){ // default: select all
 
-		        length = ( start ) ? start : PB(node).val().length;
+		        length = ( start ) ? start : value.length;
 		        start = 0;
 		    }
 
@@ -70,7 +72,7 @@ PB.overwrite(PB.dom, {
 
 		        document.selection.empty();
 
-		        var range = node.createTextRange();
+		        range = node.createTextRange();
 
 		        range.collapse( true );
 
@@ -84,7 +86,6 @@ PB.overwrite(PB.dom, {
 			    node.setSelectionRange( start, start+length );
 		    }
 	    }
-
 	}
 
 });
