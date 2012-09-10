@@ -117,7 +117,7 @@ PB.Request = PB.Class(PB.Observer, {
 		// Send the request
 		request.send( params );
 
-		if( async === false ) {
+		if( !async ) {
 
 			this.onreadystatechange();
 		}
