@@ -2556,21 +2556,11 @@ PB.overwrite(PB.dom, {
 	/**
 	 * @todo script tags with src tag set should be appended to document
 	 */
-	html: function ( html, execScripts ) {
+	html: function ( html, evalScripts ) {
 
 		if( html === undefined ) {
 
 			return this.node.innerHTML;
-		}
-
-		if( execScripts ) {
-
-			html = html.replace(/<script[^>]*>([\s\S]*?)<\/script>/ig, function ( match, text ) {
-
-				PB.exec( text );
-
-				return '';
-			});
 		}
 
 		if( tableInnerHTMLbuggie ) {
@@ -2605,6 +2595,21 @@ PB.overwrite(PB.dom, {
 		}
 
 		this.node.innerHTML = html;
+
+		if( evalScripts ) {
+
+			html = html.replace(/<script(?:\ssrc="(.*?)")*[^>]*>([\s\S]*?)<\/script>/ig, function ( match, src, text ) {
+
+				if( src ) {
+
+				} else if( text ) {
+
+					PB.exec( text );
+				}
+
+				return '';
+			});
+		}
 
 		return this;
 	},

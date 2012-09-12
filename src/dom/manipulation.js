@@ -168,23 +168,11 @@ PB.overwrite(PB.dom, {
 	/**
 	 * @todo script tags with src tag set should be appended to document
 	 */
-	html: function ( html, execScripts ) {
+	html: function ( html, evalScripts ) {
 
 		if( html === undefined ) {
 
 			return this.node.innerHTML;
-		}
-
-		if( execScripts ) {
-
-			// Replace script tags in html string and executes the contents of the
-			// script tag
-			html = html.replace(/<script[^>]*>([\s\S]*?)<\/script>/ig, function ( match, text ) {
-
-				PB.exec( text );
-
-				return '';
-			});
 		}
 
 		// IE <= 9 table innerHTML issue
@@ -220,6 +208,25 @@ PB.overwrite(PB.dom, {
 		}
 
 		this.node.innerHTML = html;
+		
+		// 
+		if( evalScripts ) {
+
+			// Replace script tags in html string and executes the contents of the
+			// script tag
+			html = html.replace(/<script(?:\ssrc="(.*?)")*[^>]*>([\s\S]*?)<\/script>/ig, function ( match, src, text ) {
+				
+				if( src ) {
+					
+					// Add external tag
+				} else if( text ) {
+					
+					PB.exec( text );	
+				}
+
+				return '';
+			});
+		}
 
 		return this;
 	},
