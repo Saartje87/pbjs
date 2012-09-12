@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8' />
+    <meta http-equiv="X-UA-Compatible" content="chrome=1" />
+    <meta name="description" content="Pbjs : pbjs oop javascript framework" />
+
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+
+    <title>Pbjs</title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/Saartje87/pbjs">View on GitHub</a>
+
+          <h1 id="project_title">Pbjs</h1>
+          <h2 id="project_tagline">pbjs oop javascript framework</h2>
+
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/Saartje87/pbjs/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/Saartje87/pbjs/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <h1>pbjs</h1>
+
+<h2>About</h2>
+
+<p><em>pbjs</em> is small and lightweight object orientated framework (<em>Production size:</em> <a href="https://github.com/Saartje87/pbjs/tree/master/bin/pbjs.min.js">~10kb</a>).</p>
+
+<p>Compared to other DOM based alternatives, like jQuery, <a href="http://zeptojs.com/">Zepto</a> or <a href="http://quojs.tapquo.com/">QuoJS</a>, it has a focus on cross-browser/device compatibility and performance. Through the modular design it can be extended with various plugins.</p>
+
+<h2>Concept</h2>
+
+<p>The usage of <em>pbjs</em> is quite easy, especially if you are familiar with other frameworks. Every method mentioned in the docs is a part of the global 'PB'-object. Some of the methods needs to be used on a wrapped element, but most general tasks could be used solely.</p>
+
+<p>Since a reference to itself will always be returned - fluent programming via method chaining is possible.</p>
+
+<p>In contrast to most AJAX libraries, pbjs was created for developing interactive web applications instead of effects or widgets.</p>
+
+<p><em>pbjs</em> focuses on <code>efficient coding</code> to improve the performance.</p>
+
+<p>Following this principle it forces the developer to use best practice solutions in JavaScript and an appropriate coding style.</p>
+
+<p>A few ways to achieve this:</p>
+
+<ul>
+<li>usage of native functions instead of custom regex matches: the general element selector will be an element ID</li>
+<li>caring about bottlenecks, especially the DOM: everything will be cached internaly to simplify the re-usage</li>
+<li>dont repeat yourself (DRY): using clear function names to avoid multiple declarations for the same purpose</li>
+<li>the future right now: instead of custom calls for general tasks, ES5 polyfills are included</li>
+<li>supporting OOP approaches: ease the paradigm through the included class construct &amp; inheritance</li>
+<li>don't wait for it: the framework is defined in the CommonJS way for async module loading</li>
+<li>understand what you do: find a method in the modular structured source</li>
+</ul><p>Of course it works quite well with common <a href="http://addyosmani.com/resources/essentialjsdesignpatterns/book/">design patterns</a>.</p>
+
+<h2>Usage</h2>
+
+<p>By default elements used by the pbjs will be cached. A garbage collector will free the memory when they are removed from the DOM trough emptying the html. To compensate the cost of rarely used object it is neccessary to create new ones or keep them alive (<em>see PB.Request</em>).</p>
+
+<h3>Wrapper (Selector &amp; Create)</h3>
+
+<p>The 'PB'-object can use input for different purposes:</p>
+
+<ol>
+<li>
+<p>Element ID - selector </p>
+
+<pre><code>// Retrieve single element    
+PB('element_id')
+</code></pre>
+</li>
+<li>
+<p>DOM node selector (regular &amp; cached)</p>
+
+<pre><code>// Select single element
+PB(document.body)
+</code></pre>
+</li>
+<li>
+<p>creating elements</p>
+
+<pre><code>// Create an element     
+PB('&lt;h1&gt;Peanut Butter and Jelly Sandwich!&lt;/h1&gt;').appendTo( [Object PBDom] )
+</code></pre>
+</li>
+</ol><h3>Request</h3>
+
+<p>To do a HTTP-Request, a new Request-Object has to be created and configured with data.</p>
+
+<pre><code>// Create &amp; configure a new request object
+var req = new PB.Request({
+
+    url: '42.nl',
+    data:{ 
+        foo: 'bar'
+    },
+    method: 'POST'        
+});
+</code></pre>
+
+<p>Afterwards a callback can be declared, which should be triggered on the result of the sending.</p>
+
+<pre><code>// Attach listener &amp; callback
+req.on('success', function ( res ) {
+
+    // represents the response as an object
+    console.log( res.responseJSON );
+
+}).send();
+</code></pre>
+
+<h3>Collections</h3>
+
+<p>Collections in <em>pbjs</em> are used to select a set of elements. Methods which are supposed to output multiple values returns a collection. </p>
+
+<pre><code>// Store collection, crawling is heavy :)
+var collection = PB('element_id').find('div.peanut);
+</code></pre>
+
+<p>Beside normal Array methods, invokations can be used for mutations as well.</p>
+
+<pre><code>// Invoke collection with PB.Dom method
+collection.invoke('setStyle', { color: 'brown', backgroundColor: 'purple });
+</code></pre>
+
+<h3>Style</h3>
+
+<p>There are two ways in <em>pbjs</em> to support CSS - static and transitional. Both work prefix free, allowing to focus on the input rather than cross browser issues.</p>
+
+<blockquote>
+<p>Note that css properties are given in camel case</p>
+</blockquote>
+
+<ol>
+<li>
+<p>setStyle / getStyle</p>
+
+<pre><code>// Receive the current style
+PB('element_id').getStyle('opacity');
+
+//  Adding style properties (including CSS3)
+PB('element_id').setStyle('transform', 'rotate(30deg)');
+</code></pre>
+</li>
+<li>
+<p>morph (Transitions)</p>
+
+<pre><code>// Change the style over a time period
+login.morph({                     
+   opacity: current/2        
+}, 1.2 /* 1.2 seconds */, function( element ){        
+   element.remove();
+});
+</code></pre>
+</li>
+</ol><h3>Classes</h3>
+
+<p>Classes are usefull for creating complex structures and maintaining large applications. Through the abstraction layer of a class - it's very easy to create new objects which inherits from another one.</p>
+
+<pre><code>// Create an 'Animal' class
+var Animal = PB.Class({
+
+    // Class constructor
+    construct: function () {
+
+        console.log( 'I am an animal' );
+    }        
+});
+
+// Create an 'Ape' class, which extends the the former 'Animal'
+var Ape = PB.Class( Animal, {
+
+    construct: function () {            
+
+        console.log( 'I am an Ape' );
+    }        
+});
+
+new Ape; 
+
+// Result
+&gt; I'am an Ape
+</code></pre>
+
+<p>It's not just possible to access the inherited properties of the parent - but also get the result of an executed function directly.</p>
+
+<pre><code>var Goat = PB.Class( Animal, {
+
+    construct: function () {            
+
+        this.parent();
+        console.log( 'I am a Goat' );
+    }        
+});       
+
+new Goat;
+
+// Result
+&gt; I'am an Animal
+&gt; I'am a Goat
+</code></pre>
+
+<h3>CSS Selector</h3>
+
+<p>The principle of <em>efficient coding</em> doesn't exclude DOM crawling with CSS selectors - it just enforces the developer to re-think about his workflow. In cases where you need use classes (prefix 'js-' !), you first select a parent element and then use the method '.find('.className')'. As a result it returns a collection of 'PB(elements)'.</p>
+
+<pre><code>// Using CSS selector
+var entries = PB(document).find('.js-entries');
+</code></pre>
+
+<h3>Compatibility</h3>
+
+<ul>
+<li>IE7+</li>
+<li>Firefox 3+</li>
+<li>Safari 4+</li>
+<li>Opera</li>
+<li>Chrome</li>
+<li>Mobile (Tested with <em>Android, iPhone, Nokia, BlackBerry Tablet OS</em>)</li>
+</ul><h2>License</h2>
+
+<p>This project is under the MIT License.</p>
+
+<p><em>Powered by Pluxbox</em></p>
+
+<p><em>Copyright 2011-2012, Niek Saarberg</em></p>
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">Pbjs maintained by <a href="https://github.com/Saartje87">Saartje87</a></p>
+        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+              <script type="text/javascript">
+            var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+            document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+          </script>
+          <script type="text/javascript">
+            try {
+              var pageTracker = _gat._getTracker("UA-31724729-1");
+            pageTracker._trackPageview();
+            } catch(err) {}
+          </script>
+
+
+  </body>
+</html>
