@@ -30,11 +30,21 @@ var _Event = {
 	 *
 	 * @return function
 	 */
-	createResponder: function ( uid, type, handler, context ) {
+	createResponder: function ( uid, type, originalType, handler, context ) {
 
 		return function ( event ) {
 
 			event = _Event.extend( event, uid );
+			
+			// mouseleave support
+			// need fixes for mouseenter?
+			if( !_Event.supportsMouseenterMouseleave && originalType === 'mouseleave' ) {
+
+				if( event.currentTarget.contains(event.relatedTarget) ) {
+
+					return;
+				}
+			}
 
 			handler.call( context || _Event.cache[uid].node, event );
 		};
@@ -242,6 +252,7 @@ PB.overwrite(PB.dom, {
 		var node = this.node,
 			uid = node.__PBJS_ID__,
 			events = _Event.cache[uid],
+			originalType = type,
 			eventsType,
 			i;
 
@@ -281,7 +292,7 @@ PB.overwrite(PB.dom, {
 		var entry = {
 
 			handler: handler,
-			responder: _Event.createResponder( uid, type, handler, context )
+			responder: _Event.createResponder( uid, type, originalType, handler, context )
 		};
 
 		eventsType.push( entry );
