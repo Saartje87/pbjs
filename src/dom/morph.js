@@ -35,6 +35,7 @@ function morphArgs ( args ) {
  * @todo add 'effect' arguments
  *
  * Firefox bug, https://bugzilla.mozilla.org/show_bug.cgi?id=604074
+ * https://developer.mozilla.org/en-US/docs/CSS/transition-timing-function
  */
 PB.dom.morph = PB.support.CSSTransition ?
 function ( to ) {
@@ -57,7 +58,7 @@ function ( to ) {
 	morph.running = true;
 	
 	// Set transition property, will `all` be a safe value?
-	from.transition = 'all '+options.duration+'s '+options.effect;
+	from.transition = 'all '+options.duration+'s '+options.effect+' 0s';
 	
 	// Calculate current styles
 	PB.each(to, function ( property ) {
@@ -74,8 +75,9 @@ function ( to ) {
 		me.getStyle( property, true );
 	});
 	
-	/* Example code to force `GPU`
-	if( to.left && to.top && !to.transform ) {
+	/* Example code to force `GPU` */
+	/*
+	if( (to.left !== undefined && to.top !== undefined) && !to.transform ) {
 		
 		to.transform = 'translate('+addUnits('left', to.left)+', '+addUnits('top', to.top)+')';
 		delete to.left;

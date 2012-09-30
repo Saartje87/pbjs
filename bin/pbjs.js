@@ -951,30 +951,35 @@ PB.Collection.prototype = {
 	 */
 	invoke: function () {
 
-		var args = PB.toArray(arguments),
+		var args = slice.call(arguments, 0),
 			method = args.shift(),
-			col = new PB.Collection(),
-			i = 0;
+			results = [],
+			result,
+			i = 0,
+			j;
 
-		var pushToCol = function( current ) { col.push( current[method].apply( current, args ) ); };
+		if( typeof PB.dom[method] !== 'function' ) {
 
-		for ( ; i < this.length; i++ ){
+			throw new TypeError('First arguments should be an PB.dom method. Method '+method+' given.')
+		}
 
-			if ( PB.type(this[i]) === 'PBDomCollection' ) {
+		for( ; i < this.length; i++ ) {
 
-				PB.toArray( this[i] ).forEach( pushToCol );
+			result = PB.dom[method].apply( this[i], args );
 
-			} else if ( PB.type(this[i]) === 'PBDom' ) {
+			if( result.length ) {
 
-				col.push( this[i][method].apply( this[i], args ) );
+				for( j = 0; j < result.length; j++ ) {
 
+					results.push(result[j]);
+				}
 			} else {
 
-				this[i][method].apply( this[i], args );
+				results.push( result );
 			}
 		}
 
-		return (col.length) ? col : this;
+		return new PB.Collection(results);
 	},
 
 	/**
@@ -1023,11 +1028,19 @@ var _Event = {
 	 *
 	 * @return function
 	 */
-	createResponder: function ( uid, type, handler, context ) {
+	createResponder: function ( uid, type, originalType, handler, context ) {
 
 		return function ( event ) {
 
 			event = _Event.extend( event, uid );
+
+			if( !_Event.supportsMouseenterMouseleave && originalType === 'mouseleave' ) {
+
+				if( event.currentTarget.contains(event.relatedTarget) ) {
+
+					return;
+				}
+			}
 
 			handler.call( context || _Event.cache[uid].node, event );
 		};
@@ -1220,6 +1233,7 @@ PB.overwrite(PB.dom, {
 		var node = this.node,
 			uid = node.__PBJS_ID__,
 			events = _Event.cache[uid],
+			originalType = type,
 			eventsType,
 			i;
 
@@ -1253,7 +1267,7 @@ PB.overwrite(PB.dom, {
 		var entry = {
 
 			handler: handler,
-			responder: _Event.createResponder( uid, type, handler, context )
+			responder: _Event.createResponder( uid, type, originalType, handler, context )
 		};
 
 		eventsType.push( entry );
@@ -1601,7 +1615,7 @@ var unit = /^-?[\d.]+px$/i,
 	supportsOpacity = vendorDiv.style.opacity !== undefined,
 	supportsCssFloat = vendorDiv.style.cssFloat !== undefined,
 	skipUnits = 'zIndex zoom fontWeight opacity',
-	cssPrefixProperties = 'animationName transform transition transitionProperty transitionDuration transitionTimingFunction boxSizing'.split(' '),
+	cssPrefixProperties = 'animationName transform transition transitionProperty transitionDuration transitionTimingFunction boxSizing backgroundSize boxReflect'.split(' '),
 	cssPropertyMap = {},
 	vendorPrefixes = 'O ms Moz Webkit'.split(' '),
 	i = vendorPrefixes.length;

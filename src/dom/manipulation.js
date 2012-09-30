@@ -209,7 +209,7 @@ PB.overwrite(PB.dom, {
 
 		this.node.innerHTML = html;
 		
-		// 
+		// Would be nicer to strip the tags before inserting the html :)
 		if( evalScripts ) {
 
 			// Replace script tags in html string and executes the contents of the
