@@ -20,7 +20,7 @@ PB.overwrite(PB.dom, {
 			// Already exists
 			if( this.hasClass(classNames[i]) ) {
 			
-				return this;
+				continue;
 			}
 		
 			this.node.className += (this.node.className ? ' ' : '')+classNames[i];
@@ -94,6 +94,8 @@ PB.overwrite(PB.dom, {
 	
 	getXY: function ( fromBody ) {
 		
+		// getBoundingClientRect
+		
 		var node = this.node,
 			x = 0,
 			y = 0;
@@ -144,6 +146,10 @@ PB.overwrite(PB.dom, {
 		}
 		
 		var node = this.node;
+		
+		// Do left and right border
+		// 	boxOffset = PB(node).getStyle('boxSizing') === 'border-box' ? PB(node).getStyle('borderLeftWidth') : 0;
+		// Add boxOffset to return value..
 		
 		if( node === window ) {
 			

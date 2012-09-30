@@ -1965,7 +1965,7 @@ PB.overwrite(PB.dom, {
 
 			if( this.hasClass(classNames[i]) ) {
 
-				return this;
+				continue;
 			}
 
 			this.node.className += (this.node.className ? ' ' : '')+classNames[i];
