@@ -2802,7 +2802,7 @@ PB.overwrite(PB.Net, {
 
 			PB.each(mixed, function ( key, value ) {
 
-				if( typeof value === 'object' ) {
+				if( typeof value === 'object' && value !== null ) {
 
 					query += PB.Net.buildQueryString( value, prefix ? prefix+'['+key+']' : key );
 				} else {
