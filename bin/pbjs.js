@@ -2098,7 +2098,7 @@ PB.overwrite(PB.dom, {
 			return Math.max(docElement.clientWidth, body.scrollWidth, docElement.offsetWidth);
 		}
 
-		if( value = this.getStyle('width', true) ) {
+		if( value = this.getStyle('width', true) && typeof value === 'number' ) {
 
 			return value;
 		}
@@ -2148,7 +2148,7 @@ PB.overwrite(PB.dom, {
 			return Math.max(docElement.clientHeight, body.scrollHeight, docElement.offsetHeight);
 		}
 
-		if( value = this.getStyle('height', true) ) {
+		if( value = this.getStyle('height', true) && typeof value === 'number' ) {
 
 			return value;
 		}
