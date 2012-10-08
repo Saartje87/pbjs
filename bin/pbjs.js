@@ -951,35 +951,30 @@ PB.Collection.prototype = {
 	 */
 	invoke: function () {
 
-		var args = slice.call(arguments, 0),
+		var args = PB.toArray(arguments),
 			method = args.shift(),
-			results = [],
-			result,
-			i = 0,
-			j;
+			col = new PB.Collection(),
+			i = 0;
 
-		if( typeof PB.dom[method] !== 'function' ) {
+		var pushToCol = function( current ) { col.push( current[method].apply( current, args ) ); };
 
-			throw new TypeError('First arguments should be an PB.dom method. Method '+method+' given.')
-		}
+		for ( ; i < this.length; i++ ){
 
-		for( ; i < this.length; i++ ) {
+			if ( PB.type(this[i]) === 'PBDomCollection' ) {
 
-			result = PB.dom[method].apply( this[i], args );
+				PB.toArray( this[i] ).forEach( pushToCol );
 
-			if( result.length ) {
+			} else if ( PB.type(this[i]) === 'PBDom' ) {
 
-				for( j = 0; j < result.length; j++ ) {
+				col.push( this[i][method].apply( this[i], args ) );
 
-					results.push(result[j]);
-				}
 			} else {
 
-				results.push( result );
+				this[i][method].apply( this[i], args );
 			}
 		}
 
-		return new PB.Collection(results);
+		return (col.length) ? col : this;
 	},
 
 	/**
