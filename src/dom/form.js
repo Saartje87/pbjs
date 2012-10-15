@@ -36,12 +36,12 @@ PB.overwrite(PB.dom, {
 						
 						if( option.selected ) {
 							
-							data[element.name].push( option.value );
+							data[element.name].push( PB(option).val() );
 						}
 					});
 				} else {
 					
-					data[element.name] = element.value;
+					data[element.name] = PB(element).val();
 				}
 			}
 		});
