@@ -1,7 +1,7 @@
 /**
  *
  */
-var Collection = PB.Collection = function ( collection ) {
+PB.Collection = function ( collection ) {
 	
 	var i = 0;
 
@@ -19,7 +19,7 @@ var Collection = PB.Collection = function ( collection ) {
 	}
 };
 
-Collection.prototype = {
+PB.Collection.prototype = {
 	
 	/**
 	 *
@@ -36,10 +36,15 @@ Collection.prototype = {
 
 		var args = PB.toArray(arguments),
 			method = args.shift(),
-			col = new Collection(),
+			col = new PB.Collection(),
 			i = 0;
 
 		var pushToCol = function( current ) { col.push( current[method].apply( current, args ) ); };
+		
+		if( typeof PB.dom[method] !== 'function' ) {
+
+			throw new TypeError('First arguments should be an PB.dom method. Method '+method+' given.')
+		}
 
 		for ( ; i < this.length; i++ ){
 

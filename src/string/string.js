@@ -1,18 +1,45 @@
-function camelCase ( str ) {
+/**
+ * pbjs string methods
+ */
+
+function camelize ( match, chr ) {
 	
-	return '-'+str.toLowerCase();
+	return chr ? chr.toUpperCase() : '';
 }
 
-PB.str = {
+function decamelize ( chr ) {
 	
-	camelCase: function ( str ) {
-		
-		return str.replace(/[A-Z]/g, camelCase);
-	},
+	return '-'+chr.toLowerCase();
+}
 
+PB.String = {
+	
+	/**
+	 * Parse string to camelcase string
+	 * 
+	 * border-color -> borderColor
+	 */
+	camelize: function ( str ) {
+		
+		return str.replace(/-+(.)?/g, camelize);
+	},
+	
+	/**
+	 * 
+	 * 
+	 * borderColor -> border-color
+	 */
+	decamelize: function ( str ) {
+		
+		return str.replace(/[A-Z]/g, decamelize);
+	},
+	
+	/**
+	 * http://simonwillison.net/2006/Jan/20/escape/
+	 */
     escapeRegex: function( str ) {
         
-        return str.replace(/(\.|\*|\?|\\|\^|\$)/g, '\\$1');
+		return str.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
     }
 };
 /*

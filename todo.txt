@@ -1,0 +1,53 @@
+PB.Collection -> Review, properly rewrite for performance..
+
+Decrease number of on-the-fly created functions
+
+Throttle method, PB.Throttle(function (){}, 200 /*ms*/);
+
+// Parse IE <= 8 non pixel property;
+	Create div in memory instead of recreating..
+
+Morph -> Fix transform.. ??
+	PB('el').morph({'transform': 'translateX(2000px)'})
+	
+Morph -> Prefer hardware accelerated values.
+	-> left -> transform: translateX()
+	-> top -> transform: translateY()
+	-> left + right -> PB('el').morph({'transform': 'translate(400px, 100px)'})
+	Note. Hardware acceleration works better on webkit browsers..
+
+getStyle('right', true) -> Wrong calculation on webkit.
+
+Add map to retrieve specifix properties, needed for morph.
+	-> borderWidth, map like {borderWidth: 'borderLeftWidth'}
+	-> borderColor, etc
+
+getBoundingClientRect for offset calculation?
+
+Re-think about PB.support / PB.browser
+
+Fix Object.getPrototypeOf
+
+PB('element').select(0, 10); // Right naming? .range or .selectRange or .selectTextRange ....
+
+Move browser supported stuff to support.js
+
+Make some sort of animation library, like PB.Animate(function (t) { PB.scrollTop(400*t) }, .4, 'ease', callback)
+
+PB().html() -> execScripts arg should also add external scripts to head
+
+background-image: -webkit-gradient(linear, center top, center bottom, from(white), to(black));
+
+Fix mouseenter / mouseleave support
+	-> mouseleave, if( PB(e.currentTarget).contains(e.relatedTarget) ) {
+		
+		return;
+	}
+
+PB.exec
+	-> add parseScript
+	-> rename, PB.gobalEval
+
+Add hooks
+	-> remove, for example we want to hook the UI destroy
+	-> PB.dom.hook('remove', function () {});

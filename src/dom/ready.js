@@ -1,3 +1,6 @@
+/**
+ * 
+ */
 PB.ready = (function () {
 
 	var ready = doc.readyState === 'complete',
@@ -8,7 +11,7 @@ PB.ready = (function () {
 		var callback;
 
 		ready = true;
-		body = document.body;
+		body = doc.body;
 
 		while( callback = queue.shift() ) {
 
@@ -20,7 +23,10 @@ PB.ready = (function () {
 
 		try {
 
-			docElement.doScroll('left');
+			// docElement.doScroll('left');
+			// Body existing? Experimental.. Solves iframe issue were body
+			// is not existing
+			doc.body.scrollLeft;
 			execQueue();
 		} catch ( e ) {
 
@@ -47,3 +53,4 @@ PB.ready = (function () {
 		callback();
 	};
 })();
+

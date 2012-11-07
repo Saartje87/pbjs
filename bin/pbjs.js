@@ -1,5 +1,5 @@
 /*!
- * pbjs JavaScript Framework v0.5.9
+ * pbjs JavaScript Framework v0.5.10
  * https://github.com/Saartje87/pbjs
  *
  * This project is powered by Pluxbox
@@ -38,7 +38,7 @@ var old = context.PB,
 
 PB.cache = old && old.cache ? old.cache : {};
 
-PB.VERSION = '0.5.9';
+PB.VERSION = '0.5.10';
 
 /**
  * Get unique id inside PB
@@ -89,7 +89,9 @@ PB.extend = function ( target, source ) {
 }
 
 /**
- * Loop trough object
+ * Walk trough object
+ *
+ * When returning true in the callback method, the crawling stops
  *
  * fn arguments: key, value
  *
@@ -139,7 +141,7 @@ PB.toArray = function ( collection ) {
 }
 
 /**
- *
+ * Deprecated since 0.5.10
  */
 PB.is = function ( type, mixed ) {
 
@@ -147,7 +149,14 @@ PB.is = function ( type, mixed ) {
 }
 
 /**
+ * Returns te primitive type of the given variable
  *
+ * PB.type([]) -> array
+ * PB.type('') -> string
+ * PB.type({}) -> object
+ *
+ * @param {mixed}
+ * @return {String}
  */
 PB.type = function ( mixed ) {
 
@@ -165,10 +174,10 @@ PB.type = function ( mixed ) {
 }
 
 /**
- * Execute script in global scope
+ * Executes script in global scope
  *
- * @param string
- * @return void
+ * @param {String}
+ * @return {Void}
  */
 PB.exec = function ( text ) {
 
@@ -237,7 +246,10 @@ PB.support = (function () {
 	return {
 
 		flash: flash || false,
-		touch: 'ontouchstart' in win
+		touch: 'ontouchstart' in win,
+
+		CSSTransition: false,
+		CSSAnimation: false
 	};
 })();
 
@@ -317,17 +329,33 @@ PB.Class.extend = function ( key, method ) {
 	this[key] = method;
 };
 
+/**
+ * Observer pattern
+ *
+ * Commonly used pattern in javascript, so we added it to pbjs
+ */
 PB.Observer = PB.Class({
 
+	/**
+	 * Initialize observer
+	 */
 	construct: function () {
 
 		this._listeners = {};
 		this._context = {};
 	},
 
+	/**
+	 * Attach listener to instance
+	 *
+	 * @param {String}
+	 * @param {Function}
+	 * @param {Object} (optional)
+	 * @return this
+	 */
 	on: function ( type, fn, context ) {
 
-		if( !PB.is('Function', fn) ) {
+		if( PB.type(fn) !== 'function' ) {
 
 			throw new Error('PB.Observer error, fn is not a function');
 		}
@@ -347,6 +375,13 @@ PB.Observer = PB.Class({
 		return this;
 	},
 
+	/**
+	 * Detach listener to instance
+	 *
+	 * @param {String}
+	 * @param {Function} (optional)
+	 * @return this
+	 */
 	off: function ( type, fn ) {
 
 		var index;
@@ -372,6 +407,12 @@ PB.Observer = PB.Class({
 		return this;
 	},
 
+	/**
+	 * Trigger listeners
+	 *
+	 * @param {String}
+	 * @return this
+	 */
 	emit: function ( type ) {
 
 		if( !this._listeners[type] ) {
@@ -738,9 +779,13 @@ PB.overwrite(String.prototype, {
 	 */
 	trim: function ( chr ) {
 
+<<<<<<< HEAD
 		chr = chr || "\\s"; //PB.string.escapeRegex(chr) || "\\s";
+=======
+		chr = chr ? PB.String.escapeRegex(chr) : "\\s";
+>>>>>>> dev
 
-		return this.replace( new RegExp("(^["+chr+"]+|["+chr+"]+$)", "g"), "" );
+		return this.replace( new RegExp("(^"+chr+"+|"+chr+"+$)", "g"), "" );
 	},
 
 	/**
@@ -751,8 +796,12 @@ PB.overwrite(String.prototype, {
 	 */
 	trimLeft: function ( chr ) {
 
+<<<<<<< HEAD
 		// return this.replace( new RegExp("(^"+( PB.string.escapeRegex(chr) || "\\s")+"+)", "g"), "" );
 		return this.replace( new RegExp("(^"+( chr || "\\s")+"+)", "g"), "" );
+=======
+		return this.replace( new RegExp("(^"+( chr ? PB.String.escapeRegex(chr) : "\\s")+"+)", "g"), "" );
+>>>>>>> dev
 	},
 
 	/**
@@ -763,8 +812,12 @@ PB.overwrite(String.prototype, {
 	 */
 	trimRight: function ( chr ) {
 
+<<<<<<< HEAD
 		// return this.replace( new RegExp("("+( PB.string.escapeRegex(chr) || "\\s")+"+$)", "g"), "" );
 		return this.replace( new RegExp("("+( chr || "\\s")+"+$)", "g"), "" );
+=======
+		return this.replace( new RegExp("("+( chr ? PB.String.escapeRegex(chr) : "\\s")+"+$)", "g"), "" );
+>>>>>>> dev
 	}
 });
 
@@ -772,7 +825,7 @@ PB.extend(Date, {
 
 	now: function () {
 
-		return (new Date()).getTime();
+		return +new Date;
 	}
 });
 
@@ -879,7 +932,7 @@ Dom.get = function ( element ) {
 /**
  *
  */
-var Collection = PB.Collection = function ( collection ) {
+PB.Collection = function ( collection ) {
 
 	var i = 0;
 
@@ -897,7 +950,7 @@ var Collection = PB.Collection = function ( collection ) {
 	}
 };
 
-Collection.prototype = {
+PB.Collection.prototype = {
 
 	/**
 	 *
@@ -914,10 +967,15 @@ Collection.prototype = {
 
 		var args = PB.toArray(arguments),
 			method = args.shift(),
-			col = new Collection(),
+			col = new PB.Collection(),
 			i = 0;
 
 		var pushToCol = function( current ) { col.push( current[method].apply( current, args ) ); };
+
+		if( typeof PB.dom[method] !== 'function' ) {
+
+			throw new TypeError('First arguments should be an PB.dom method. Method '+method+' given.')
+		}
 
 		for ( ; i < this.length; i++ ){
 
@@ -984,11 +1042,19 @@ var _Event = {
 	 *
 	 * @return function
 	 */
-	createResponder: function ( uid, type, handler, context ) {
+	createResponder: function ( uid, type, originalType, handler, context ) {
 
 		return function ( event ) {
 
 			event = _Event.extend( event, uid );
+
+			if( !_Event.supportsMouseenterMouseleave && originalType === 'mouseleave' ) {
+
+				if( event.currentTarget.contains(event.relatedTarget) ) {
+
+					return;
+				}
+			}
 
 			handler.call( context || _Event.cache[uid].node, event );
 		};
@@ -1003,6 +1069,7 @@ var _Event = {
 	purge: function ( uid ) {
 
 		var cache = _Event.cache[uid],
+			element,
 			key;
 
 		if( !cache ) {
@@ -1010,11 +1077,13 @@ var _Event = {
 			return;
 		}
 
+		element = PB(cache.node);
+
 		for( key in cache ) {
 
 			if( cache.hasOwnProperty(key) && key !== 'node' ) {
 
-				Dom.get(cache.node).off( key );
+				element.off( key );
 			}
 		}
 
@@ -1161,6 +1230,11 @@ PB.overwrite(PB.dom, {
 
 		var types = type.split(' ');
 
+		if ( typeof handler !== 'function' ) {
+
+			throw new TypeError('element.on(\''+type+'\'), handler is not a function');
+		}
+
 		if( types.length > 1 ) {
 
 			types.forEach(function ( type ) {
@@ -1173,6 +1247,7 @@ PB.overwrite(PB.dom, {
 		var node = this.node,
 			uid = node.__PBJS_ID__,
 			events = _Event.cache[uid],
+			originalType = type,
 			eventsType,
 			i;
 
@@ -1206,7 +1281,7 @@ PB.overwrite(PB.dom, {
 		var entry = {
 
 			handler: handler,
-			responder: _Event.createResponder( uid, type, handler, context )
+			responder: _Event.createResponder( uid, type, originalType, handler, context )
 		};
 
 		eventsType.push( entry );
@@ -1376,6 +1451,9 @@ PB.overwrite(PB.dom, {
 	}
 });
 
+/**
+ *
+ */
 PB.ready = (function () {
 
 	var ready = doc.readyState === 'complete',
@@ -1386,7 +1464,7 @@ PB.ready = (function () {
 		var callback;
 
 		ready = true;
-		body = document.body;
+		body = doc.body;
 
 		while( callback = queue.shift() ) {
 
@@ -1398,7 +1476,7 @@ PB.ready = (function () {
 
 		try {
 
-			docElement.doScroll('left');
+			doc.body.scrollLeft;
 			execQueue();
 		} catch ( e ) {
 
@@ -1425,6 +1503,7 @@ PB.ready = (function () {
 		callback();
 	};
 })();
+
 PB.overwrite(PB.dom, {
 
 	set: function ( key, value ) {
@@ -1436,11 +1515,7 @@ PB.overwrite(PB.dom, {
 
 	get: function ( key ) {
 
-		var value = this.storage[key];
-
-		return value !== undefined
-			? value
-			: undefined;
+		return this.storage[key];
 	},
 
 	unset: function ( key ) {
@@ -1464,7 +1539,7 @@ PB.overwrite(PB.dom, {
 	 */
 	attr: function ( key, value ) {
 
-		if( PB.is('Object', key) ) {
+		if( PB.type(key) === 'object' ) {
 
 			PB.each(key, this.attr, this);
 			return this;
@@ -1472,7 +1547,10 @@ PB.overwrite(PB.dom, {
 
 		if( value === undefined ) {
 
-			return this.node.getAttribute(key);
+			value = this.node.getAttribute(key)
+
+
+			return value;
 		} else if ( value === null ) {
 
 			this.node.removeAttribute(key);
@@ -1504,9 +1582,7 @@ PB.overwrite(PB.dom, {
 	 */
 	data: function ( key, value ) {
 
-		key = key ? 'data-'+key : key;
-
-		return this.attr( key, value );
+		return this.attr( 'data-'+key, value );
 	},
 
 	/**
@@ -1514,13 +1590,15 @@ PB.overwrite(PB.dom, {
 	 */
 	select: function( start, length ) {
 
-		var node = this.node;
+		var node = this.node,
+			value = this.val(),
+			range;
 
-	    if ( PB(node).val() ) {
+	    if ( value ) {
 
 		    if ( !length ){ // default: select all
 
-		        length = ( start ) ? start : PB(node).val().length;
+		        length = ( start ) ? start : value.length;
 		        start = 0;
 		    }
 
@@ -1528,7 +1606,7 @@ PB.overwrite(PB.dom, {
 
 		        document.selection.empty();
 
-		        var range = node.createTextRange();
+		        range = node.createTextRange();
 
 		        range.collapse( true );
 
@@ -1542,7 +1620,6 @@ PB.overwrite(PB.dom, {
 			    node.setSelectionRange( start, start+length );
 		    }
 	    }
-
 	}
 
 });
@@ -1551,13 +1628,13 @@ var unit = /^-?[\d.]+px$/i,
 	opacity = /alpha\(opacity=(.*)\)/i,
 	noPixel = /(thin|medium|thick|em|ex|pt|%)$/,
 	computedStyle = doc.defaultView && doc.defaultView.getComputedStyle,
-	skipUnits = 'zIndex zoom fontWeight opacity',
-	cssPrefixProperties = 'animationName transform transition transitionProperty transitionDuration'.split(' '),
-	cssPropertyMap = {},
-	vendorPrefixes = 'O ms Moz Webkit'.split(' '),
 	vendorDiv = doc.createElement('div'),
 	supportsOpacity = vendorDiv.style.opacity !== undefined,
 	supportsCssFloat = vendorDiv.style.cssFloat !== undefined,
+	skipUnits = 'zIndex zoom fontWeight opacity',
+	cssPrefixProperties = 'animationName transform transition transitionProperty transitionDuration transitionTimingFunction boxSizing backgroundSize boxReflect'.split(' '),
+	cssPropertyMap = {},
+	vendorPrefixes = 'O ms Moz Webkit'.split(' '),
 	i = vendorPrefixes.length;
 
 /**
@@ -1567,7 +1644,7 @@ cssPrefixProperties.forEach(function ( property ) {
 
 	if( property in vendorDiv.style ) {
 
-		return;
+		return cssPropertyMap[property] = property;
 	}
 
 	var j = i,
@@ -1583,6 +1660,9 @@ cssPrefixProperties.forEach(function ( property ) {
 });
 
 cssPrefixProperties = vendorDiv = null;
+
+PB.support.CSSTransition = !!cssPropertyMap.transition;
+PB.support.CSSAnimation = !!cssPropertyMap.animationName;
 
 /**
  * Add px numeric values
@@ -1718,7 +1798,8 @@ function morphArgs ( args ) {
 
 	var options = {
 
-		duration: .4
+		duration: .4,
+		effect: 'ease'
 	};
 
 	for( var i = 1 ; i < args.length; i++ ) {
@@ -1732,6 +1813,10 @@ function morphArgs ( args ) {
 			case 'number':
 				options.duration = args[i];
 				break;
+
+			case 'string':
+				options.effect = PB.String.decamelize(args[i]);
+				break;
 		}
 	}
 
@@ -1740,68 +1825,93 @@ function morphArgs ( args ) {
 
 /**
  * @todo add 'effect' arguments
+ *
+ * Firefox bug, https://bugzilla.mozilla.org/show_bug.cgi?id=604074
+ * https://developer.mozilla.org/en-US/docs/CSS/transition-timing-function
  */
-PB.dom.morph = PB.browser.supportsCSSAnimation ?
+PB.dom.morph = PB.support.CSSTransition ?
 function ( to ) {
 
 	var me = this,
-		from = {},
-		properties = '',
-		options = morphArgs( arguments );
+		options = morphArgs( arguments ),
+		morph = this.get('__morph') || {},
+		from = {};
 
-	PB.each(to, function ( key, value ) {
+	if( morph.running ) {
 
-		properties += PB.string.camelCase( key )+',';
-		from[key] = me.getStyle( key );
-	});
+		this.stop(false, true);
+	}
 
-	properties = properties.substr( 0, properties.length-1 );
+	morph.to = to;
+	morph.callback = options.callback;
+	morph.running = true;
 
-	from.transitionProperty = properties;
-	from.transitionDuration = options.duration+'s';
+	from.transition = 'all '+options.duration+'s '+options.effect+' 0s';
 
-	this.setStyle(from);
+	PB.each(to, function ( property ) {
 
-
+<<<<<<< HEAD
 	// if ( this.isset('morphTimer') ) {
 
 	// 	clearTimeout( this.get('morphTimer') );
 	// }
+=======
+		from[property] = me.getStyle( property, true );
+	});
 
-	setTimeout(function() {
+	this.setStyle(from);
+>>>>>>> dev
 
-		if( !me.node ) {
+	PB.each(to, function ( property ) {
 
-			return;
-		}
+		me.getStyle( property, true );
+	});
 
-		me.setStyle(to);
+	/* Example code to force `GPU` */
+	/*
+	if( (to.left !== undefined && to.top !== undefined) && !to.transform ) {
 
-	}, 16.7);
+		to.transform = 'translate('+addUnits('left', to.left)+', '+addUnits('top', to.top)+')';
+		delete to.left;
+		delete to.top;
+	}
+	*/
 
+	me.setStyle(to);
+
+<<<<<<< HEAD
 	// var morphTimer =
 	setTimeout(function() {
+=======
+	morph.endTimer = setTimeout(function() {
+>>>>>>> dev
 
 		if( !me.node ) {
 
 			return;
 		}
+
+		morph.running = false;
 
 		me.setStyle({
 
-			'transitionProperty': '',
-			'transitionDuration': ''
+			transition: ''
 		});
 
 		if( options.callback ) {
+
 			options.callback( me );
 		}
 
-	}, (options.duration*1000)+20);
+	}, (options.duration*1000));
 
-
+<<<<<<< HEAD
 	// this.set('morphTimer', morphTimer);
+=======
+	this.set('__morph', morph);
+>>>>>>> dev
 
+	return this;
 } :
 function ( to ) {
 
@@ -1814,6 +1924,58 @@ function ( to ) {
 		options.callback( this );
 	}
 };
+
+/**
+ * Stop morphing
+ *
+ * @param {boolean} (optional)
+ * @param {boolean} (optional)
+ * @return this
+ */
+PB.dom.stop = function ( skipToEnd, triggerCallback ) {
+
+	var me = this,
+		morph = this.get('__morph');
+
+	if( !morph || !morph.running ) {
+
+		return this;
+	}
+
+	triggerCallback = (triggerCallback === undefined) ? true : !!triggerCallback;
+
+	morph.running = false;
+
+	clearTimeout( morph.endTimer );
+
+	if( skipToEnd ) {
+
+		PB.each(morph.to, function ( property ) {
+
+			me.setStyle(property, '');
+			me.getStyle(property, true);
+		});
+	}
+	else {
+
+		PB.each(morph.to, function ( property ) {
+
+			morph.to[property] = me.getStyle(property, true);
+		});
+	}
+
+	morph.to.transition = '';
+
+
+	this.setStyle(morph.to);
+
+	if( triggerCallback && morph.callback ) {
+
+		morph.callback( this );
+	}
+
+	return this;
+}
 
 PB.overwrite(PB.dom, {
 
@@ -1836,7 +1998,7 @@ PB.overwrite(PB.dom, {
 
 			if( this.hasClass(classNames[i]) ) {
 
-				return this;
+				continue;
 			}
 
 			this.node.className += (this.node.className ? ' ' : '')+classNames[i];
@@ -1908,6 +2070,7 @@ PB.overwrite(PB.dom, {
 
 	getXY: function ( fromBody ) {
 
+
 		var node = this.node,
 			x = 0,
 			y = 0;
@@ -1959,6 +2122,7 @@ PB.overwrite(PB.dom, {
 
 		var node = this.node;
 
+
 		if( node === window ) {
 
 			return window.innerWidth || docElement.offsetWidth;
@@ -1967,7 +2131,7 @@ PB.overwrite(PB.dom, {
 			return Math.max(docElement.clientWidth, body.scrollWidth, docElement.offsetWidth);
 		}
 
-		if( value = this.getStyle('width', true) ) {
+		if( value = this.getStyle('width', true) && typeof value === 'number' ) {
 
 			return value;
 		}
@@ -2017,7 +2181,7 @@ PB.overwrite(PB.dom, {
 			return Math.max(docElement.clientHeight, body.scrollHeight, docElement.offsetHeight);
 		}
 
-		if( value = this.getStyle('height', true) ) {
+		if( value = this.getStyle('height', true) && typeof value === 'number' ) {
 
 			return value;
 		}
@@ -2183,7 +2347,7 @@ PB.overwrite(PB.dom, {
 	 */
 	childs: function () {
 
-		var childs = new Collection,	// new Collection
+		var childs = new PB.Collection,	// new Collection
 			node = this.first();
 
 		if( node === null ) {
@@ -2262,56 +2426,16 @@ PB.overwrite(PB.dom, {
 	},
 
 	/**
-	 * Find elements contained in the current node
+	 * Find elements trough CSS expression, searching from within
+	 * the current element.
 	 *
 	 * @param string
 	 * @return <PBDomCollection>
 	 */
 	find: function ( expression ) {
 
-		return new Collection( qwery( expression, this.node ).map(Dom.get) );
+		return new PB.Collection( qwery( expression, this.node ).map(Dom.get) );
 	}
-
-	/**
-	 * Find first parent with non static position property
-	 */
-	/* Not sure if code is needed :)
-	offsetParent: function () {
-
-		var element = this,
-			position = element.getStyle('position');
-
-		if( position === 'relative' ) {
-
-			return element.parent();
-		}
-
-		while( element = element.parent() ) {
-
-			if( element.nodeName === 'BODY' || element.getStyle('position') !== 'static' ) {
-
-				break;
-			}
-		}
-
-		return element;
-	},
-
-	scrollParent: function () {
-
-		var element = this;
-
-		while( element = element.parent() ) {
-
-			if( element.nodeName === 'BODY' || element.getStyle('overflow') !== 'hidden' ) {
-
-				break;
-			}
-		}
-
-		return element;
-	}
-	*/
 });
 
 var tableInnerHTMLbuggie = false;
@@ -2450,12 +2574,11 @@ PB.overwrite(PB.dom, {
 	remove: function () {
 
 		var node = this.node,
-			pbid = node.__PBJS_ID__,
-			morph;
+			pbid = node.__PBJS_ID__;
 
-		if( morph = this.get('pbjs-morph') ) {
+		if( this.get('__morph') ) {
 
-			morph.off();
+			this.stop(false, false);
 		}
 
 		_Event.purge( pbid );
@@ -2480,22 +2603,13 @@ PB.overwrite(PB.dom, {
 	/**
 	 * @todo script tags with src tag set should be appended to document
 	 */
-	html: function ( html, execScripts ) {
+	html: function ( html, evalScripts ) {
 
 		if( html === undefined ) {
 
 			return this.node.innerHTML;
 		}
 
-		if( execScripts ) {
-
-			html = html.replace(/<script[^>]*>([\s\S]*?)<\/script>/ig, function ( match, text ) {
-
-				PB.exec( text );
-
-				return '';
-			});
-		}
 
 		if( tableInnerHTMLbuggie ) {
 
@@ -2503,7 +2617,7 @@ PB.overwrite(PB.dom, {
 
 				var table = Dom.create('<table>'+html+'</table>');
 
-				this.html('');
+				this.empty();
 
 				(table.first().nodeName === 'TBODY' ? table.first() : table)
 					.childs().invoke('appendTo', this);
@@ -2514,13 +2628,13 @@ PB.overwrite(PB.dom, {
 
 				var table = Dom.create('<table><tr>'+html+'</tr></table>');
 
-				this.html('');
+				this.empty();
 
 				table.find('td').invoke('appendTo', this);
 
 				return this;
 			}
-			if( /(TBODY|TR|TD|TH)/.test(this.nodeName) ) {
+			if( /(TBODY|TR|TD|TH|TABLE)/.test(this.nodeName) ) {
 
 				this.childs().invoke('remove');
 
@@ -2529,6 +2643,21 @@ PB.overwrite(PB.dom, {
 		}
 
 		this.node.innerHTML = html;
+
+		if( evalScripts ) {
+
+			html = html.replace(/<script(?:\ssrc="(.*?)")*[^>]*>([\s\S]*?)<\/script>/ig, function ( match, src, text ) {
+
+				if( src ) {
+
+				} else if( text ) {
+
+					PB.exec( text );
+				}
+
+				return '';
+			});
+		}
 
 		return this;
 	},
@@ -2588,12 +2717,12 @@ PB.overwrite(PB.dom, {
 
 						if( option.selected ) {
 
-							data[element.name].push( option.value );
+							data[element.name].push( PB(option).val() );
 						}
 					});
 				} else {
 
-					data[element.name] = element.value;
+					data[element.name] = PB(element).val();
 				}
 			}
 		});
@@ -2707,7 +2836,7 @@ PB.overwrite(PB.Net, {
 
 			PB.each(mixed, function ( key, value ) {
 
-				if( typeof value === 'object' ) {
+				if( typeof value === 'object' && value !== null ) {
 
 					query += PB.Net.buildQueryString( value, prefix ? prefix+'['+key+']' : key );
 				} else {
@@ -2878,9 +3007,11 @@ PB.Request = PB.Class(PB.Observer, {
 			request.setRequestHeader( name, val );
 		});
 
+		this.emit('send', this.transport);
+
 		request.send( params );
 
-		if( async === false ) {
+		if( !async ) {
 
 			this.onreadystatechange();
 		}
@@ -2993,15 +3124,23 @@ PB.extend(context.JSON, {
 		return eval('('+text+')');
 	}
 });
-function camelCase ( str ) {
+/**
+ * pbjs string methods
+ */
 
-	return '-'+str.toLowerCase();
+function camelize ( match, chr ) {
+
+	return chr ? chr.toUpperCase() : '';
 }
 
-PB.string = {
+function decamelize ( chr ) {
 
-	camelCase: function ( str ) {
+	return '-'+chr.toLowerCase();
+}
 
+PB.String = {
+
+<<<<<<< HEAD
 		return str.replace(/[A-Z]/g, camelCase);
 	}
 
@@ -3009,16 +3148,45 @@ PB.string = {
 
 	// 	return str.replace(/(\.|\*|\?|\\|\^|\$)/g, '\\$1');
 	// }
+=======
+	/**
+	 * Parse string to camelcase string
+	 *
+	 * border-color -> borderColor
+	 */
+	camelize: function ( str ) {
+
+		return str.replace(/-+(.)?/g, camelize);
+	},
+
+	/**
+	 *
+	 *
+	 * borderColor -> border-color
+	 */
+	decamelize: function ( str ) {
+
+		return str.replace(/[A-Z]/g, decamelize);
+	},
+
+	/**
+	 * http://simonwillison.net/2006/Jan/20/escape/
+	 */
+    escapeRegex: function( str ) {
+
+		return str.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
+    }
+>>>>>>> dev
 };
 /*
 'asd-asd'.toCamelCase();
 
 PB.Date('2012');
-var name = PB.stringing.toCamelCase('name-last');
+var name = PB.String.toCamelCase('name-last');
 var name = 'name-last'.toCamelCase();
 PB.Number(19);
 
-var upperCase = PB.string.camelCase( 's-asdasd' );*/
+var upperCase = PB.str.camelCase( 's-asdasd' );*/
 
 PB.noConflict = function () {
 
@@ -3031,16 +3199,16 @@ return PB;
 });
 
 /*!
-  * Qwery - A Blazing Fast query selector engine
+  * @preserve Qwery - A Blazing Fast query selector engine
   * https://github.com/ded/qwery
-  * copyright Dustin Diaz & Jacob Thornton 2011
+  * copyright Dustin Diaz & Jacob Thornton 2012
   * MIT License
   */
 
-(function (name, definition) {
-  if (typeof module != 'undefined') module.exports = definition()
-  else if (typeof define == 'function' && typeof define.amd == 'object') define(definition)
-  else this[name] = definition()
+(function (name, definition, context) {
+  if (typeof module != 'undefined' && module.exports) module.exports = definition()
+  else if (typeof context['define'] == 'function' && context['define']['amd']) define(name, definition)
+  else context[name] = definition()
 })('qwery', function () {
   var doc = document
     , html = doc.documentElement
@@ -3371,5 +3539,5 @@ return PB;
   qwery.pseudos = {}
 
   return qwery
-});
+}, this);
 

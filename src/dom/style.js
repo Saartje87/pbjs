@@ -1,20 +1,26 @@
+	// Is pixel?
 var unit = /^-?[\d.]+px$/i,
+	// IE opacity parser
 	opacity = /alpha\(opacity=(.*)\)/i,
+	// Non pixel values
 	noPixel = /(thin|medium|thick|em|ex|pt|%)$/,
+	// Browser support computedStyle
 	computedStyle = doc.defaultView && doc.defaultView.getComputedStyle,
+	//
+	vendorDiv = doc.createElement('div'),
+	// Browser support `modern` styles?
+	supportsOpacity = vendorDiv.style.opacity !== undefined,
+	supportsCssFloat = vendorDiv.style.cssFloat !== undefined,
 	// Do not add px when using there properties
 	skipUnits = 'zIndex zoom fontWeight opacity',
 	// Css properties that proberly need an prefix
 	// Like transition should be MozTransition in firefox
-	cssPrefixProperties = 'animationName transform transition transitionProperty transitionDuration'.split(' '),
+	cssPrefixProperties = 'animationName transform transition transitionProperty transitionDuration transitionTimingFunction boxSizing backgroundSize boxReflect'.split(' '),
 	// Translation object for properties with a prefix
 	// transition => MozTransition, firefox
 	// transition => WebkitTransition, chrome/safari..
 	cssPropertyMap = {},
 	vendorPrefixes = 'O ms Moz Webkit'.split(' '),
-	vendorDiv = doc.createElement('div'),
-	supportsOpacity = vendorDiv.style.opacity !== undefined,
-	supportsCssFloat = vendorDiv.style.cssFloat !== undefined,
 	i = vendorPrefixes.length;
 
 /**
@@ -24,7 +30,7 @@ cssPrefixProperties.forEach(function ( property ) {
 	
 	if( property in vendorDiv.style ) {
 		
-		return;
+		return cssPropertyMap[property] = property;
 	}
 	
 	var j = i,
@@ -41,6 +47,10 @@ cssPrefixProperties.forEach(function ( property ) {
 
 // Clear vars
 cssPrefixProperties = vendorDiv = null;
+
+// Add to PB namespace
+PB.support.CSSTransition = !!cssPropertyMap.transition;
+PB.support.CSSAnimation = !!cssPropertyMap.animationName;
 
 /**
  * Add px numeric values

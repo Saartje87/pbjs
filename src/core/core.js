@@ -47,7 +47,9 @@ PB.extend = function ( target, source ) {
 }
 
 /**
- * Loop trough object
+ * Walk trough object
+ *
+ * When returning true in the callback method, the crawling stops
  * 
  * fn arguments: key, value
  * 
@@ -97,7 +99,7 @@ PB.toArray = function ( collection ) {
 }
 
 /**
- *
+ * Deprecated since 0.5.10
  */
 PB.is = function ( type, mixed ) {
 	
@@ -105,7 +107,14 @@ PB.is = function ( type, mixed ) {
 }
 
 /**
+ * Returns te primitive type of the given variable
  *
+ * PB.type([]) -> array
+ * PB.type('') -> string
+ * PB.type({}) -> object
+ *
+ * @param {mixed}
+ * @return {String}
  */
 PB.type = function ( mixed ) {
 	
@@ -123,10 +132,10 @@ PB.type = function ( mixed ) {
 }
 
 /**
- * Execute script in global scope
+ * Executes script in global scope
  *
- * @param string
- * @return void
+ * @param {String}
+ * @return {Void}
  */
 PB.exec = function ( text ) {
 	

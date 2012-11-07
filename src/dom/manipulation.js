@@ -134,16 +134,18 @@ PB.overwrite(PB.dom, {
 	remove: function () {
 
 		var node = this.node,
-			pbid = node.__PBJS_ID__,
-			morph;
-
-		if( morph = this.get('pbjs-morph') ) {
-
-			morph.off();
+			pbid = node.__PBJS_ID__;
+		
+		// Stop morph if needed, do not trigger callback etc
+		if( this.get('__morph') ) {
+			
+			this.stop(false, false);
 		}
-
+		
+		// Purge all attached events
 		_Event.purge( pbid );
-
+		
+		// Only do removeChild when element has a parentNode
 		if( node.parentNode ) {
 
 			node.parentNode.removeChild( node );
@@ -151,7 +153,8 @@ PB.overwrite(PB.dom, {
 		
 		// Clear storage
 		this.node = this.storage = node = null;
-
+		
+		// Clear cache
 		delete PB.cache[pbid];
 	},
 
@@ -165,24 +168,14 @@ PB.overwrite(PB.dom, {
 	/**
 	 * @todo script tags with src tag set should be appended to document
 	 */
-	html: function ( html, execScripts ) {
+	html: function ( html, evalScripts ) {
 
 		if( html === undefined ) {
 
 			return this.node.innerHTML;
 		}
-
-		if( execScripts ) {
-
-			// Replace script tags in html string and executes the contents of the
-			// script tag
-			html = html.replace(/<script[^>]*>([\s\S]*?)<\/script>/ig, function ( match, text ) {
-
-				PB.exec( text );
-
-				return '';
-			});
-		}
+		
+		//  COL, COLGROUP, FRAMESET, HEAD, HTML, STYLE, TABLE, TBODY, TFOOT, THEAD, TITLE, TR.
 
 		// IE <= 9 table innerHTML issue
 		if( tableInnerHTMLbuggie ) {
@@ -190,9 +183,10 @@ PB.overwrite(PB.dom, {
 			if( /^<(tbody|tr)>/i.test( html ) ) {
 
 				var table = Dom.create('<table>'+html+'</table>');
-
-				this.html('');
-
+				
+				this.empty();
+				
+				// Select the 
 				(table.first().nodeName === 'TBODY' ? table.first() : table)
 					.childs().invoke('appendTo', this);
 
@@ -202,13 +196,13 @@ PB.overwrite(PB.dom, {
 
 				var table = Dom.create('<table><tr>'+html+'</tr></table>');
 
-				this.html('');
+				this.empty();
 
 				table.find('td').invoke('appendTo', this);
 
 				return this;
 			}
-			if( /(TBODY|TR|TD|TH)/.test(this.nodeName) ) {
+			if( /(TBODY|TR|TD|TH|TABLE)/.test(this.nodeName) ) {
 
 				this.childs().invoke('remove');
 
@@ -217,6 +211,25 @@ PB.overwrite(PB.dom, {
 		}
 
 		this.node.innerHTML = html;
+		
+		// Would be nicer to strip the tags before inserting the html :)
+		if( evalScripts ) {
+
+			// Replace script tags in html string and executes the contents of the
+			// script tag
+			html = html.replace(/<script(?:\ssrc="(.*?)")*[^>]*>([\s\S]*?)<\/script>/ig, function ( match, src, text ) {
+				
+				if( src ) {
+					
+					// Add external tag
+				} else if( text ) {
+					
+					PB.exec( text );	
+				}
+
+				return '';
+			});
+		}
 
 		return this;
 	},

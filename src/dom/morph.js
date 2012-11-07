@@ -1,4 +1,4 @@
-// For external modules
+// Deprecated since 0.5.10, use PB.support.CSSTransition
 PB.browser.supportsCSSAnimation = !!cssPropertyMap['animationName'];
 
 function morphArgs ( args ) {
@@ -6,19 +6,24 @@ function morphArgs ( args ) {
 	var options = {
 		
 		// default duration
-		duration: .4
+		duration: .4,
+		effect: 'ease'
 	};
 	
 	for( var i = 1 ; i < args.length; i++ ) {
 
 		switch( typeof args[i] ) {
-
+			
 			case 'function':
 				options.callback = args[i];
 				break;
 
 			case 'number':
 				options.duration = args[i];
+				break;
+		
+			case 'string':
+				options.effect = PB.String.decamelize(args[i]);
 				break;
 		}
 	}
@@ -28,65 +33,76 @@ function morphArgs ( args ) {
 
 /**
  * @todo add 'effect' arguments
+ *
+ * Firefox bug, https://bugzilla.mozilla.org/show_bug.cgi?id=604074
+ * https://developer.mozilla.org/en-US/docs/CSS/transition-timing-function
  */
-PB.dom.morph = PB.browser.supportsCSSAnimation ?
+PB.dom.morph = PB.support.CSSTransition ?
 function ( to ) {
 	
 	var me = this,
-		from = {},
-		properties = '',
-		options = morphArgs( arguments );
+		options = morphArgs( arguments ),
+		morph = this.get('__morph') || {},
+		from = {};
 	
-	PB.each(to, function ( key, value ) {
+	// Stop the current animation, if any..
+	if( morph.running ) {
 		
-		properties += PB.str.camelCase( key )+',';
-		from[key] = me.getStyle( key );
+		// Stop animation at current point but do not trigger callback
+		this.stop(false, true);
+	}
+	
+	// Store end styles
+	morph.to = to;
+	morph.callback = options.callback;
+	morph.running = true;
+	
+	// Set transition property, will `all` be a safe value?
+	from.transition = 'all '+options.duration+'s '+options.effect+' 0s';
+	
+	// Calculate current styles
+	PB.each(to, function ( property ) {
+		
+		from[property] = me.getStyle( property, true );
 	});
 	
-	// Strip trailing comma
-	properties = properties.substr( 0, properties.length-1 );
-	
-	// Set transition properties
-	from.transitionProperty = properties;
-	from.transitionDuration = options.duration+'s';
-	
-	// Set from styles inline
+	// Set the current styles inline
 	this.setStyle(from);
 	
-	// prevent previous callbacks
-	if ( this.isset('morphTimer') ) {
-
-		clearTimeout( this.get('morphTimer') );
+	// Force computation, removes the need for timers..
+	PB.each(to, function ( property ) {
+		
+		me.getStyle( property, true );
+	});
+	
+	/* Example code to force `GPU` */
+	/*
+	if( (to.left !== undefined && to.top !== undefined) && !to.transform ) {
+		
+		to.transform = 'translate('+addUnits('left', to.left)+', '+addUnits('top', to.top)+')';
+		delete to.left;
+		delete to.top;
 	}
-
-	// Firefox seems to fail when setting the to styles
-	// imidiately, so add a timer for the next 'css render frame'
-	setTimeout(function() {
-		
-		// Element could be removed, check
-		if( !me.node ) {
-			
-			return;
-		}
-		
-		me.setStyle(to);
-		
-	}, 16.7);
+	*/
+	
+	// Start the animation :D
+	me.setStyle(to);
 	
 	// Timer to trigger callback and reset transition properties
-	var morphTimer = setTimeout(function() {
+	morph.endTimer = setTimeout(function() {
 		
 		// Element could be removed, check
 		if( !me.node ) {
 			
 			return;
 		}
+		
+		morph.running = false;
 		
 		// Remove transition from element
 		me.setStyle({
 			
-			'transitionProperty': '',
-			'transitionDuration': ''
+			transition: ''
 		});
 		
 		// Trigger callback
@@ -95,10 +111,12 @@ function ( to ) {
 			options.callback( me );
 		}
 
-	}, (options.duration*1000)+20);
+	}, (options.duration*1000));
 
-	this.set('morphTimer', morphTimer);
+	// Store morph
+	this.set('__morph', morph);
 	
+	return this;
 } :
 // For non supported browsers, just set the style
 function ( to ) {
@@ -112,4 +130,65 @@ function ( to ) {
 		options.callback( this );
 	}
 };
+
+/**
+ * Stop morphing
+ *
+ * @param {boolean} (optional)
+ * @param {boolean} (optional)
+ * @return this
+ */
+PB.dom.stop = function ( skipToEnd, triggerCallback ) {
+	
+	var me = this,
+		morph = this.get('__morph');
+	
+	if( !morph || !morph.running ) {
+		
+		return this;
+	}
+	
+	triggerCallback = (triggerCallback === undefined) ? true : !!triggerCallback;
+	
+	// Not running anymore
+	morph.running = false;
+	
+	// Clear the callback
+	clearTimeout( morph.endTimer );
+	
+	// Set ending styles
+	if( skipToEnd ) {
+		
+		// Trigger manual computation, removes the need for a timer..
+		PB.each(morph.to, function ( property ) {
+			
+			me.setStyle(property, '');
+			me.getStyle(property, true);
+		});
+	}
+	// Stop animation on current position
+	else {
+		
+		// Compute current styles
+		PB.each(morph.to, function ( property ) {
+
+			morph.to[property] = me.getStyle(property, true);
+		});
+	}
+	
+	// Clear transition
+	morph.to.transition = '';
+	
+//	this.getStyle('transition', true);
+	
+	// Set styles
+	this.setStyle(morph.to);
+	
+	if( triggerCallback && morph.callback ) {
+		
+		morph.callback( this );
+	}
+	
+	return this;
+}
 
