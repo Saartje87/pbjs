@@ -779,11 +779,7 @@ PB.overwrite(String.prototype, {
 	 */
 	trim: function ( chr ) {
 
-<<<<<<< HEAD
-		chr = chr || "\\s"; //PB.string.escapeRegex(chr) || "\\s";
-=======
 		chr = chr ? PB.String.escapeRegex(chr) : "\\s";
->>>>>>> dev
 
 		return this.replace( new RegExp("(^"+chr+"+|"+chr+"+$)", "g"), "" );
 	},
@@ -796,12 +792,7 @@ PB.overwrite(String.prototype, {
 	 */
 	trimLeft: function ( chr ) {
 
-<<<<<<< HEAD
-		// return this.replace( new RegExp("(^"+( PB.string.escapeRegex(chr) || "\\s")+"+)", "g"), "" );
-		return this.replace( new RegExp("(^"+( chr || "\\s")+"+)", "g"), "" );
-=======
 		return this.replace( new RegExp("(^"+( chr ? PB.String.escapeRegex(chr) : "\\s")+"+)", "g"), "" );
->>>>>>> dev
 	},
 
 	/**
@@ -812,12 +803,7 @@ PB.overwrite(String.prototype, {
 	 */
 	trimRight: function ( chr ) {
 
-<<<<<<< HEAD
-		// return this.replace( new RegExp("("+( PB.string.escapeRegex(chr) || "\\s")+"+$)", "g"), "" );
-		return this.replace( new RegExp("("+( chr || "\\s")+"+$)", "g"), "" );
-=======
 		return this.replace( new RegExp("("+( chr ? PB.String.escapeRegex(chr) : "\\s")+"+$)", "g"), "" );
->>>>>>> dev
 	}
 });
 
@@ -1547,10 +1533,7 @@ PB.overwrite(PB.dom, {
 
 		if( value === undefined ) {
 
-			value = this.node.getAttribute(key)
-
-
-			return value;
+			return this.node.getAttribute(key);
 		} else if ( value === null ) {
 
 			this.node.removeAttribute(key);
@@ -1850,17 +1833,10 @@ function ( to ) {
 
 	PB.each(to, function ( property ) {
 
-<<<<<<< HEAD
-	// if ( this.isset('morphTimer') ) {
-
-	// 	clearTimeout( this.get('morphTimer') );
-	// }
-=======
 		from[property] = me.getStyle( property, true );
 	});
 
 	this.setStyle(from);
->>>>>>> dev
 
 	PB.each(to, function ( property ) {
 
@@ -1879,12 +1855,7 @@ function ( to ) {
 
 	me.setStyle(to);
 
-<<<<<<< HEAD
-	// var morphTimer =
-	setTimeout(function() {
-=======
 	morph.endTimer = setTimeout(function() {
->>>>>>> dev
 
 		if( !me.node ) {
 
@@ -1905,11 +1876,7 @@ function ( to ) {
 
 	}, (options.duration*1000));
 
-<<<<<<< HEAD
-	// this.set('morphTimer', morphTimer);
-=======
 	this.set('__morph', morph);
->>>>>>> dev
 
 	return this;
 } :
@@ -3140,15 +3107,6 @@ function decamelize ( chr ) {
 
 PB.String = {
 
-<<<<<<< HEAD
-		return str.replace(/[A-Z]/g, camelCase);
-	}
-
-	// ,escapeRegex: function( str ) {
-
-	// 	return str.replace(/(\.|\*|\?|\\|\^|\$)/g, '\\$1');
-	// }
-=======
 	/**
 	 * Parse string to camelcase string
 	 *
@@ -3176,7 +3134,6 @@ PB.String = {
 
 		return str.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
     }
->>>>>>> dev
 };
 /*
 'asd-asd'.toCamelCase();
