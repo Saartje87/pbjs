@@ -174,6 +174,8 @@ PB.overwrite(PB.dom, {
 
 			return this.node.innerHTML;
 		}
+		
+		//  COL, COLGROUP, FRAMESET, HEAD, HTML, STYLE, TABLE, TBODY, TFOOT, THEAD, TITLE, TR.
 
 		// IE <= 9 table innerHTML issue
 		if( tableInnerHTMLbuggie ) {
@@ -181,9 +183,10 @@ PB.overwrite(PB.dom, {
 			if( /^<(tbody|tr)>/i.test( html ) ) {
 
 				var table = Dom.create('<table>'+html+'</table>');
-
-				this.html('');
-
+				
+				this.empty();
+				
+				// Select the 
 				(table.first().nodeName === 'TBODY' ? table.first() : table)
 					.childs().invoke('appendTo', this);
 
@@ -193,13 +196,13 @@ PB.overwrite(PB.dom, {
 
 				var table = Dom.create('<table><tr>'+html+'</tr></table>');
 
-				this.html('');
+				this.empty();
 
 				table.find('td').invoke('appendTo', this);
 
 				return this;
 			}
-			if( /(TBODY|TR|TD|TH)/.test(this.nodeName) ) {
+			if( /(TBODY|TR|TD|TH|TABLE)/.test(this.nodeName) ) {
 
 				this.childs().invoke('remove');
 
