@@ -958,6 +958,11 @@ PB.Collection.prototype = {
 
 		var pushToCol = function( current ) { col.push( current[method].apply( current, args ) ); };
 
+		if( typeof PB.dom[method] !== 'function' ) {
+
+			throw new TypeError('First arguments should be an PB.dom method. Method '+method+' given.')
+		}
+
 		for ( ; i < this.length; i++ ){
 
 			if ( PB.type(this[i]) === 'PBDomCollection' ) {
@@ -1528,7 +1533,10 @@ PB.overwrite(PB.dom, {
 
 		if( value === undefined ) {
 
-			return this.node.getAttribute(key);
+			value = this.node.getAttribute(key)
+
+
+			return value;
 		} else if ( value === null ) {
 
 			this.node.removeAttribute(key);
@@ -2572,13 +2580,14 @@ PB.overwrite(PB.dom, {
 			return this.node.innerHTML;
 		}
 
+
 		if( tableInnerHTMLbuggie ) {
 
 			if( /^<(tbody|tr)>/i.test( html ) ) {
 
 				var table = Dom.create('<table>'+html+'</table>');
 
-				this.html('');
+				this.empty();
 
 				(table.first().nodeName === 'TBODY' ? table.first() : table)
 					.childs().invoke('appendTo', this);
@@ -2589,13 +2598,13 @@ PB.overwrite(PB.dom, {
 
 				var table = Dom.create('<table><tr>'+html+'</tr></table>');
 
-				this.html('');
+				this.empty();
 
 				table.find('td').invoke('appendTo', this);
 
 				return this;
 			}
-			if( /(TBODY|TR|TD|TH)/.test(this.nodeName) ) {
+			if( /(TBODY|TR|TD|TH|TABLE)/.test(this.nodeName) ) {
 
 				this.childs().invoke('remove');
 
@@ -2967,6 +2976,8 @@ PB.Request = PB.Class(PB.Observer, {
 
 			request.setRequestHeader( name, val );
 		});
+
+		this.emit('send', this.transport);
 
 		request.send( params );
 
