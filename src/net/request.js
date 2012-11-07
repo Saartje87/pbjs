@@ -113,7 +113,10 @@ PB.Request = PB.Class(PB.Observer, {
 
 			request.setRequestHeader( name, val );
 		});
-
+		
+		// Emit send event
+		this.emit('send', this.transport);
+		
 		// Send the request
 		request.send( params );
 
