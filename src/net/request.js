@@ -87,7 +87,7 @@ PB.Request = PB.Class(PB.Observer, {
 			params = this.data ? PB.Net.buildQueryString( this.data ) : null;
 
 		// Set params for all methods except POST / GETs
-		if( params !== null && method !== 'POST' && method !== 'PUT' ) {
+		if( params && method !== 'POST' && method !== 'PUT' ) {
 
 			url += (url.indexOf('?') === -1 ? '?' : '&')+params;
 			params = null;
