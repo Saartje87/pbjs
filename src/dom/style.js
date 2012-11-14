@@ -125,7 +125,11 @@ PB.overwrite(PB.dom, {
 					this.node.style.filter = 'alpha(opacity='+(values[property]*100)+')';
 				} else {
 					
-					this.node.style[getCssProperty( property )] = addUnits( property, values[property] );
+					// try / catch for ie
+					try {
+						
+						this.node.style[getCssProperty( property )] = addUnits( property, values[property] );
+					} catch ( e ) {}
 				}
 			}
 		}
