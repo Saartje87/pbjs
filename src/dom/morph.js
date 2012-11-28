@@ -129,6 +129,8 @@ function ( to ) {
 		
 		options.callback( this );
 	}
+	
+	return this;
 };
 
 /**
