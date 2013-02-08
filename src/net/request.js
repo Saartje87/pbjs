@@ -156,7 +156,16 @@ PB.Request = PB.Class(PB.Observer, {
 				// Parse json string
 				if( request.getResponseHeader('Content-type').indexOf( 'application/json' ) >= 0 ) {
 
-					request.responseJSON = JSON.parse( request.responseText );
+					try {
+						
+						request.responseJSON = JSON.parse( request.responseText );
+					} catch ( e ) {
+						
+						if( window.console ) {
+							
+							console.log('Invalid JSON response', request.responseText);
+						}
+					}
 				}
 
 				this.emit( 'success', request, request.status );
