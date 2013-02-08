@@ -1,76 +1,116 @@
-PB.Class = function ( _parent, base ) {
+/**
+ * Create a wrapper function that makes it possible to call the parent method
+ * trough 'this.parent()'
+ */
+function createClassResponser ( method, parentMethod ) {
 
+    return function () {
+
+        var _parent = this.parent,
+            result;
+
+        this.parent = parentMethod;
+
+        result = method.apply( this, arguments );
+
+        this.parent = _parent;
+
+        return result;
+    };
+}
+
+/**
+ * OOP in javascript, insprired by Prototypejs and Base
+ *
+ * If one argument is given it is used as base
+ */
+PB.Class = function ( parentClass, base ) {
+
+	var constructor,
+		klass,
+        name,
+        ancestor,
+        property,
+        parentPrototype;
+
+    // Handle arguments
 	if( !base ) {
 
-		base = _parent;
-		_parent = null;
+		base = parentClass;
+		parentClass = null;
+	} else {
+
+		parentPrototype = parentClass.prototype;
 	}
 
-	var constructor = base.construct,
-		klass = function () {
+	// Set our constructor
+	constructor = base.construct;
 
-			if( _parent !== null ) {
+    // Setup the class constructor
+    if( typeof constructor === 'function' ) {
 
-				if( !constructor ) {
-					
-					constructor = _parent.prototype.construct;
-				} else {
-					
-					var _constructor = constructor;
+        if( parentClass && parentPrototype.construct ) {
 
-					constructor = function () {
+            var _parent;
 
-						var __parent = this.parent;
+            klass = function () {
 
-						this.parent = _parent.prototype.construct;
+                var _constructor = constructor;
 
-						_constructor.apply( this, arguments );
+                constructor = function () {
 
-						this.parent = __parent;
-					};
-				}
-			}
-			
-			if( typeof constructor === 'function' ) {
-				
-				constructor.apply( this, arguments );
-			}
-		};
+                    var _parent = this.parent;
 
-	if( _parent !== null ) {
+                    this.parent = parentPrototype.construct;
 
-		klass.prototype = PB.overwrite( {}, _parent.prototype );
-	}
+                    _constructor.apply( this, arguments );
 
-	PB.each(base, PB.Class.extend, klass.prototype);
+                    this.parent = _parent;
+                }
+
+                if( typeof constructor === 'function' ) {
+                    
+                    constructor.apply( this, arguments );
+                }
+            };
+        } else {
+
+            klass = base.construct;
+        }
+    } else if ( parentClass && parentPrototype.construct ) {
+    	
+        klass = function () {
+        	
+        	parentPrototype.construct.apply( this, arguments );
+        };
+    } else {
+
+        klass = function () {};
+    }
+
+    // Fill our prototype
+    for( name in base ) {
+    	
+        if( base.hasOwnProperty(name) ) {
+
+            property = base[name];
+
+            ancestor = parentClass ? parentPrototype[name] : false;
+
+            if( typeof ancestor === 'function' && typeof property === 'function' ) {
+
+                property = createClassResponser( property, ancestor );
+            }
+
+            klass.prototype[name] = property;
+        }
+    }
+    
+    // For every parent method / property thats not added
+    if( parentClass ) {
+
+		PB.extend(klass.prototype, parentPrototype);
+    }
 
 	return klass;
 };
-
-PB.Class.extend = function ( key, method ) {
-
-	var ancestor = this[key],
-		_method;
-
-	if( typeof ancestor === 'function' ) {
-
-		_method = method;
-
-		method = function () {
-
-			var _parent = this.parent,
-				result;
-
-			this.parent = ancestor;
-
-		 	result = _method.apply( this, arguments );
-
-			this.parent = _parent;
-
-			return result;
-		}
-	}
-
-	this[key] = method;
-};
-

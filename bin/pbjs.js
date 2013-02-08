@@ -253,82 +253,117 @@ PB.support = (function () {
 	};
 })();
 
-PB.Class = function ( _parent, base ) {
+/**
+ * Create a wrapper function that makes it possible to call the parent method
+ * trough 'this.parent()'
+ */
+function createClassResponser ( method, parentMethod ) {
+
+    return function () {
+
+        var _parent = this.parent,
+            result;
+
+        this.parent = parentMethod;
+
+        result = method.apply( this, arguments );
+
+        this.parent = _parent;
+
+        return result;
+    };
+}
+
+/**
+ * OOP in javascript, insprired by Prototypejs and Base
+ *
+ * If one argument is given it is used as base
+ */
+PB.Class = function ( parentClass, base ) {
+
+	var constructor,
+		klass,
+        name,
+        ancestor,
+        property,
+        parentPrototype;
 
 	if( !base ) {
 
-		base = _parent;
-		_parent = null;
+		base = parentClass;
+		parentClass = null;
+	} else {
+
+		parentPrototype = parentClass.prototype;
 	}
 
-	var constructor = base.construct,
-		klass = function () {
+	constructor = base.construct;
 
-			if( _parent !== null ) {
+    if( typeof constructor === 'function' ) {
 
-				if( !constructor ) {
+        if( parentClass && parentPrototype.construct ) {
 
-					constructor = _parent.prototype.construct;
-				} else {
+            var _parent;
 
-					var _constructor = constructor;
+            klass = function () {
 
-					constructor = function () {
+                var _constructor = constructor;
 
-						var __parent = this.parent;
+                constructor = function () {
 
-						this.parent = _parent.prototype.construct;
+                    var _parent = this.parent;
 
-						_constructor.apply( this, arguments );
+                    this.parent = parentPrototype.construct;
 
-						this.parent = __parent;
-					};
-				}
-			}
+                    _constructor.apply( this, arguments );
 
-			if( typeof constructor === 'function' ) {
+                    this.parent = _parent;
+                }
 
-				constructor.apply( this, arguments );
-			}
-		};
+                if( typeof constructor === 'function' ) {
 
-	if( _parent !== null ) {
+                    constructor.apply( this, arguments );
+                }
+            };
+        } else {
 
-		klass.prototype = PB.overwrite( {}, _parent.prototype );
-	}
+            klass = base.construct;
+        }
+    } else if ( parentClass && parentPrototype.construct ) {
 
-	PB.each(base, PB.Class.extend, klass.prototype);
+        klass = function () {
+
+        	parentPrototype.construct.apply( this, arguments );
+        };
+    } else {
+
+        klass = function () {};
+    }
+
+    for( name in base ) {
+
+        if( base.hasOwnProperty(name) ) {
+
+            property = base[name];
+
+            ancestor = parentClass ? parentPrototype[name] : false;
+
+            if( typeof ancestor === 'function' && typeof property === 'function' ) {
+
+                property = createClassResponser( property, ancestor );
+            }
+
+            klass.prototype[name] = property;
+        }
+    }
+
+    if( parentClass ) {
+
+		PB.extend(klass.prototype, parentPrototype);
+    }
 
 	return klass;
 };
-
-PB.Class.extend = function ( key, method ) {
-
-	var ancestor = this[key],
-		_method;
-
-	if( typeof ancestor === 'function' ) {
-
-		_method = method;
-
-		method = function () {
-
-			var _parent = this.parent,
-				result;
-
-			this.parent = ancestor;
-
-		 	result = _method.apply( this, arguments );
-
-			this.parent = _parent;
-
-			return result;
-		}
-	}
-
-	this[key] = method;
-};
-
 /**
  * Observer pattern
  *
@@ -1463,6 +1498,7 @@ PB.ready = (function () {
 		try {
 
 			doc.body.scrollLeft;
+			doc.documentElement.doScroll('left')
 			execQueue();
 		} catch ( e ) {
 
@@ -1533,10 +1569,7 @@ PB.overwrite(PB.dom, {
 
 		if( value === undefined ) {
 
-			value = this.node.getAttribute(key)
-
-
-			return value;
+			return this.node.getAttribute(key);
 		} else if ( value === null ) {
 
 			this.node.removeAttribute(key);
@@ -2390,9 +2423,13 @@ PB.overwrite(PB.dom, {
 
 		element = Dom.get(element).node;
 
-		return node.contains
-			? node !== element && node.contains( element )
-			: !!(node.compareDocumentPosition( element ) & 16);
+		if( 'compareDocumentPosition' in docElement ) {
+
+			return !!(node.compareDocumentPosition( element ) & 16);
+		} else {
+
+          	return node !== element && node.contains(element);
+		}
 	},
 
 	/**
@@ -3016,7 +3053,16 @@ PB.Request = PB.Class(PB.Observer, {
 
 				if( request.getResponseHeader('Content-type').indexOf( 'application/json' ) >= 0 ) {
 
-					request.responseJSON = JSON.parse( request.responseText );
+					try {
+
+						request.responseJSON = JSON.parse( request.responseText );
+					} catch ( e ) {
+
+						if( window.console ) {
+
+							console.log('Invalid JSON response', request.responseText);
+						}
+					}
 				}
 
 				this.emit( 'success', request, request.status );
