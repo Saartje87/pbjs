@@ -17,6 +17,7 @@ Preferred function declaration
 	}
 
 Variable declaration
+Variable declarations inside a function should always be declared at the beginning of the function
 
 	var foo,
 		bar;
@@ -60,3 +61,8 @@ Switch case
 		default:
 			// Stuff
 	}
+
+Optimisation
+
+- For finding elements trough a css selector
+-- Try using the nodeName PB(document).find('div.className') instead of PB(document).find('.className')
