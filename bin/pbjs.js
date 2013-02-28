@@ -3066,6 +3066,9 @@ PB.Request = PB.Class(PB.Observer, {
 				}
 
 				this.emit( 'success', request, request.status );
+
+				// Clear memory
+				this.transport.onreadystatechange = null;
 			} else {
 
 				this.emit( 'error', request, request.status );
