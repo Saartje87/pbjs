@@ -1022,7 +1022,7 @@ PB.Collection.prototype = {
 	 */
 	push: function ( item ) {
 
-		if( item && item.nodeType ) {
+		if( item && item.node ) {
 
 			this[this.length++] = item;
 		}
