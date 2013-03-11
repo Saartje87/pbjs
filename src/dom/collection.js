@@ -70,7 +70,11 @@ PB.Collection.prototype = {
 	 */
 	push: function ( item ) {
 		
-		this[this.length++] = item;
+		// Only add nodes
+		if( item && item.nodeType ) {
+
+			this[this.length++] = item;
+		}
 		
 		return this;
 	},
