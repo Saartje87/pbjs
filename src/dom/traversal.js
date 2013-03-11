@@ -165,13 +165,16 @@ PB.overwrite(PB.dom, {
 	contains: function ( element ) {
 		
 		var node = this.node;
-		
+
 		element = Dom.get(element).node;
-		
-		// Could fail on ie < 9 when using in document
-		return node.contains
-			? node !== element && node.contains( element )
-			: !!(node.compareDocumentPosition( element ) & 16);
+
+		if( 'compareDocumentPosition' in docElement ) {
+
+			return !!(node.compareDocumentPosition( element ) & 16);
+		} else {
+
+          	return node !== element && node.contains(element);
+		}
 	},
 	
 	/**

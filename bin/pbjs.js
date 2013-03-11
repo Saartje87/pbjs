@@ -1,5 +1,5 @@
 /*!
- * pbjs JavaScript Framework v0.5.10
+ * pbjs JavaScript Framework v0.5.11
  * https://github.com/Saartje87/pbjs
  *
  * This project is powered by Pluxbox
@@ -38,7 +38,7 @@ var old = context.PB,
 
 PB.cache = old && old.cache ? old.cache : {};
 
-PB.VERSION = '0.5.10';
+PB.VERSION = '0.5.11';
 
 /**
  * Get unique id inside PB
@@ -1022,7 +1022,10 @@ PB.Collection.prototype = {
 	 */
 	push: function ( item ) {
 
-		this[this.length++] = item;
+		if( item && item.nodeType ) {
+
+			this[this.length++] = item;
+		}
 
 		return this;
 	},
@@ -2101,7 +2104,16 @@ PB.overwrite(PB.dom, {
 	getScroll: function () {
 
 		var node = this.node,
-			scroll = {};
+			scroll = {
+
+				left: 0,
+				top: 0
+			};
+
+		if( !node || !node.nodeType ) {
+
+			return scroll;
+		}
 
 		if( node.nodeType === 9 || node === window ) {
 
@@ -3067,7 +3079,6 @@ PB.Request = PB.Class(PB.Observer, {
 
 				this.emit( 'success', request, request.status );
 
-				// Clear memory
 				this.transport.onreadystatechange = null;
 			} else {
 
@@ -3210,15 +3221,15 @@ return PB;
 /*!
   * @preserve Qwery - A Blazing Fast query selector engine
   * https://github.com/ded/qwery
-  * copyright Dustin Diaz & Jacob Thornton 2012
+  * copyright Dustin Diaz 2012
   * MIT License
   */
 
-(function (name, definition, context) {
+(function (name, context, definition) {
   if (typeof module != 'undefined' && module.exports) module.exports = definition()
-  else if (typeof context['define'] == 'function' && context['define']['amd']) define(name, definition)
+  else if (typeof define == 'function' && define.amd) define(definition)
   else context[name] = definition()
-})('qwery', function () {
+})('qwery', this, function () {
   var doc = document
     , html = doc.documentElement
     , byClass = 'getElementsByClassName'
@@ -3247,21 +3258,22 @@ return PB;
     , dividers = new RegExp('(' + splitters.source + ')' + splittersMore.source, 'g')
     , tokenizr = new RegExp(splitters.source + splittersMore.source)
     , chunker = new RegExp(simple.source + '(' + attr.source + ')?' + '(' + pseudo.source + ')?')
-    , walker = {
-        ' ': function (node) {
-          return node && node !== html && node.parentNode
-        }
-      , '>': function (node, contestant) {
-          return node && node.parentNode == contestant.parentNode && node.parentNode
-        }
-      , '~': function (node) {
-          return node && node.previousSibling
-        }
-      , '+': function (node, contestant, p1, p2) {
-          if (!node) return false
-          return (p1 = previous(node)) && (p2 = previous(contestant)) && p1 == p2 && p1
-        }
+
+  var walker = {
+      ' ': function (node) {
+        return node && node !== html && node.parentNode
       }
+    , '>': function (node, contestant) {
+        return node && node.parentNode == contestant.parentNode && node.parentNode
+      }
+    , '~': function (node) {
+        return node && node.previousSibling
+      }
+    , '+': function (node, contestant, p1, p2) {
+        if (!node) return false
+        return (p1 = previous(node)) && (p2 = previous(contestant)) && p1 == p2 && p1
+      }
+    }
 
   function cache() {
     this.c = {}
@@ -3380,7 +3392,7 @@ return PB;
     }
     if (!tokens.length) return r
 
-    each(r, function(e) { if (ancestorMatch(e, tokens, dividedTokens)) ret[ret.length] = e })
+    each(r, function (e) { if (ancestorMatch(e, tokens, dividedTokens)) ret[ret.length] = e })
     return ret
   }
 
@@ -3419,8 +3431,9 @@ return PB;
   }
 
   function uniq(ar) {
-    var a = [], i, j
-    o: for (i = 0; i < ar.length; ++i) {
+    var a = [], i, j;
+    o:
+    for (i = 0; i < ar.length; ++i) {
       for (j = 0; j < a.length; ++j) if (a[j] == ar[i]) continue o
       a[a.length] = ar[i]
     }
@@ -3463,14 +3476,14 @@ return PB;
   }
 
   function collectSelector(root, collector) {
-    return function(s) {
+    return function (s) {
       var oid, nid
       if (splittable.test(s)) {
         if (root[nodeType] !== 9) {
-         if (!(nid = oid = root.getAttribute('id'))) root.setAttribute('id', nid = '__qwerymeupscotty')
-         s = '[id="' + nid + '"]' + s // avoid byId and allow us to match context element
-         collector(root.parentNode || root, s, true)
-         oid || root.removeAttribute('id')
+          if (!(nid = oid = root.getAttribute('id'))) root.setAttribute('id', nid = '__qwerymeupscotty')
+          s = '[id="' + nid + '"]' + s // avoid byId and allow us to match context element
+          collector(root.parentNode || root, s, true)
+          oid || root.removeAttribute('id')
         }
         return;
       }
@@ -3490,15 +3503,15 @@ return PB;
       while (element = element.parentNode) if (element === container) return 1
       return 0
     }
-  , getAttr = function() {
+  , getAttr = function () {
       var e = doc.createElement('p')
       return ((e.innerHTML = '<a href="#x">x</a>') && e.firstChild.getAttribute('href') != '#x') ?
-        function(e, a) {
+        function (e, a) {
           return a === 'class' ? e.className : (a === 'href' || a === 'src') ?
             e.getAttribute(a, 2) : e.getAttribute(a)
         } :
-        function(e, a) { return e.getAttribute(a) }
-   }()
+        function (e, a) { return e.getAttribute(a) }
+    }()
   , hasByClass = !!doc[byClass]
   , hasQSA = doc.querySelector && doc[qSA]
   , selectQSA = function (selector, root) {
@@ -3507,13 +3520,13 @@ return PB;
         if (root[nodeType] === 9 || !splittable.test(selector)) {
           return arrayify(root[qSA](selector))
         }
-        each(ss = selector.split(','), collectSelector(root, function(ctx, s) {
+        each(ss = selector.split(','), collectSelector(root, function (ctx, s) {
           e = ctx[qSA](s)
           if (e.length == 1) result[result.length] = e.item(0)
           else if (e.length) result = result.concat(arrayify(e))
         }))
         return ss.length > 1 && result.length > 1 ? uniq(result) : result
-      } catch(ex) { }
+      } catch (ex) { }
       return selectNonNative(selector, root)
     }
   , selectNonNative = function (selector, root) {
@@ -3527,7 +3540,7 @@ return PB;
         }
         return result
       }
-      each(ss = selector.split(','), collectSelector(root, function(ctx, s, rewrite) {
+      each(ss = selector.split(','), collectSelector(root, function (ctx, s, rewrite) {
         r = _qwery(s, ctx)
         for (i = 0, l = r.length; i < l; i++) {
           if (ctx[nodeType] === 9 || rewrite || isAncestor(r[i], root)) result[result.length] = r[i]
@@ -3548,5 +3561,5 @@ return PB;
   qwery.pseudos = {}
 
   return qwery
-}, this);
+});
 

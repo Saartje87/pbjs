@@ -123,7 +123,16 @@ PB.overwrite(PB.dom, {
 	getScroll: function () {
 		
 		var node = this.node,
-			scroll = {};
+			scroll = {
+
+				left: 0,
+				top: 0
+			};
+
+		if( !node || !node.nodeType ) {
+
+			return scroll;
+		}
 		
 		if( node.nodeType === 9 || node === window ) {
 			
