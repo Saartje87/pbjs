@@ -16,10 +16,10 @@ Set or receives the value of attributes.
 
 
 > Receiving the class of the element
->> $(el).attr('class')
+>> PB(el).attr('class')
 
 > Sets the attribute "name" to "nice"
->> $(el).attr('name', 'nice') 
+>> PB(el).attr('name', 'nice') 
 
 
 
@@ -30,10 +30,10 @@ Define or returns the value of an element.
 # Code:
 
 > Gets the value of the element
->> $(el).val()
+>> PB(el).val()
 
 > Puts the word "foobar" into the value of the element
->> $(el).val('foobar')
+>> PB(el).val('foobar')
 
 
 
@@ -41,4 +41,4 @@ Define or returns the value of an element.
 
 Serialize a form into an object - allows simple transer via an AJAX request.
 
-> $.serializeForm()
+> PB.serializeForm()
