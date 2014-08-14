@@ -3016,9 +3016,17 @@ PB.Request = PB.Class(PB.Observer, {
 
 			if( request.status >= 200 && request.status < 300 ) {
 
+				// Parse json string
 				if( request.getResponseHeader('Content-type').indexOf( 'application/json' ) >= 0 ) {
-
-					request.responseJSON = JSON.parse( request.responseText );
+					try {
+						request.responseJSON = JSON.parse( request.responseText );
+					} catch(err) {
+						if(console !== undefined) {
+							console.error('Recieved a request with a JSON content-type, but could not parse the response body:', request.responseText);
+						}
+						this.emit( 'error', request, request.status );
+						return;
+					}
 				}
 
 				this.emit( 'success', request, request.status );
@@ -3502,4 +3510,3 @@ return PB;
 
   return qwery
 }, this);
-

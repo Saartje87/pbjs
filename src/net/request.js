@@ -113,10 +113,10 @@ PB.Request = PB.Class(PB.Observer, {
 
 			request.setRequestHeader( name, val );
 		});
-		
+
 		// Emit send event
 		this.emit('send', this.transport);
-		
+
 		// Send the request
 		request.send( params );
 
@@ -155,8 +155,15 @@ PB.Request = PB.Class(PB.Observer, {
 
 				// Parse json string
 				if( request.getResponseHeader('Content-type').indexOf( 'application/json' ) >= 0 ) {
-
-					request.responseJSON = JSON.parse( request.responseText );
+					try {
+						request.responseJSON = JSON.parse( request.responseText );
+					} catch(err) {
+						if(console !== undefined) {
+							console.error('Recieved a request with a JSON content-type, but could not parse the response body:', request.responseText);
+						}
+						this.emit( 'error', request, request.status );
+						return;
+					}
 				}
 
 				this.emit( 'success', request, request.status );
@@ -169,4 +176,3 @@ PB.Request = PB.Class(PB.Observer, {
 		this.emit( this.readyStateEvents[request.readyState], request, request.readyState === 4 ? request.status : 0 );
 	}
 });
-
